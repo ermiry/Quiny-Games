@@ -1,0 +1,1 @@
+Quiny Games Alexa skill
