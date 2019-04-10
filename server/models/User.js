@@ -19,24 +19,30 @@ const UserSchema = new Schema ({
         type: String,
         required: true
     },
-    location: {
-        type: String
-    },
-    school: {
-        type: String
-    },
     role: {
         type: String,
         required: true
     },
+    location: {
+        type: String,
+        default: 'No location'
+    },
+    school: {
+        type: String,
+        default: 'No school'
+    },
     avatar: {
-        type: String
+        // FIXME: add place holder avatar img
+        type: String,
+        default: ' '
     },
     gamesPlayed: {
-        type: Number
+        type: Number,
+        default: 0
     },
     wins: {
-        type: Number
+        type: Number,
+        default: 0
     },
     friends: [
         {

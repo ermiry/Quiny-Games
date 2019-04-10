@@ -44,15 +44,15 @@ router.post ('/register', (req, res) => {
 
             // register the new user
             else {
-                // FIXME: check the new parameters
                 let newUser = new User ({
                     name: req.body.name,
                     email: req.body.email,
                     username: req.body.username,
-                    password: req.body.password
+                    password: req.body.password,
+                    role: req.body.role
                 });
 
-                // TODO: generate the hash from the client?
+                // FIXME: generate the hash from the client?
                 // hash the password
                 bcrypt.genSalt (10, (err, salt) => {
                     bcrypt.hash (newUser.password, salt, (err, hash) => {
@@ -87,15 +87,14 @@ router.post ('/login', (req, res) => {
                 return res.status (404).json (errors);
             } 
 
-            // FIXME: work with the new parameters
             // check for password
             bcrypt.compare (password, user.password).then (isMatch => {
                 if (isMatch) {
                     // retrive user data
-                    // TODO: get ALL of our data to display in profile
-                    let payload = { id: user.id, name: user.name, username: user.username, 
-                        location: user.location, 
-                        memberSince: user.memberSince, lastTime: user.lastTime };
+                    // TODO: add support for friends!!
+                    let payload = { id: user.id, name: user.name, username: user.username, email: user.email,
+                        location: user.location, school: user.school, role: user.role,
+                        gamesPlayed: user.gamesPlayed, wins: user.wins };
 
                     // generate token
                     jwt.sign (payload, keys.secretOrKey, { expiresIn: 3600 }, 
