@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Content-Length: 12
+Connection: close
+Content-Type: text/html
+
+Hello world!
