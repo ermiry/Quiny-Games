@@ -29,11 +29,12 @@ app.use (bodyParser.json());
 
 /*** ROUTES ***/
 
+const users = require ('./routes/api/users');
 const games = require ('./routes/api/games');
 
 app.get ("/", (req, res) => { res.json ({ msg: "Quiny Games "}); });
 
-// agmes
+app.use ('/api/users', users);
 app.use ('/api/games', games);
 
 // catch all, for now redirect to the home page
