@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import { registerUser } from '../../actions/authActions';
 
 // my components 
-import TextFieldGroup from '../common/TextFieldGroup';
+import TextField from '../common/TextField';
 
 class Register extends Component {
 
@@ -74,7 +74,7 @@ class Register extends Component {
                         <h1 className="display-4 text-center">Sign Up</h1>
                         <p className="lead text-center">Create your own account</p>
                         <form noValidate onSubmit={ this.onSubmit }>
-                            <TextFieldGroup 
+                            <TextField
                                 placeholder="Name"
                                 name="name"
                                 type="text"
@@ -82,7 +82,7 @@ class Register extends Component {
                                 onChange={ this.onChange }
                                 error={ errors.name }
                             />
-                            <TextFieldGroup 
+                            <TextField
                                 placeholder="Username"
                                 name="username"
                                 type="text"
@@ -90,7 +90,7 @@ class Register extends Component {
                                 onChange={ this.onChange }
                                 error={ errors.username }
                             />
-                            <TextFieldGroup 
+                            <TextField 
                                 placeholder="Email Address"
                                 name="email"
                                 type="email"
@@ -98,7 +98,7 @@ class Register extends Component {
                                 onChange={ this.onChange }
                                 error={ errors.email }
                             />
-                            <TextFieldGroup 
+                            <TextField
                                 placeholder="Password"
                                 name="password"
                                 type="password"
@@ -106,7 +106,7 @@ class Register extends Component {
                                 onChange={ this.onChange }
                                 error={ errors.password }
                             />
-                            <TextFieldGroup 
+                            <TextField 
                                 placeholder="Confirm Password"
                                 name="password2"
                                 type="password"

@@ -1,4 +1,3 @@
-export default App;
 import React, { Component } from 'react';
 
 // react router
@@ -19,46 +18,44 @@ import Landing from './components/layout/Landing';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 
-import Profile from './components/profile/Profile';
+// FIXME:
+// import Profile from './components/profile/Profile';
 
 import PrivateRoute from './components/common/PrivateRoute';
 
 // my actions
 import { setCurrentUser, logoutUser } from './actions/authActions';
 
-// misc
-import setAuthToken from './utils/setAuthToken';
-import { clearCurrentProfile } from './actions/profileActions';
-
-// my projects
-import MiniGlo from './components/projects/MiniGlo/MiniGlo';
+// // misc
+// import setAuthToken from './utils/setAuthToken';
+// import { clearCurrentProfile } from './actions/profileActions';
 
 // check for token
-if (localStorage.jwtToken) {
-	// set auth token header auth
-	setAuthToken (localStorage.jwtToken);
+// if (localStorage.jwtToken) {
+// 	// set auth token header auth
+// 	setAuthToken (localStorage.jwtToken);
 
-	// decode token and get user info
-	let decoded = jwt_decode (localStorage.jwtToken);
+// 	// decode token and get user info
+// 	let decoded = jwt_decode (localStorage.jwtToken);
 
-	myStore.dispatch (setCurrentUser (decoded));
+// 	myStore.dispatch (setCurrentUser (decoded));
 
-	// check for expired token
-	let currentTime = Date.now () / 1000;
-	if (decoded.exp < currentTime) {
-		// logout the user
-		myStore.dispatch (logoutUser ());
+// 	// check for expired token
+// 	let currentTime = Date.now () / 1000;
+// 	if (decoded.exp < currentTime) {
+// 		// logout the user
+// 		myStore.dispatch (logoutUser ());
 
-		myStore.dispatch (clearCurrentProfile ());
+// 		myStore.dispatch (clearCurrentProfile ());
 
-		// redirect to the landing page
-		window.location.href = '/';
-	}
-}
+// 		// redirect to the landing page
+// 		window.location.href = '/';
+// 	}
+// }
 
 class App extends Component {
 
-	render() {
+	render () {
 		return (
 		<Provider store= { myStore }>
 			<Router>
@@ -71,12 +68,9 @@ class App extends Component {
 						<Route exact path="/register" component={ Register } />
 						<Route exact path="/login" component={ Login } />
 
-						<Switch>
+						{/* <Switch>
 							<PrivateRoute exact path="/profile" component={ Profile } />
-						</Switch>
-
-						{/* Projects */}
-						<Route exact path='/mini-glo' component={ MiniGlo } />
+						</Switch> */}
 					</div>
 
 					<Footer />

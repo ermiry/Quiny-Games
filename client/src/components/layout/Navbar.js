@@ -8,14 +8,14 @@ import { connect } from 'react-redux';
 
 // my actions
 import { logoutUser } from '../../actions/authActions';
-import { clearCurrentProfile } from '../../actions/profileActions';
+// import { clearCurrentProfile } from '../../actions/profileActions';
 
 class Navbar extends Component {
 
     onLogOutClick (e) {
 
         e.preventDefault ();
-        this.props.clearCurrentProfile ();
+        // this.props.clearCurrentProfile ();
         this.props.logoutUser ();
 
     }
@@ -88,6 +88,6 @@ const mapStateToProps = state => ({
     auth: state.auth
 });
   
-export default connect (mapStateToProps, { logoutUser, clearCurrentProfile }) (
+export default connect (mapStateToProps, { logoutUser}) (
     Navbar
 );
