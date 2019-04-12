@@ -1,13 +1,10 @@
-TARGET      := server
+TARGET      := quiny
 
-# blackrock server specific
-
-PTHREAD := -l pthread
-SQLITE3 := -l sqlite3
-CMONGO 	:= `pkg-config --libs --cflags libmongoc-1.0`
+PTHREAD 	:= -l pthread
+CMONGO 		:= `pkg-config --libs --cflags libmongoc-1.0`
 
 # print additional information
-DEFINES = -D CERVER_DEBUG -D DEBUG -D CERVER_STATS -D BLACK_DEBUG -D ERMIRY_DEBUG
+DEFINES = -D CERVER_DEBUG -D DEBUG -D CERVER_STATS -D QUINY_DEBUG
 
 # run from parent folder
 RUN_BIN = -D RUN_FROM_BIN
@@ -26,7 +23,7 @@ DEPEXT      := d
 OBJEXT      := o
 
 CFLAGS      := -g $(DEFINES) $(RUN_MAKE)
-LIB         := $(PTHREAD) $(SQLITE3) $(CMONGO)
+LIB         := $(PTHREAD) $(CMONGO)
 INC         := -I $(INCDIR) -I /usr/local/include $(LIB)
 INCDEP      := -I $(INCDIR)
 
