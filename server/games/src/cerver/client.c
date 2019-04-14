@@ -1,4 +1,4 @@
-#include "myTypes.h"
+#include "types/myTypes.h"
 
 #include "cerver/network.h"
 #include "cerver/cerver.h"

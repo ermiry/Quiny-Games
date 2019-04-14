@@ -8,7 +8,7 @@
 
 #include <stdarg.h>
 
-#include "myTypes.h"
+#include "types/myTypes.h"
 
 #include "cerver/game.h"
 

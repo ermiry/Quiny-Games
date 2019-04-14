@@ -7,7 +7,7 @@
 
 #include <poll.h>
 
-#include "myTypes.h"
+#include "types/myTypes.h"
 
 #include "cerver/network.h"
 #include "cerver/client.h"
