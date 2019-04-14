@@ -6,6 +6,8 @@
 
 #include "cerver/cerver.h"
 
+#include "quiny/quiny.h"
+
 #include "utils/log.h"
 
 Server *main_server = NULL;
@@ -15,21 +17,17 @@ void close_program (int dummy);
 static int init (void) {
 
     signal (SIGINT, close_program);
-    // TODO: load app specific data
-
-    return 0;
+    return quiny_init ();
 
 }
 
-// TODO: destroy any app specific data
-static int end () { return 0; }
+static int end () { return quiny_end (); }
 
 // correctly closes any on-going server and exits
 void close_program (int dummy) {
     
     cerver_teardown (main_server);
-    end ();
-    exit (0);
+    exit (end ());
 
 }
 
