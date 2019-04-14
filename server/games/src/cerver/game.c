@@ -1,7 +1,3 @@
-/*** The logic that makes a game server work properly 
- * This file is part of the framework. It provides an interface to create lobby and players 
- * ***/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -14,7 +10,7 @@
 
 #include "myTypes.h"
 
-#include "game.h"
+#include "cerver/game.h"
 
 #include "collections/dllist.h"
 #include "collections/avl.h"

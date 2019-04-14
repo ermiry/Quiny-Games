@@ -9,9 +9,9 @@
 
 #include "myTypes.h"
 
-#include "network.h"
-#include "client.h"
-#include "game.h"
+#include "cerver/network.h"
+#include "cerver/client.h"
+#include "cerver/game.h"
 
 #include "collections/dllist.h"
 #include "collections/avl.h"
