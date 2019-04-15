@@ -8,6 +8,10 @@
 
 #include <netinet/in.h>
 
+#include <errno.h>
+
+#include "picoParser.h"
+
 int main (void) {
 
     char *fileName = "response.txt";
@@ -63,6 +67,12 @@ int main (void) {
         return 1;
     }
 
+    char buf[4096], *method, *path;
+    int pret, minor_version;
+    struct phr_header headers[100];
+    size_t buflen = 0, prevbuflen = 0, method_len, path_len, num_headers;
+    ssize_t rret;
+
     // if the binding is succesfull, we can listen for connections
     listen (serverSocket, 5);
 
@@ -72,14 +82,51 @@ int main (void) {
     printf ("Waiting for requests...\n");
     while (1) {
         clientScoket = accept (serverSocket, NULL, NULL);
-        if (clientScoket > 0) {
-            printf ("Sending request to socket %i.\n", clientScoket);
-            send (clientScoket, res, sizeof (res), 0);
-            close (clientScoket);
-            printf ("Connection to socket %i closed.\n", clientScoket);
-        }
+        // if (clientScoket > 0) {
+        //     printf ("Sending request to socket %i.\n", clientScoket);
+        //     send (clientScoket, res, sizeof (res), 0);
+        //     close (clientScoket);
+        //     printf ("Connection to socket %i closed.\n", clientScoket);
+        // }
 
-    }
+        /* read the request */
+        while ((rret = read (clientScoket, buf + buflen, sizeof(buf) - buflen)) == -1 && errno == EINTR)
+
+        printf ("buffer: %s\n", buf);
+
+        // if (rret <= 0)
+        //     return IOError;
+        prevbuflen = buflen;
+        buflen += rret;
+        /* parse the request */
+        num_headers = sizeof(headers) / sizeof(headers[0]);
+        pret = phr_parse_request(buf, buflen, (const char **) &method, &method_len, (const char **) &path, &path_len,
+                                &minor_version, headers, &num_headers, prevbuflen);
+        if (pret > 0) {
+            printf("\nrequest is %d bytes long\n", pret);
+            printf("method is %.*s\n", (int)method_len, method);
+            printf("path is %.*s\n", (int)path_len, path);
+            printf("HTTP version is 1.%d\n", minor_version);
+            printf("headers:\n");
+            for (int i = 0; i != num_headers; ++i) {
+                printf("%.*s: %.*s\n", (int)headers[i].name_len, headers[i].name,
+                    (int)headers[i].value_len, headers[i].value);
+            }
+            printf ("\n");
+            
+            //  break; /* successfully parsed the request */
+        }
+           
+        // else if (pret == -1)
+        //     return ParseError;
+        // /* request is incomplete, continue the loop */
+        // assert(pret == -2);
+        // if (buflen == sizeof(buf))
+        //     return RequestIsTooLongError;
+
+        }
+    
+    close (serverSocket);
 
     return 0;
 
