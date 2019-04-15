@@ -94,25 +94,17 @@ static User *user_doc_parse (const bson_t *user_doc) {
                     // memcpy (&user->oid, oid, sizeof (bson_oid_t));
                 }
 
-                else if (!strcmp (key, "name") && value->value.v_utf8.str) {
-                    user->name = (char *) calloc (value->value.v_utf8.len + 1, sizeof (char));
-                    strcpy (user->name, value->value.v_utf8.str);
-                }
+                else if (!strcmp (key, "name") && value->value.v_utf8.str) 
+                    user->name = str_new (value->value.v_utf8.str);
 
-                else if (!strcmp (key, "email") && value->value.v_utf8.str) {
-                    user->email = (char *) calloc (value->value.v_utf8.len + 1, sizeof (char));
-                    strcpy (user->email, value->value.v_utf8.str);
-                }
+                else if (!strcmp (key, "email") && value->value.v_utf8.str) 
+                    user->email = str_new (value->value.v_utf8.str);
 
-                else if (!strcmp (key, "username") && value->value.v_utf8.str) {
-                    user->username = (char *) calloc (value->value.v_utf8.len + 1, sizeof (char));
-                    strcpy (user->username, value->value.v_utf8.str);
-                } 
+                else if (!strcmp (key, "username") && value->value.v_utf8.str) 
+                    user->username = str_new (value->value.v_utf8.str);
 
-                else if (!strcmp (key, "password") && value->value.v_utf8.str) {
-                    user->password = (char *) calloc (value->value.v_utf8.len + 1, sizeof (char));
-                    strcpy (user->password, value->value.v_utf8.str);
-                }
+                else if (!strcmp (key, "password") && value->value.v_utf8.str) 
+                    user->password = str_new (value->value.v_utf8.str);
 
                 else logMsg (stdout, WARNING, NO_TYPE, createString ("Got unknown key %s when parsing user doc.", key));
             }
@@ -201,7 +193,7 @@ int quiny_init (void) {
 }
 
 // clean up quiny data
-int ermiry_end (void) {
+int quiny_end (void) {
 
     // close our collections handles
     if (users_collection) mongoc_collection_destroy (users_collection);

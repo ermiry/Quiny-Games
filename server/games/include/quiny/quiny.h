@@ -31,6 +31,6 @@ extern User *quiny_user_get (const char *username, const char *password, int *er
 // init quiny data & processes
 extern int quiny_init (void);
 // clean up quiny data
-extern int ermiry_end (void);
+extern int quiny_end (void);
 
 #endif
