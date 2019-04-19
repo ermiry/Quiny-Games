@@ -144,8 +144,8 @@
 //         if (gameData) {
 //             // first destroy the current lobbys, stoping any ongoing game and sending the players
 //             // to the main server players avl structure
-//             while (LIST_SIZE (gameData->currentLobbys) > 0) 
-//                 destroyLobby (server, (Lobby *) (LIST_START (gameData->currentLobbys)));
+//             while (dlist_size (gameData->currentLobbys) > 0) 
+//                 destroyLobby (server, (Lobby *) (dlist_start (gameData->currentLobbys)));
 
 //             // destroy all lobbys
 //             cleanUpList (gameData->currentLobbys);
@@ -939,7 +939,7 @@
 //         lobby->isRunning = true;
 
 //         // add the lobby the server active ones
-//         insertAfter (data->currentLobbys, LIST_END (data->currentLobbys), lobby);
+//         insertAfter (data->currentLobbys, dlist_end (data->currentLobbys), lobby);
 
 //         // create a unique thread to handle this lobby
 //         ServerLobby *sl = (ServerLobby *) malloc (sizeof (ServerLobby));
@@ -1055,7 +1055,7 @@
 
 //     // 11/11/2018 -- we have a simple algorithm that only searches for the first available lobby
 //     Lobby *lobby = NULL;
-//     for (ListElement *e = LIST_START (gameData->currentLobbys); e != NULL; e = e->next) {
+//     for (ListElement *e = dlist_start (gameData->currentLobbys); e != NULL; e = e->next) {
 //         lobby = (Lobby *) e->data;
 //         if (lobby) {
 //             if (!lobby->inGame) {

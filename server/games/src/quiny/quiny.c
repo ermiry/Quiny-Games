@@ -171,6 +171,7 @@ User *quiny_user_get (const char *username, const char *password, int *errors) {
 #pragma region Public
 
 #include "http/picoParser.h"
+#include "http/queryParser.h"
 
 // init quiny data & processes
 int quiny_init (void) {
@@ -230,10 +231,15 @@ void quiny_handle_recieved_buffer (void *rcvd_buffer_data) {
             pret = phr_parse_request (data->buffer, data->total_size, (const char **) &method, &method_len, (const char **) &path, &path_len,
                                     &minor_version, headers, &num_headers, prevbuflen);
             if (pret > 0) {
+                char str[50];
+                snprintf (str, 50, "%.*s", (int) path_len, path);
+                printf ("%s\n", str);
+                char *query = strip_path_from_query (str);
+                printf ("%s\n", query);
                 // printf("\nrequest is %d bytes long\n", pret);
                 // printf("method is %.*s\n", (int)method_len, method);
                 // TODO: copy this path, then we need to parse it and finally we handle the actions with the data!!
-                printf("path is %.*s\n", (int) path_len, path);
+                // printf("path is %.*s\n", (int) path_len, path);
                 // printf("HTTP version is 1.%d\n", minor_version);
                 // printf("headers:\n");
                 // for (int i = 0; i != num_headers; ++i) {
@@ -241,6 +247,19 @@ void quiny_handle_recieved_buffer (void *rcvd_buffer_data) {
                 //         (int)headers[i].value_len, headers[i].value);
                 // }
                 // printf ("\n");
+
+                // DoubleList *pairs = parse_query_into_pairs (query);
+                // int uri_dissect_query (int *itemCount, const char *first, const char *afterLast);
+                int count = 0;
+                char *first = query;
+                char *last = first + strlen (query);
+                DoubleList *pairs = parse_query_into_pairs (query, last);
+
+                KeyValuePair *kvp = NULL;
+                for (ListElement *le = dlist_start (pairs); le; le = le->next) {
+                    kvp = (KeyValuePair *) le->data;
+                    printf ("key: %s - value: %s\n", kvp->key, kvp->value);
+                }
             }
         }
 

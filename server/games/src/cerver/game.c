@@ -149,8 +149,8 @@ u8 destroyGameServer (Server *server) {
         if (gameData) {
             // first destroy the current lobbys, stoping any ongoing game and sending the players
             // to the main server players avl structure
-            while (LIST_SIZE (gameData->currentLobbys) > 0) 
-                destroyLobby (server, (Lobby *) (LIST_START (gameData->currentLobbys)));
+            while (dlist_size (gameData->currentLobbys) > 0) 
+                destroyLobby (server, (Lobby *) (dlist_start (gameData->currentLobbys)));
 
             // destroy all lobbys
             dlist_clean (gameData->currentLobbys);
@@ -944,7 +944,7 @@ Lobby *createLobby (Server *server, Player *owner, GameType gameType) {
         lobby->isRunning = true;
 
         // add the lobby the server active ones
-        dlist_insert_after (data->currentLobbys, LIST_END (data->currentLobbys), lobby);
+        dlist_insert_after (data->currentLobbys, dlist_end (data->currentLobbys), lobby);
 
         // create a unique thread to handle this lobby
         ServerLobby *sl = (ServerLobby *) malloc (sizeof (ServerLobby));
@@ -1016,7 +1016,7 @@ u8 destroyLobby (Server *server, Lobby *lobby) {
 
                 // we are safe to clear the lobby structure
                 // first remove the lobby from the active ones, then send it to the inactive ones
-                ListElement *le = dlist_get_ListElement (gameData->currentLobbys, lobby);
+                ListElement *le = dlist_get_element (gameData->currentLobbys, lobby);
                 if (le) {
                     void *temp = dlist_remove_element (gameData->currentLobbys, le);
                     if (temp) pool_push (gameData->lobbyPool, temp);
@@ -1060,7 +1060,7 @@ Lobby *findLobby (Server *server) {
 
     // 11/11/2018 -- we have a simple algorithm that only searches for the first available lobby
     Lobby *lobby = NULL;
-    for (ListElement *e = LIST_START (gameData->currentLobbys); e != NULL; e = e->next) {
+    for (ListElement *e = dlist_start (gameData->currentLobbys); e != NULL; e = e->next) {
         lobby = (Lobby *) e->data;
         if (lobby) {
             if (!lobby->inGame) {

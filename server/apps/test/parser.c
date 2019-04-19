@@ -3,50 +3,10 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "http/pathParser.h"
-
-#include "collections/dllist.h"
-
-static KeyValuePair *key_value_pair_new (void) {
-
-    KeyValuePair *kvp = (KeyValuePair *) malloc (sizeof (KeyValuePair));
-    if (kvp) kvp->key = kvp->value = NULL;
-    return kvp;
-
-}
-
-static void key_value_pair_delete (void *ptr) {
-
-    if (ptr) {
-        KeyValuePair *kvp = (KeyValuePair *) ptr;
-        if (kvp->key) free (kvp->key);
-        if (kvp->value) free (kvp->value);
-
-        free (kvp);
-    }
-
-}
-
-// compares the key of the key value pair
-// compare must return -1 if one < two, must return 0 if they are equal, and must return 1 if one > two
-static int key_value_pair_compare (void *one, void *two) {
-
-
-
-}
-
-DoubleList *parse_path_into_pairs (char *path) {
-
-    DoubleList *pairs = NULL;
-
-    if (path) {
-        pairs = dlist_init (key_value_pair_delete, key_value_pair_compare);
-
-    }
-
-    return pairs;
-
-}
+struct queryString{
+    char key[20];
+    char value[20];
+}typedef queryString;
 
 #define maxURL 50
 #define maxLista 5
@@ -62,7 +22,7 @@ int main()
     strcpy( lista[0].value, "");
 
     printf("Ingresa el URL\n");
-    scanf("%s",&URL);
+    scanf("%s",URL);
     printf("URL %s",URL);
 
     do{
@@ -123,3 +83,10 @@ int main()
 
     return 0;
 }
+
+
+/*   Vestigios del Caos
+
+    while(URL[i]!=NULL){
+    printf("\nkey: %s\nvalue: %s", lista[0].key, lista[0].value);
+*/
