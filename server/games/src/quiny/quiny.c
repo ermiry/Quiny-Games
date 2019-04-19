@@ -8,6 +8,8 @@
 
 #include "types/myString.h"
 
+#include "cerver/cerver.h"
+
 #include "utils/myUtils.h"
 #include "utils/log.h"
 
@@ -168,6 +170,8 @@ User *quiny_user_get (const char *username, const char *password, int *errors) {
 
 #pragma region Public
 
+#include "http/picoParser.h"
+
 // init quiny data & processes
 int quiny_init (void) {
 
@@ -202,6 +206,46 @@ int quiny_end (void) {
 
 }
 
-void quiny_handle_recieved_buffer (void *rcvd_buffer_data) {}
+// custom function to handle the received buffer from the server
+void quiny_handle_recieved_buffer (void *rcvd_buffer_data) {
+
+    // logMsg (stdout, DEBUG_MSG, NO_TYPE, "Quiny buffer handler.");
+
+    if (rcvd_buffer_data) {
+        RecvdBufferData *data = (RecvdBufferData *) rcvd_buffer_data;
+
+        if (data->buffer && (data->total_size > 0)) {
+            char *method, *path;
+            int pret, minor_version;
+            struct phr_header headers[100];
+            size_t buflen = 0, prevbuflen = 0, method_len, path_len, num_headers;
+            ssize_t rret;
+
+            // printf ("buffer: %s\n", data->buffer);
+
+            prevbuflen = buflen;
+            buflen += rret;
+            /* parse the request */
+            num_headers = sizeof (headers) / sizeof (headers[0]);
+            pret = phr_parse_request (data->buffer, data->total_size, (const char **) &method, &method_len, (const char **) &path, &path_len,
+                                    &minor_version, headers, &num_headers, prevbuflen);
+            if (pret > 0) {
+                // printf("\nrequest is %d bytes long\n", pret);
+                // printf("method is %.*s\n", (int)method_len, method);
+                printf("path is %.*s\n", (int) path_len, path);
+                // printf("HTTP version is 1.%d\n", minor_version);
+                // printf("headers:\n");
+                // for (int i = 0; i != num_headers; ++i) {
+                //     printf("%.*s: %.*s\n", (int)headers[i].name_len, headers[i].name,
+                //         (int)headers[i].value_len, headers[i].value);
+                // }
+                // printf ("\n");
+            }
+        }
+
+        rcvd_buffer_data_delete (data);
+    }
+
+}
 
 #pragma endregion

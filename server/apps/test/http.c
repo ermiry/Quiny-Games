@@ -57,7 +57,7 @@ int main (void) {
     // define the addres
     struct sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons (7000);
+    serverAddress.sin_port = htons (9001);
     serverAddress.sin_addr.s_addr = INADDR_ANY;
 
     // bind our socket

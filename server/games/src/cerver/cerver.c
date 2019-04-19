@@ -508,7 +508,7 @@ char *session_default_generate_id (i32 fd, const struct sockaddr_storage address
 }
 
 // the server admin can define a custom session id generator
-void session_setIDGenerator (Server *server, Action idGenerator) {
+void session_set_id_generator (Server *server, Action idGenerator) {
 
     if (server && idGenerator) {
         if (server->useSessions) 
@@ -1006,6 +1006,33 @@ void cerver_set_auth_method (Server *server, delegate authMethod) {
 
 #pragma region CONNECTION HANDLER
 
+static RecvdBufferData *rcvd_buffer_data_new (Server *server, i32 socket_fd, char *packet_buffer, size_t total_size, bool on_hold) {
+
+    RecvdBufferData *data = (RecvdBufferData *) malloc (sizeof (RecvdBufferData));
+    if (data) {
+        data->server = server;
+        data->sock_fd = socket_fd;
+
+        data->buffer = (char *) calloc (total_size, sizeof (char));
+        memcpy (data->buffer, packet_buffer, total_size);
+        data->total_size = total_size;
+
+        data->onHold = on_hold;
+    }
+
+    return data;
+
+}
+
+void rcvd_buffer_data_delete (RecvdBufferData *data) {
+
+    if (data) {
+        if (data->buffer) free (data->buffer);
+        free (data);
+    }
+
+}
+
 i32 getFreePollSpot (Server *server) {
 
     if (server) 
@@ -1017,7 +1044,7 @@ i32 getFreePollSpot (Server *server) {
 }
 
 // we remove any fd that was set to -1 for what ever reason
-void compressClients (Server *server) {
+static void compressClients (Server *server) {
 
     if (server) {
         server->compress_clients = false;
@@ -1094,7 +1121,7 @@ void handlePacket (void *data) {
 }
 
 // TODO: move this from here! -> maybe create a server configuration section
-void cerver_set_handle_recieved_buffer (Server *server, Action handler) {
+void cerver_set_handle_received_buffer (Server *server, Action handler) {
 
     if (server) server->handle_recieved_buffer = handler;
 
@@ -1224,11 +1251,9 @@ void server_recieve (Server *server, i32 socket_fd, bool onHold) {
         }
 
         else {
-            char *buffer_data = (char *) calloc (MAX_UDP_PACKET_SIZE, sizeof (char));
-            if (buffer_data) {
-                memcpy (buffer_data, packetBuffer, rc);
-                handleRecvBuffer (server, socket_fd, packetBuffer, rc, onHold);
-            }
+            // pass the necessary data to the server buffer handler
+            RecvdBufferData *data = rcvd_buffer_data_new (server, socket_fd, packetBuffer, rc, onHold);
+            server->handle_recieved_buffer (data);
         }
     // } while (true);
 

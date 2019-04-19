@@ -142,7 +142,7 @@ extern Server *cerver_restartServer (Server *);
 
 extern void cerver_set_auth_method (Server *server, delegate authMethod);
 
-extern void session_setIDGenerator (Server *server, Action idGenerator);
+extern void session_set_id_generator (Server *server, Action idGenerator);
 extern char *session_default_generate_id (i32 fd, const struct sockaddr_storage address);
 
 // auxiliary struct for handle_recieved_buffer Action
@@ -156,7 +156,9 @@ typedef struct RecvdBufferData {
 
 } RecvdBufferData;
 
-extern void cerver_set_handle_recieved_buffer (Server *server, Action handler);
+extern void rcvd_buffer_data_delete (RecvdBufferData *data);
+
+extern void cerver_set_handle_received_buffer (Server *server, Action handler);
 
 #pragma endregion
 

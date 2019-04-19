@@ -43,7 +43,7 @@ int main (void) {
     quiny_server = cerver_createServer (NULL, GAME_SERVER, "Quiny Server");
     if (quiny_server) {
         // set all of our desired server configuration before we start the server
-        cerver_set_handle_recieved_buffer (quiny_server, quiny_handle_recieved_buffer);
+        cerver_set_handle_received_buffer (quiny_server, quiny_handle_recieved_buffer);
 
         if (cerver_startServer (quiny_server)) logMsg (stderr, ERROR, SERVER, "Failed to start Quiny Server!");
     }
