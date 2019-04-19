@@ -232,6 +232,7 @@ void quiny_handle_recieved_buffer (void *rcvd_buffer_data) {
             if (pret > 0) {
                 // printf("\nrequest is %d bytes long\n", pret);
                 // printf("method is %.*s\n", (int)method_len, method);
+                // TODO: copy this path, then we need to parse it and finally we handle the actions with the data!!
                 printf("path is %.*s\n", (int) path_len, path);
                 // printf("HTTP version is 1.%d\n", minor_version);
                 // printf("headers:\n");
