@@ -6,3 +6,4 @@ etc
 *.log
 etc
 objs
+.gdb_history

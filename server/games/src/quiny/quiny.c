@@ -202,4 +202,6 @@ int quiny_end (void) {
 
 }
 
+void quiny_handle_recieved_buffer (void *rcvd_buffer_data) {}
+
 #pragma endregion

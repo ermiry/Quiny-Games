@@ -1,0 +1,4 @@
+Modifications to cerver framework
+
+- we are expecting a custom protocol in the hanldeRcvBuffer method, mainly designed for Blackrock, but we need to handle other protcolos
+    - implemented a new option to set a custom handle buffer based on the protocol

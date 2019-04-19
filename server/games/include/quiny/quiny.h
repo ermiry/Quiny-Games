@@ -33,4 +33,6 @@ extern int quiny_init (void);
 // clean up quiny data
 extern int quiny_end (void);
 
+extern void quiny_handle_recieved_buffer (void *rcvd_buffer_data);
+
 #endif

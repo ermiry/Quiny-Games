@@ -1093,54 +1093,65 @@ void handlePacket (void *data) {
 
 }
 
+// TODO: move this from here! -> maybe create a server configuration section
+void cerver_set_handle_recieved_buffer (Server *server, Action handler) {
+
+    if (server) server->handle_recieved_buffer = handler;
+
+}
+
 // split the entry buffer in packets of the correct size
-void handleRecvBuffer (Server *server, i32 sock_fd, char *buffer, size_t total_size, bool onHold) {
+void default_handle_recieved_buffer (void *rcvd_buffer_data) {
 
-    if (buffer && (total_size > 0)) {
-        u32 buffer_idx = 0;
-        char *end = buffer;
+    if (rcvd_buffer_data) {
+        RecvdBufferData *data = (RecvdBufferData *) rcvd_buffer_data;
 
-        PacketHeader *header = NULL;
-        u32 packet_size;
-        char *packet_data = NULL;
+        if (data->buffer && (data->total_size > 0)) {
+            u32 buffer_idx = 0;
+            char *end = data->buffer;
 
-        PacketInfo *info = NULL;
+            PacketHeader *header = NULL;
+            u32 packet_size;
+            char *packet_data = NULL;
 
-        while (buffer_idx < total_size) {
-            header = (PacketHeader *) end;
+            PacketInfo *info = NULL;
 
-            // check the packet size
-            packet_size = header->packetSize;
-            if (packet_size > 0) {
-                // copy the content of the packet from the buffer
-                packet_data = (char *) calloc (packet_size, sizeof (char));
-                for (u32 i = 0; i < packet_size; i++, buffer_idx++) 
-                    packet_data[i] = buffer[buffer_idx];
+            while (buffer_idx < data->total_size) {
+                header = (PacketHeader *) end;
 
-                Client *c = onHold ? getClientBySocket (server->onHoldClients->root, sock_fd) :
-                    getClientBySocket (server->clients->root, sock_fd);
+                // check the packet size
+                packet_size = header->packetSize;
+                if (packet_size > 0) {
+                    // copy the content of the packet from the buffer
+                    packet_data = (char *) calloc (packet_size, sizeof (char));
+                    for (u32 i = 0; i < packet_size; i++, buffer_idx++) 
+                        packet_data[i] = data->buffer[buffer_idx];
 
-                if (!c) {
-                    logMsg (stderr, ERROR, CLIENT, "Failed to get client by socket!");
-                    return;
+                    Client *c = data->onHold ? getClientBySocket (data->server->onHoldClients->root, data->sock_fd) :
+                        getClientBySocket (data->server->clients->root, data->sock_fd);
+
+                    if (!c) {
+                        logMsg (stderr, ERROR, CLIENT, "Failed to get client by socket!");
+                        return;
+                    }
+
+                    info = newPacketInfo (data->server, c, data->sock_fd, packet_data, packet_size);
+
+                    if (info)
+                        thpool_add_work (data->server->thpool, data->onHold ?
+                            (void *) handleOnHoldPacket : (void *) handlePacket, info);
+
+                    else {
+                        #ifdef CERVER_DEBUG
+                        logMsg (stderr, ERROR, PACKET, "Failed to create packet info!");
+                        #endif
+                    }
+
+                    end += packet_size;
                 }
 
-                info = newPacketInfo (server, c, sock_fd, packet_data, packet_size);
-
-                if (info)
-                    thpool_add_work (server->thpool, onHold ?
-                        (void *) handleOnHoldPacket : (void *) handlePacket, info);
-
-                else {
-                    #ifdef CERVER_DEBUG
-                    logMsg (stderr, ERROR, PACKET, "Failed to create packet info!");
-                    #endif
-                }
-
-                end += packet_size;
+                else break;
             }
-
-            else break;
         }
     }
 
@@ -1151,8 +1162,8 @@ void handleRecvBuffer (Server *server, i32 sock_fd, char *buffer, size_t total_s
 // recive all incoming data from the socket
 void server_recieve (Server *server, i32 socket_fd, bool onHold) {
 
-    // if (onHold) logMsg (stdout, SUCCESS, PACKET, "server_recieve () - on hold client!");
-    // else logMsg (stdout, SUCCESS, PACKET, "server_recieve () - normal client!");
+    if (onHold) logMsg (stdout, SUCCESS, PACKET, "server_recieve () - on hold client!");
+    else logMsg (stdout, SUCCESS, PACKET, "server_recieve () - normal client!");
 
     ssize_t rc;
     char packetBuffer[MAX_UDP_PACKET_SIZE];
@@ -1425,6 +1436,8 @@ u8 initServerDS (Server *server, ServerType type) {
 
 // depending on the type of server, we need to init some const values
 void initServerValues (Server *server, ServerType type) {
+
+    server->handle_recieved_buffer = default_handle_recieved_buffer;
 
     if (server->authRequired) {
         server->auth.reqAuthPacket = createClientAuthReqPacket ();

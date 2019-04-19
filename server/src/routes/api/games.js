@@ -4,7 +4,7 @@ const router = express.Router ();
 const axios = require ('axios');
 const request = require ('superagent');
 
-const gamesurl = 'http://localhost:7000/';
+const gamesurl = 'http://localhost:9001/';
 
 // @route   GET api/games/test
 // @desc    Test game routes

@@ -10,15 +10,15 @@
 
 #include "utils/log.h"
 
-Server *main_server = NULL;
+Server *quiny_server = NULL;
 
 void close_program (int dummy);
 
 static int init (void) {
 
     signal (SIGINT, close_program);
-    signal (SIGSEGV, close_program);
-    signal (SIGABRT, close_program);
+    // signal (SIGSEGV, close_program);
+    // signal (SIGABRT, close_program);
     return quiny_init ();
 
 }
@@ -28,7 +28,7 @@ static int end () { return quiny_end (); }
 // correctly closes any on-going server and exits
 void close_program (int dummy) {
     
-    cerver_teardown (main_server);
+    cerver_teardown (quiny_server);
     exit (end ());
 
 }
@@ -40,8 +40,16 @@ int main (void) {
         return EXIT_FAILURE;
     }
 
-    // main_server = cerver_createServer (NULL, GAME_SERVER, "Quiny Server");
-    // if (main_server) {
+    quiny_server = cerver_createServer (NULL, GAME_SERVER, "Quiny Server");
+    if (quiny_server) {
+        // set all of our desired server configuration before we start the server
+        cerver_set_handle_recieved_buffer (quiny_server, quiny_handle_recieved_buffer);
+
+        if (cerver_startServer (quiny_server)) logMsg (stderr, ERROR, SERVER, "Failed to start Quiny Server!");
+    }
+
+    // quiny_server = cerver_createServer (NULL, GAME_SERVER, "Quiny Server");
+    // if (quiny_server) {
     //     // set our own functions to authenticate our clients
     //     // cerver_set_auth_method (gameServer, blackrock_authMethod);
 

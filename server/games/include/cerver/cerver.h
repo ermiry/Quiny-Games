@@ -118,6 +118,10 @@ struct _Server {
     // admin defined function to generate session ids bassed on usernames, etc             
     Action generateSessionID; 
 
+    // the admin can define a function to handle the recieve buffer if they are using a custom protocol
+    // otherwise, it will be set to the default one
+    Action handle_recieved_buffer;
+
     // server info/stats
     // TODO: use this in the thpool names
     char *name;
@@ -140,6 +144,19 @@ extern void cerver_set_auth_method (Server *server, delegate authMethod);
 
 extern void session_setIDGenerator (Server *server, Action idGenerator);
 extern char *session_default_generate_id (i32 fd, const struct sockaddr_storage address);
+
+// auxiliary struct for handle_recieved_buffer Action
+typedef struct RecvdBufferData {
+
+    Server *server; 
+    i32 sock_fd;
+    char *buffer; 
+    size_t total_size; 
+    bool onHold;
+
+} RecvdBufferData;
+
+extern void cerver_set_handle_recieved_buffer (Server *server, Action handler);
 
 #pragma endregion
 
