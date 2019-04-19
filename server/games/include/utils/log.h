@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-// #include "cerver/cerver.h"
+#include "cerver/cerver.h"
 
 #define COLOR_RED       "\x1b[31m"
 #define COLOR_GREEN     "\x1b[32m"
@@ -37,6 +37,6 @@ typedef enum LogMsgType {
 extern void logMsg (FILE *__restrict __stream, LogMsgType firstType, LogMsgType secondType,
     const char *msg);
 
-// extern void log_newServer (Server *server);
+extern void log_newServer (Server *server);
 
 #endif

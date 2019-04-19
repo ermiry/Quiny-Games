@@ -4,20 +4,22 @@
 
 #include <signal.h>
 
-// #include "cerver/cerver.h"
+#include "cerver/cerver.h"
 
 #include "quiny/quiny.h"
 
 #include "utils/log.h"
 
-// Server *main_server = NULL;
+Server *main_server = NULL;
 
 void close_program (int dummy);
 
 static int init (void) {
 
-    // signal (SIGINT, close_program);
-    // return quiny_init ();
+    signal (SIGINT, close_program);
+    signal (SIGSEGV, close_program);
+    signal (SIGABRT, close_program);
+    return quiny_init ();
 
 }
 
@@ -26,8 +28,8 @@ static int end () { return quiny_end (); }
 // correctly closes any on-going server and exits
 void close_program (int dummy) {
     
-    // cerver_teardown (main_server);
-    // exit (end ());
+    cerver_teardown (main_server);
+    exit (end ());
 
 }
 
