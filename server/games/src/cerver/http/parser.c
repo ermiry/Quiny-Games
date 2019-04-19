@@ -1,42 +1,22 @@
-/*
- * Copyright (c) 2009-2014 Kazuho Oku, Tokuhiro Matsuno, Daisuke Murase,
- *                         Shigeo Mitsunari
- *
- * The software is licensed under either the MIT License (below) or the Perl
- * license.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- */
-
-#include <assert.h>
-#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#ifdef __SSE4_2__
-#ifdef _MSC_VER
-#include <nmmintrin.h>
-#else
-#include <x86intrin.h>
-#endif
-#endif
+#include <stdbool.h>
 
-#include "http/picoParser.h"
+#include "cerver/http/parser.h"
 
+#include "collections/dllist.h"
+
+#pragma region Request
+
+static const char *token_char_map = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+                                    "\0\1\0\1\1\1\1\1\0\0\1\1\0\1\1\0\1\1\1\1\1\1\1\1\1\1\0\0\0\0\0\0"
+                                    "\0\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\0\0\0\1\1"
+                                    "\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\0\1\0\1\0"
+                                    "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+                                    "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+                                    "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+                                    "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
 #if __GNUC__ >= 3
 #define likely(x) __builtin_expect(!!(x), 1)
@@ -95,14 +75,13 @@
         toklen = buf - tok_start;                                                                                                  \
     } while (0)
 
-static const char *token_char_map = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-                                    "\0\1\0\1\1\1\1\1\0\0\1\1\0\1\1\0\1\1\1\1\1\1\1\1\1\1\0\0\0\0\0\0"
-                                    "\0\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\0\0\0\1\1"
-                                    "\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\1\0\1\0\1\0"
-                                    "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-                                    "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-                                    "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-                                    "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+#define PARSE_INT(valp_, mul_)                                                                                                     \
+    if (*buf < '0' || '9' < *buf) {                                                                                                \
+        buf++;                                                                                                                     \
+        *ret = -1;                                                                                                                 \
+        return NULL;                                                                                                               \
+    }                                                                                                                              \
+    *(valp_) = (mul_) * (*buf++ - '0');
 
 static const char *findchar_fast(const char *buf, const char *buf_end, const char *ranges, size_t ranges_size, int *found)
 {
@@ -227,25 +206,6 @@ static const char *is_complete(const char *buf, const char *buf_end, size_t last
     *ret = -2;
     return NULL;
 }
-
-#define PARSE_INT(valp_, mul_)                                                                                                     \
-    if (*buf < '0' || '9' < *buf) {                                                                                                \
-        buf++;                                                                                                                     \
-        *ret = -1;                                                                                                                 \
-        return NULL;                                                                                                               \
-    }                                                                                                                              \
-    *(valp_) = (mul_) * (*buf++ - '0');
-
-#define PARSE_INT_3(valp_)                                                                                                         \
-    do {                                                                                                                           \
-        int res_ = 0;                                                                                                              \
-        PARSE_INT(&res_, 100)                                                                                                      \
-        *valp_ = res_;                                                                                                             \
-        PARSE_INT(&res_, 10)                                                                                                       \
-        *valp_ += res_;                                                                                                            \
-        PARSE_INT(&res_, 1)                                                                                                        \
-        *valp_ += res_;                                                                                                            \
-    } while (0)
 
 /* returned pointer is always within [buf, buf_end), or null */
 static const char *parse_http_version(const char *buf, const char *buf_end, int *minor_version, int *ret)
@@ -410,233 +370,131 @@ int phr_parse_request(const char *buf_start, size_t len, const char **method, si
     return (int)(buf - buf_start);
 }
 
-static const char *parse_response(const char *buf, const char *buf_end, int *minor_version, int *status, const char **msg,
-                                  size_t *msg_len, struct phr_header *headers, size_t *num_headers, size_t max_headers, int *ret)
-{
-    /* parse "HTTP/1.x" */
-    if ((buf = parse_http_version(buf, buf_end, minor_version, ret)) == NULL) {
-        return NULL;
-    }
-    /* skip space */
-    if (*buf++ != ' ') {
-        *ret = -1;
-        return NULL;
-    }
-    /* parse status code, we want at least [:digit:][:digit:][:digit:]<other char> to try to parse */
-    if (buf_end - buf < 4) {
-        *ret = -2;
-        return NULL;
-    }
-    PARSE_INT_3(status);
+#pragma endregion
 
-    /* get message includig preceding space */
-    if ((buf = get_token_to_eol(buf, buf_end, msg, msg_len, ret)) == NULL) {
-        return NULL;
-    }
-    if (*msg_len == 0) {
-        /* ok */
-    } else if (**msg == ' ') {
-        /* remove preceding space */
-        ++*msg;
-        --*msg_len;
-    } else {
-        /* garbage found after status code */
-        *ret = -1;
-        return NULL;
-    }
+#pragma region Query
 
-    return parse_headers(buf, buf_end, headers, num_headers, max_headers, ret);
+static KeyValuePair *key_value_pair_new (void) {
+
+    KeyValuePair *kvp = (KeyValuePair *) malloc (sizeof (KeyValuePair));
+    if (kvp) kvp->key = kvp->value = NULL;
+    return kvp;
+
 }
 
-int phr_parse_response(const char *buf_start, size_t len, int *minor_version, int *status, const char **msg, size_t *msg_len,
-                       struct phr_header *headers, size_t *num_headers, size_t last_len)
-{
-    const char *buf = buf_start, *buf_end = buf + len;
-    size_t max_headers = *num_headers;
-    int r;
+static void key_value_pair_delete (void *ptr) {
 
-    *minor_version = -1;
-    *status = 0;
-    *msg = NULL;
-    *msg_len = 0;
-    *num_headers = 0;
+    if (ptr) {
+        KeyValuePair *kvp = (KeyValuePair *) ptr;
+        if (kvp->key) free (kvp->key);
+        if (kvp->value) free (kvp->value);
 
-    /* if last_len != 0, check if the response is complete (a fast countermeasure
-       against slowloris */
-    if (last_len != 0 && is_complete(buf, buf_end, last_len, &r) == NULL) {
-        return r;
+        free (kvp);
     }
 
-    if ((buf = parse_response(buf, buf_end, minor_version, status, msg, msg_len, headers, num_headers, max_headers, &r)) == NULL) {
-        return r;
-    }
-
-    return (int)(buf - buf_start);
 }
 
-int phr_parse_headers(const char *buf_start, size_t len, struct phr_header *headers, size_t *num_headers, size_t last_len)
-{
-    const char *buf = buf_start, *buf_end = buf + len;
-    size_t max_headers = *num_headers;
-    int r;
+static KeyValuePair *key_value_pair_create (const char *keyFirst, const char *keyAfter, 
+    const char *valueFirst, const char *valueAfter) {
 
-    *num_headers = 0;
+    KeyValuePair *kvp = NULL;
 
-    /* if last_len != 0, check if the response is complete (a fast countermeasure
-       against slowloris */
-    if (last_len != 0 && is_complete(buf, buf_end, last_len, &r) == NULL) {
-        return r;
+    if (keyFirst && keyAfter && valueFirst && valueAfter) {
+        const int keyLen = (int) (keyAfter - keyFirst);
+        const int valueLen = (int) (valueAfter - valueFirst);
+
+        kvp = key_value_pair_new ();
+        if (kvp) {
+            kvp->key = (char *) calloc (keyLen + 1, sizeof (char));
+            memcpy (kvp->key, keyFirst, keyLen * sizeof (char));
+            kvp->value = (char *) calloc (valueLen + 1, sizeof (char));
+            memcpy (kvp->value, valueFirst, valueLen * sizeof (char));
+        }
     }
 
-    if ((buf = parse_headers(buf, buf_end, headers, num_headers, max_headers, &r)) == NULL) {
-        return r;
-    }
+    return kvp;
 
-    return (int)(buf - buf_start);
 }
 
-enum {
-    CHUNKED_IN_CHUNK_SIZE,
-    CHUNKED_IN_CHUNK_EXT,
-    CHUNKED_IN_CHUNK_DATA,
-    CHUNKED_IN_CHUNK_CRLF,
-    CHUNKED_IN_TRAILERS_LINE_HEAD,
-    CHUNKED_IN_TRAILERS_LINE_MIDDLE
-};
+DoubleList *http_parse_query_into_pairs (const char *first, const char *last) {
 
-static int decode_hex(int ch)
-{
-    if ('0' <= ch && ch <= '9') {
-        return ch - '0';
-    } else if ('A' <= ch && ch <= 'F') {
-        return ch - 'A' + 0xa;
-    } else if ('a' <= ch && ch <= 'f') {
-        return ch - 'a' + 0xa;
-    } else {
-        return -1;
-    }
-}
+    DoubleList *pairs = NULL;
 
-ssize_t phr_decode_chunked(struct phr_chunked_decoder *decoder, char *buf, size_t *_bufsz)
-{
-    size_t dst = 0, src = 0, bufsz = *_bufsz;
-    ssize_t ret = -2; /* incomplete */
+    if (first && last) {
+        pairs = dlist_init (key_value_pair_delete, NULL);
 
-    while (1) {
-        switch (decoder->_state) {
-        case CHUNKED_IN_CHUNK_SIZE:
-            for (;; ++src) {
-                int v;
-                if (src == bufsz)
-                    goto Exit;
-                if ((v = decode_hex(buf[src])) == -1) {
-                    if (decoder->_hex_count == 0) {
-                        ret = -1;
-                        goto Exit;
+        const char *walk = first;
+        const char *keyFirst = first;
+        const char *keyAfter = NULL;
+        const char *valueFirst = NULL;
+        const char *valueAfter = NULL;
+
+        /* Parse query string */
+        for (; walk < last; walk++) {
+            switch (*walk) {
+                case '&': {
+                    if (valueFirst != NULL) valueAfter = walk;
+                    else keyAfter = walk;
+
+                    KeyValuePair *kvp = key_value_pair_create (keyFirst, keyAfter, valueFirst, valueAfter);
+                    if (kvp) dlist_insert_after (pairs, dlist_end (pairs), kvp);
+                
+                    if (walk + 1 < last) keyFirst = walk + 1;
+                    else keyFirst = NULL;
+                    
+                    keyAfter = NULL;
+                    valueFirst = NULL;
+                    valueAfter = NULL;
+                } break;
+
+                case '=': {
+                    if (keyAfter == NULL) {
+                        keyAfter = walk;
+                        if (walk + 1 <= last) {
+                            valueFirst = walk + 1;
+                            valueAfter = walk + 1;
+                        }
                     }
-                    break;
-                }
-                if (decoder->_hex_count == sizeof(size_t) * 2) {
-                    ret = -1;
-                    goto Exit;
-                }
-                decoder->bytes_left_in_chunk = decoder->bytes_left_in_chunk * 16 + v;
-                ++decoder->_hex_count;
+                } break;
+
+                default: break;
             }
-            decoder->_hex_count = 0;
-            decoder->_state = CHUNKED_IN_CHUNK_EXT;
-        /* fallthru */
-        case CHUNKED_IN_CHUNK_EXT:
-            /* RFC 7230 A.2 "Line folding in chunk extensions is disallowed" */
-            for (;; ++src) {
-                if (src == bufsz)
-                    goto Exit;
-                if (buf[src] == '\012')
-                    break;
-            }
-            ++src;
-            if (decoder->bytes_left_in_chunk == 0) {
-                if (decoder->consume_trailer) {
-                    decoder->_state = CHUNKED_IN_TRAILERS_LINE_HEAD;
-                    break;
-                } else {
-                    goto Complete;
-                }
-            }
-            decoder->_state = CHUNKED_IN_CHUNK_DATA;
-        /* fallthru */
-        case CHUNKED_IN_CHUNK_DATA: {
-            size_t avail = bufsz - src;
-            if (avail < decoder->bytes_left_in_chunk) {
-                if (dst != src)
-                    memmove(buf + dst, buf + src, avail);
-                src += avail;
-                dst += avail;
-                decoder->bytes_left_in_chunk -= avail;
-                goto Exit;
-            }
-            if (dst != src)
-                memmove(buf + dst, buf + src, decoder->bytes_left_in_chunk);
-            src += decoder->bytes_left_in_chunk;
-            dst += decoder->bytes_left_in_chunk;
-            decoder->bytes_left_in_chunk = 0;
-            decoder->_state = CHUNKED_IN_CHUNK_CRLF;
         }
-        /* fallthru */
-        case CHUNKED_IN_CHUNK_CRLF:
-            for (;; ++src) {
-                if (src == bufsz)
-                    goto Exit;
-                if (buf[src] != '\015')
-                    break;
-            }
-            if (buf[src] != '\012') {
-                ret = -1;
-                goto Exit;
-            }
-            ++src;
-            decoder->_state = CHUNKED_IN_CHUNK_SIZE;
-            break;
-        case CHUNKED_IN_TRAILERS_LINE_HEAD:
-            for (;; ++src) {
-                if (src == bufsz)
-                    goto Exit;
-                if (buf[src] != '\015')
-                    break;
-            }
-            if (buf[src++] == '\012')
-                goto Complete;
-            decoder->_state = CHUNKED_IN_TRAILERS_LINE_MIDDLE;
-        /* fallthru */
-        case CHUNKED_IN_TRAILERS_LINE_MIDDLE:
-            for (;; ++src) {
-                if (src == bufsz)
-                    goto Exit;
-                if (buf[src] == '\012')
-                    break;
-            }
-            ++src;
-            decoder->_state = CHUNKED_IN_TRAILERS_LINE_HEAD;
-            break;
-        default:
-            assert(!"decoder is corrupt");
-        }
+
+        if (valueFirst != NULL) valueAfter = walk;
+        else keyAfter = walk;
+
+        KeyValuePair *kvp = key_value_pair_create (keyFirst, keyAfter, valueFirst, valueAfter);
+        if (kvp) dlist_insert_after (pairs, dlist_end (pairs), kvp);
     }
 
-Complete:
-    ret = bufsz - src;
-Exit:
-    if (dst != src)
-        memmove(buf + dst, buf + src, bufsz - src);
-    *_bufsz = dst;
-    return ret;
+    return pairs;
+
 }
 
-int phr_decode_chunked_is_in_data(struct phr_chunked_decoder *decoder)
-{
-    return decoder->_state == CHUNKED_IN_CHUNK_DATA;
+char *http_strip_path_from_query (char *str) {
+
+    if (str) {
+        unsigned int len = strlen (str);
+        int idx = 0;
+        for (; idx < len; idx++) {
+            if (str[idx] == '?') break;
+        } 
+        
+        idx++;
+        int newlen = len - idx;
+        char *query = (char *) calloc (newlen, sizeof (char));
+        int j = 0;
+        for (int i = idx; i < len; i++) {
+            query[j] = str[i];
+            j++;
+        } 
+
+        return query;
+    }
+
+    return NULL;
+
 }
 
-#undef CHECK_EOF
-#undef EXPECT_CHAR
-#undef ADVANCE_TOKEN
+#pragma endregion

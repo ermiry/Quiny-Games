@@ -9,6 +9,7 @@
 #include "types/myString.h"
 
 #include "cerver/cerver.h"
+#include "cerver/http/parser.h"
 
 #include "utils/myUtils.h"
 #include "utils/log.h"
@@ -165,13 +166,9 @@ User *quiny_user_get (const char *username, const char *password, int *errors) {
 
 }
 
-
 #pragma endregion
 
 #pragma region Public
-
-#include "http/picoParser.h"
-#include "http/queryParser.h"
 
 // init quiny data & processes
 int quiny_init (void) {
@@ -234,7 +231,7 @@ void quiny_handle_recieved_buffer (void *rcvd_buffer_data) {
                 char str[50];
                 snprintf (str, 50, "%.*s", (int) path_len, path);
                 printf ("%s\n", str);
-                char *query = strip_path_from_query (str);
+                char *query = http_strip_path_from_query (str);
                 printf ("%s\n", query);
                 // printf("\nrequest is %d bytes long\n", pret);
                 // printf("method is %.*s\n", (int)method_len, method);
@@ -253,7 +250,8 @@ void quiny_handle_recieved_buffer (void *rcvd_buffer_data) {
                 int count = 0;
                 char *first = query;
                 char *last = first + strlen (query);
-                DoubleList *pairs = parse_query_into_pairs (query, last);
+                // FIXME: dont forget to free up this list!!
+                DoubleList *pairs = http_parse_query_into_pairs (query, last);
 
                 KeyValuePair *kvp = NULL;
                 for (ListElement *le = dlist_start (pairs); le; le = le->next) {

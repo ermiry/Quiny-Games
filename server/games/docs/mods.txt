@@ -4,3 +4,9 @@ Modifications to cerver framework
 
 - we are expecting a custom protocol in the hanldeRcvBuffer method, mainly designed for Blackrock, but we need to handle other protcolos
     - implemented a new option to set a custom handle buffer based on the protocol
+
+19/april/2019
+
+- created a new module for cerver framework -> http
+    - we moved our request and query parser to a unique file -> http/parser.c
+- we are getting a sigsev wehn we try to disconnect a client from a server that does nto required authentication
