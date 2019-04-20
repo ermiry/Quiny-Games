@@ -11,6 +11,7 @@
 #include "cerver/cerver.h"
 #include "cerver/client.h"
 #include "cerver/http/parser.h"
+#include "cerver/http/json.h"
 
 #include "utils/myUtils.h"
 #include "utils/log.h"
@@ -310,98 +311,6 @@ int http_response_send_to_socket (const HttpResponse *res, const int socket_fd) 
 
 }
 
-// TODO: handle different data lengths
-typedef enum ValueType {
-
-    VALUE_TYPE_INT,
-    VALUE_TYPE_DOUBLE,
-    VALUE_TYPE_STRING,
-
-} ValueType;
-
-// TODO: maybe create a json utily function with bson??
-typedef struct JsonKeyValue {
-
-    String *key;
-    void *value;
-    ValueType valueType;
-
-} JsonKeyValue;
-
-// uses the reference to a value, do not free the value, it will be free when the list gets destroy
-JsonKeyValue *json_key_value_new (void) {
-
-    JsonKeyValue *jkvp = (JsonKeyValue *) malloc (sizeof (JsonKeyValue));
-    if (jkvp) {
-        jkvp->key = NULL;
-        jkvp->value = NULL;
-    }
-
-    return jkvp;
-
-}
-
-JsonKeyValue *json_key_value_create (const char *key, const void *value, ValueType value_type) {
-
-    JsonKeyValue *jkvp = NULL;
-
-    if (key && value) {
-        jkvp = (JsonKeyValue *) malloc (sizeof (JsonKeyValue));
-        if (jkvp) {
-            jkvp->key = str_new (key);
-            jkvp->value = (void *) value;
-            jkvp->valueType = value_type;
-        }
-    }
-
-    return jkvp;
-
-}
-
-void json_key_value_delete (void *ptr) {
-
-    if (ptr) {
-        JsonKeyValue *jkvp = (JsonKeyValue *) ptr;
-
-        if (jkvp->key) str_delete (jkvp->key);
-        if (jkvp->valueType == VALUE_TYPE_STRING) str_delete ((String *) jkvp->key);
-
-        free (jkvp);
-    }
-
-}
-
-// creates a json string with the passed jkvp
-// frees the jkvp
-char *json_create_with_one_pair (JsonKeyValue *jkvp, size_t *len) {
-
-    char *retval = NULL;
-
-    if (jkvp) {
-        bson_t *doc = bson_new ();
-
-        if (doc) {
-            switch (jkvp->valueType) {
-                case VALUE_TYPE_INT: bson_append_int32 (doc, jkvp->key->str, jkvp->key->len, *(int32_t *) jkvp->value); break;
-                case VALUE_TYPE_DOUBLE: bson_append_double (doc, jkvp->key->str, jkvp->key->len, *(double *) jkvp->value); break;
-                case VALUE_TYPE_STRING: {
-                    String *str = (String *) jkvp->value;
-                    bson_append_utf8 (doc, jkvp->key->str, jkvp->key->len, str->str, str->len);
-                } 
-                break;
-
-                default: break;
-            }
-        }
-
-        // TODO: do we need to free the doc after this?
-        retval = bson_as_json (doc, len);
-    }
-
-    return retval;
-
-}
-
 static HttpResponse *game_ask_handler (DoubleList *pairs) {
 
     HttpResponse *res = NULL;
@@ -424,6 +333,7 @@ static HttpResponse *game_ask_handler (DoubleList *pairs) {
                 JsonKeyValue *jkvp = json_key_value_create ("msg", test, VALUE_TYPE_STRING);
                 size_t json_len;
                 char *json = json_create_with_one_pair (jkvp, &json_len);
+                json_key_value_delete (jkvp);
                 res = http_response_create (200, NULL, 0, json, json_len);
                 free (json);        // we copy the data into the response
             }
