@@ -32,9 +32,6 @@
 ProtocolId PROTOCOL_ID = 0x4CA140FF; // randomly chosen
 Version PROTOCOL_VERSION = { 1, 1 };
 
-// TODO: better id handling and management
-u16 nextPlayerId = 0;
-
 /*** SERIALIZATION ***/
 
 #include <stddef.h>

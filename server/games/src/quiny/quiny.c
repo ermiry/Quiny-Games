@@ -8,6 +8,11 @@
 
 #include "cerver/cerver.h"
 #include "cerver/client.h"
+
+#include "cerver/game/game.h"
+#include "cerver/game/player.h"
+#include "cerver/game/lobby.h"
+
 #include "cerver/http/parser.h"
 #include "cerver/http/json.h"
 #include "cerver/http/response.h"
@@ -38,9 +43,11 @@ static User *user_new (void) {
 
 }
 
-static void user_delete (User *user) {
+static void user_delete (void *ptr) {
 
-    if (user) {
+    if (ptr) {
+        User *user = (User *) ptr;
+
         str_delete (user->email);
         str_delete (user->name);
         str_delete (user->password);
@@ -208,6 +215,76 @@ int quiny_end (void) {
 
 }
 
+static const char *quiny_get_username (DoubleList *pairs) {
+
+    const char *username = NULL;
+
+    if (pairs) {
+        KeyValuePair *kvp = NULL;
+        for (ListElement *le = dlist_start (pairs); le; le = le->next) {
+            kvp = (KeyValuePair *) le->data;
+            if (!strcmp (kvp->key, "username")) {
+                username = kvp->value;
+                break;
+            }
+        }
+    }
+
+    return username;
+
+}
+
+static const char *quiny_get_password (DoubleList *pairs) {
+
+    const char *username = NULL;
+
+    if (pairs) {
+        KeyValuePair *kvp = NULL;
+        for (ListElement *le = dlist_start (pairs); le; le = le->next) {
+            kvp = (KeyValuePair *) le->data;
+            if (!strcmp (kvp->key, "password")) {
+                username = kvp->value;
+                break;
+            }
+        }
+    }
+
+    return username;
+
+}
+
+static HttpResponse *quiny_user_login (Server *server, DoubleList *pairs) {
+
+    HttpResponse *res = NULL;
+
+    if (server && pairs) {
+        const char *username = quiny_get_username (pairs);
+        const char *password = quiny_get_password (pairs);
+
+        // search the user data from the db
+        int errors;
+        User *user = quiny_user_get (username, password, &errors);
+        if (user) {
+            // add the user as a new player in the game server
+            // FIXME: generate my ids!!
+            Player *player = player_new (NULL, "hola", user);
+            player_set_delete_player_data (player, user_delete);
+            player_register_to_server (server, player);
+
+            // return the user data as json
+            size_t json_len;
+            char *user_json = user_json_create (user, &json_len);
+            res = http_response_create (200, NULL, 0, user_json, json_len);
+            free (user_json);        // we copy the data into the response
+        }
+
+        else res = http_response_json_error ("Login failed!");
+    }
+
+    return res;
+
+}
+
 static void quiny_main_handler (RecvdBufferData *data, DoubleList *pairs) {
 
     if (pairs) {
@@ -252,6 +329,8 @@ static void quiny_main_handler (RecvdBufferData *data, DoubleList *pairs) {
                 res = http_response_create (200, NULL, 0, json, json_len);
                 free (json);        // we copy the data into the response
             }
+
+            else if (!strcmp (action, "login")) res = quiny_user_login (data->server, pairs);
 
             else logMsg (stdout, WARNING, NO_TYPE, createString ("Got unkown action %s", action));
         }

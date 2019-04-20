@@ -70,11 +70,13 @@ struct _GameServerData {
 
 typedef struct _GameServerData GameServerData;
 
-typedef enum GameType {
+enum _GameType {
 
 	ARCADE = 1
 
-} GameType;
+};
+
+typedef enum _GameType GameType;
 
 // 10/11/2018 - aux reference to a server and lobby for thread functions
 typedef struct ServerLobby {

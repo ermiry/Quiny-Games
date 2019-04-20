@@ -9,27 +9,35 @@
 #include "utils/myUtils.h"
 #include "utils/log.h"
 
+// TODO: better id handling and management
+u16 nextPlayerId = 0;
+
+void player_set_delete_player_data (Player *player, Action destroy) {
+
+    if (player) player->destroy_player_data = destroy;
+
+}
+
 // TODO: maybe later the id can be how we store it inside our databse
 // FIXME: player ids, we cannot have infinite ids!!
-// constructor for a new player, option for an object pool
-Player *newPlayer (Pool *pool, Client *client) {
+// constructor for a new player
+Player *player_new (Client *client, const char *session_id, void *player_data) {
 
     Player *new_player = (Player *) malloc (sizeof (Player));
 
-    // if (pool) {
-    //     if (POOL_SIZE (pool) > 0) {
-    //         new_player = pool_pop (pool);
-    //         if (!new_player) new_player = (Player *) malloc (sizeof (Player));
-    //     }
-    // }
-
-    // else new_player = (Player *) malloc (sizeof (Player));
-
     new_player->client = client;
+    if (session_id) {
+        new_player->session_id = (char *) calloc (strlen (session_id) + 1, sizeof (char));
+        strcpy ((char *) new_player->session_id, session_id);
+    }
+
+    else new_player->session_id = NULL;
+
     new_player->alive = false;
     new_player->inLobby = false;
 
-    // FIXME: player ids and components!!
+    new_player->components = NULL;
+    new_player->data = player_data;
 
     new_player->id = nextPlayerId;
     nextPlayerId++;
@@ -38,13 +46,15 @@ Player *newPlayer (Pool *pool, Client *client) {
 
 }
 
+// FIXME: correctly destroy the game components
 // TODO: what happens with the client data??
-// FIXME: clean up the player structure
 // deletes a player struct for ever
-void deletePlayer (void *data) {
+void player_delete (void *data) {
 
     if (data) {
         Player *player = (Player *) data;
+        if (player->destroy_player_data) player->destroy_player_data (player->data);
+        else if (player->data) free (player->data);
 
         free (player);
     }
@@ -64,7 +74,7 @@ int player_comparator_client_id (const void *a, const void *b) {
 }
 
 // inits the players server's structures
-u8 game_initPlayers (GameServerData *gameData, u8 n_players) {
+u8 players_init (GameServerData *gameData, u8 n_players) {
 
     if (!gameData) {
         logMsg (stderr, ERROR, SERVER, "Can't init players in a NULL game data!");
@@ -74,7 +84,7 @@ u8 game_initPlayers (GameServerData *gameData, u8 n_players) {
     if (gameData->players)
         logMsg (stdout, WARNING, SERVER, "The server already has an avl of players!");
     else {
-        gameData->players = avl_init (player_comparator_client_id, deletePlayer);
+        gameData->players = avl_init (player_comparator_client_id, player_delete);
         if (!gameData->players) {
             logMsg (stderr, ERROR, NO_TYPE, "Failed to init server's players avl!");
             return 1;
@@ -84,7 +94,7 @@ u8 game_initPlayers (GameServerData *gameData, u8 n_players) {
     if (gameData->playersPool)  
         logMsg (stdout, WARNING, SERVER, "The server already has a pool of players.");
     else {
-        gameData->playersPool = pool_init (deletePlayer);
+        gameData->playersPool = pool_init (player_delete);
         if (!gameData->playersPool) {
             logMsg (stderr, ERROR, NO_TYPE, "Failed to init server's players pool!");
             return 1;
@@ -102,7 +112,7 @@ u8 game_initPlayers (GameServerData *gameData, u8 n_players) {
 }
 
 // adds a player to the game server data main structures
-void player_registerToServer (Server *server, Player *player) {
+void player_register_to_server (Server *server, Player *player) {
 
     if (server && player) {
         if (server->type == GAME_SERVER) {
@@ -127,7 +137,7 @@ void player_registerToServer (Server *server, Player *player) {
 // FIXME: client socket!!
 // removes a player from the server's players struct (avl) and also removes the player
 // client from the main server poll
-void player_unregisterFromServer (Server *server, Player *player) {
+void player_unregister_to_server (Server *server, Player *player) {
 
     // if (server && player) {
     //     if (server->type == GAME_SERVER) {
@@ -147,7 +157,7 @@ void player_unregisterFromServer (Server *server, Player *player) {
 
 // FIXME: client socket!!
 // make sure that the player is inside the lobby
-bool player_isInLobby (Player *player, Lobby *lobby) {
+bool player_is_in_lobby (Player *player, Lobby *lobby) {
 
     /* if (player && lobby) {
         for (u8 i = 0; i < lobby->players_nfds; i++) 
@@ -161,7 +171,7 @@ bool player_isInLobby (Player *player, Lobby *lobby) {
 }
 
 // add a player to the lobby structures
-u8 player_addToLobby (Server *server, Lobby *lobby, Player *player) {
+u8 player_add_to_lobby (Server *server, Lobby *lobby, Player *player) {
 
     if (lobby && player) {
         if (server->type == GAME_SERVER) {
@@ -202,7 +212,7 @@ u8 player_addToLobby (Server *server, Lobby *lobby, Player *player) {
 
 // FIXME: client socket!!
 // removes a player from the lobby's players structures and sends it to the game server's players
-u8 player_removeFromLobby (Server *server, Lobby *lobby, Player *player) {
+u8 player_remove_from_lobby (Server *server, Lobby *lobby, Player *player) {
 
     if (server && lobby && player) {
         if (server->type == GAME_SERVER) {
@@ -241,7 +251,7 @@ u8 player_removeFromLobby (Server *server, Lobby *lobby, Player *player) {
 }
 
 // recursively get the player associated with the socket
-Player *getPlayerBySock (AVLNode *node, i32 socket_fd) {
+Player *player_get_by_socket (AVLNode *node, i32 socket_fd) {
 
     if (node) {
         Player *player = NULL;
@@ -270,8 +280,8 @@ Player *getPlayerBySock (AVLNode *node, i32 socket_fd) {
 }
 
 // FIXME: client socket!!
-// broadcast a packet/msg to all clients inside an avl structure
-void broadcastToAllPlayers (AVLNode *node, Server *server, void *packet, size_t packetSize) {
+// broadcast a packet/msg to all clients/players inside an avl structure
+void player_broadcast_to_all (AVLNode *node, Server *server, void *packet, size_t packetSize) {
 
     if (node && server && packet && (packetSize > 0)) {
         broadcastToAllPlayers (node->right, server, packet, packetSize);
@@ -289,17 +299,18 @@ void broadcastToAllPlayers (AVLNode *node, Server *server, void *packet, size_t 
 
 }
 
-void traversePlayers (AVLNode *node, Action action, void *data) {
+// performs an action on every player in an avl tree 
+void player_travers (AVLNode *node, Action action, void *data) {
 
     if (node && action) {
-        traversePlayers (node->right, action, data);
+        player_travers (node->right, action, data);
 
         if (node->id) {
             PlayerAndData pd = { .playerData = node->id, .data = data };
             action (&pd);
         } 
 
-        traversePlayers (node->left, action, data);
+        player_travers (node->left, action, data);
     }
 
 }

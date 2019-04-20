@@ -10,9 +10,13 @@
 
 #include "utils/objectPool.h"
 
+struct _Player;
+// enum _GameType;
+
 struct _GameSettings {
 
-	GameType gameType;
+    // FIXME: set init function for diffrent game types
+	// enum _GameType gameType;
 
 	u8 playerTimeout; 	// in seconds.
 	u8 fps;
@@ -31,7 +35,7 @@ struct _Lobby {
 	GameSettings *settings;
 	bool inGame;
 
-	Player *owner;				// the client that created the lobby -> he has higher privileges
+	struct _Player *owner;				// the client that created the lobby -> he has higher privileges
 
 	bool isRunning;				// lobby is listening for player packets
 

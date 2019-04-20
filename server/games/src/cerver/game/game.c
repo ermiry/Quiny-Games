@@ -600,6 +600,7 @@ void game_score_reset (ScoreBoard *sb, char *playerName) {
     // remeber that the lobby is listening in its own thread that can handle imput logic
     // but what about a thread in the lobby for listenning and another for game logic and sending packets?
 
+// FIXME: how do we hanlde the creation of different types of games?
 // the game server starts a new game with the function set for the dessired game type
 u8 gs_startGame (Server *server, Lobby *lobby) {
 
@@ -611,8 +612,8 @@ u8 gs_startGame (Server *server, Lobby *lobby) {
             return 1;
         }
 
-        delegate temp = gameData->gameInitFuncs[lobby->settings->gameType];
-        if (temp) {
+        // delegate temp = gameData->gameInitFuncs[lobby->settings->gameType];
+        /* if (temp) {
             // 14/11/2018 -- al game functions will get a reference to the server and lobby
             // where they are requested to init
             ServerLobby *sl = (ServerLobby *) malloc (sizeof (ServerLobby));
@@ -643,7 +644,7 @@ u8 gs_startGame (Server *server, Lobby *lobby) {
         else {
             logMsg (stderr, ERROR, GAME, "No init function set for the desired game type!");
             return 1;
-        }
+        } */
         
     }
 
@@ -710,7 +711,7 @@ void *createLobbyPacket (RequestType reqType, Lobby *lobby, size_t packetSize) {
     SLobby *slobby = (SLobby *) end;
     end += sizeof (SLobby);
 
-    slobby->settings.gameType = lobby->settings->gameType;
+    // slobby->settings.gameType = lobby->settings->gameType;
     slobby->settings.fps = lobby->settings->fps;
     slobby->settings.minPlayers = lobby->settings->minPlayers;
     slobby->settings.maxPlayers = lobby->settings->maxPlayers;
