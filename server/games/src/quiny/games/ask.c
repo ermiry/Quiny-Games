@@ -17,13 +17,12 @@
 #include "utils/myUtils.h"
 #include "utils/log.h"
 
-static HttpResponse *game_ask_create_lobby (DoubleList *pairs) {
+static const char *game_ask_get_username (DoubleList *pairs) {
 
-    HttpResponse *res = NULL;
+    const char *username = NULL;
 
     if (pairs) {
         KeyValuePair *kvp = NULL;
-        const char *username = NULL;
         for (ListElement *le = dlist_start (pairs); le; le = le->next) {
             kvp = (KeyValuePair *) le->data;
             if (!strcmp (kvp->key, "username")) {
@@ -31,10 +30,20 @@ static HttpResponse *game_ask_create_lobby (DoubleList *pairs) {
                 break;
             }
         }
+    }
 
+    return username;
+
+}
+
+static HttpResponse *game_ask_create_lobby (DoubleList *pairs) {
+
+    HttpResponse *res = NULL;
+
+    if (pairs) {
+        const char *username = game_ask_get_username (pairs);
         if (username) {
-            // get the player info
-
+            // get the player info 
 
             // create a new lobby
             // send back the new lobby data -> looby id
@@ -42,6 +51,52 @@ static HttpResponse *game_ask_create_lobby (DoubleList *pairs) {
 
         else {
             logMsg (stderr, ERROR, NO_TYPE, "No username provided to create a lobby!");
+            res = http_response_json_error ("No username provided!");
+        }
+    }
+
+    return res;
+
+}
+
+static HttpResponse *game_ask_join_lobby (DoubleList *pairs) {
+
+    HttpResponse *res = NULL;
+
+    if (pairs) {
+        const char *username = game_ask_get_username (pairs);
+        if (username) {
+            // get the player info
+            // get the lobby info
+            // join the lobby
+            // send back the lobby data
+        }
+
+        else {
+            logMsg (stderr, ERROR, NO_TYPE, "No username provided to join a lobby!");
+            res = http_response_json_error ("No username provided!");
+        }
+    }
+
+    return res;
+
+}
+
+static HttpResponse *game_ask_leave_lobby (DoubleList *pairs) {
+
+    HttpResponse *res = NULL;
+
+    if (pairs) {
+        const char *username = game_ask_get_username (pairs);
+        if (username) {
+            // get the player info
+            // get the lobby info
+            // leave the lobby
+            // send back a success message
+        }
+
+        else {
+            logMsg (stderr, ERROR, NO_TYPE, "No username provided to join a lobby!");
             res = http_response_json_error ("No username provided!");
         }
     }
@@ -79,19 +134,11 @@ HttpResponse *game_ask_handler (DoubleList *pairs) {
 
             else if (!strcmp (action, "create_lobby")) res = game_ask_create_lobby (pairs);
 
-            else if (!strcmp (action, "join_lobby")) {
-                // get the player info
-                // get the lobby info
-                // join the lobby
-                // send back the lobby data
-            }
+            else if (!strcmp (action, "join_lobby")) res = game_ask_join_lobby (pairs);
 
-            else if (!strcmp (action, "leave_lobby")) {
-                // get the player info
-                // get the lobby info
-                // leave the lobby
-                // send back a success message
-            }
+            else if (!strcmp (action, "leave_lobby")) res = game_ask_leave_lobby (pairs);
+
+            else logMsg (stdout, WARNING, NO_TYPE, createString ("Found unknow ask game action %s", action));
         }
 
         else logMsg (stdout, ERROR, NO_TYPE, "No action provided for ask game!");

@@ -208,8 +208,6 @@ int quiny_end (void) {
 
 }
 
-// TODO: handle the creation of generic responses with a struct and a function!!
-// FIXME: how can we handle global errors?
 static void quiny_main_handler (RecvdBufferData *data, DoubleList *pairs) {
 
     if (pairs) {
@@ -246,9 +244,13 @@ static void quiny_main_handler (RecvdBufferData *data, DoubleList *pairs) {
 
             // handle the action
             if (!strcmp (action, "test")) {
-                // FIXME: send json instead
-                // char res[1024] = "HTTP/1.1 200 OK\r\n\nHello World";
-                // send (data->sock_fd, res, strlen (res), 0);
+                String *test = str_new ("Quiny works!");
+                JsonKeyValue *jkvp = json_key_value_create ("msg", test, VALUE_TYPE_STRING);
+                size_t json_len;
+                char *json = json_create_with_one_pair (jkvp, &json_len);
+                json_key_value_delete (jkvp);
+                res = http_response_create (200, NULL, 0, json, json_len);
+                free (json);        // we copy the data into the response
             }
 
             else logMsg (stdout, WARNING, NO_TYPE, createString ("Got unkown action %s", action));
