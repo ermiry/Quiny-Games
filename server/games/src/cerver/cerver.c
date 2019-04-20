@@ -14,7 +14,7 @@
 
 #include "cerver/network.h"
 #include "cerver/cerver.h"
-#include "cerver/game.h"
+#include "cerver/game/game.h"
 
 #include "utils/thpool.h"
 

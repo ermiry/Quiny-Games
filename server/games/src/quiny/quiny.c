@@ -226,7 +226,7 @@ static void quiny_main_handler (RecvdBufferData *data, DoubleList *pairs) {
 
         // if a game was found, send it to the game action handler
         if (game) {
-            if (!strcmp (game, "ask")) res = game_ask_handler (pairs);
+            if (!strcmp (game, "ask")) res = game_ask_handler (data->server, pairs);
 
             else logMsg (stdout, WARNING, NO_TYPE, createString ("Got unknown game %s", game));
         }

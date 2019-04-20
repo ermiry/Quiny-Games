@@ -11,7 +11,7 @@
 
 #include "network.h"
 #include "client.h"
-#include "game.h"
+#include "game/game.h"
 
 #include "collections/dllist.h"
 #include "collections/avl.h"

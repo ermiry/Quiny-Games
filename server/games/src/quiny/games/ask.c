@@ -36,7 +36,7 @@ static const char *game_ask_get_username (DoubleList *pairs) {
 
 }
 
-static HttpResponse *game_ask_create_lobby (DoubleList *pairs) {
+static HttpResponse *game_ask_create_lobby (Server *server, DoubleList *pairs) {
 
     HttpResponse *res = NULL;
 
@@ -59,7 +59,7 @@ static HttpResponse *game_ask_create_lobby (DoubleList *pairs) {
 
 }
 
-static HttpResponse *game_ask_join_lobby (DoubleList *pairs) {
+static HttpResponse *game_ask_join_lobby (Server *server, DoubleList *pairs) {
 
     HttpResponse *res = NULL;
 
@@ -82,7 +82,7 @@ static HttpResponse *game_ask_join_lobby (DoubleList *pairs) {
 
 }
 
-static HttpResponse *game_ask_leave_lobby (DoubleList *pairs) {
+static HttpResponse *game_ask_leave_lobby (Server *server, DoubleList *pairs) {
 
     HttpResponse *res = NULL;
 
@@ -105,7 +105,7 @@ static HttpResponse *game_ask_leave_lobby (DoubleList *pairs) {
 
 }
 
-HttpResponse *game_ask_handler (DoubleList *pairs) {
+HttpResponse *game_ask_handler (Server *server, DoubleList *pairs) {
 
     HttpResponse *res = NULL;
 
@@ -132,11 +132,11 @@ HttpResponse *game_ask_handler (DoubleList *pairs) {
                 free (json);        // we copy the data into the response
             }
 
-            else if (!strcmp (action, "create_lobby")) res = game_ask_create_lobby (pairs);
+            else if (!strcmp (action, "create_lobby")) res = game_ask_create_lobby (server, pairs);
 
-            else if (!strcmp (action, "join_lobby")) res = game_ask_join_lobby (pairs);
+            else if (!strcmp (action, "join_lobby")) res = game_ask_join_lobby (server, pairs);
 
-            else if (!strcmp (action, "leave_lobby")) res = game_ask_leave_lobby (pairs);
+            else if (!strcmp (action, "leave_lobby")) res = game_ask_leave_lobby (server, pairs);
 
             else logMsg (stdout, WARNING, NO_TYPE, createString ("Found unknow ask game action %s", action));
         }
