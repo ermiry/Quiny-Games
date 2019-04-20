@@ -44,7 +44,7 @@ router.get ('/test', (req, res) => {
 // @desc    Test that the ask game is running
 router.get ('/ask/test', (req, res) => {
 
-	axios.get (gamesurl + "games?name=ask&action=test")
+	axios.get (gamesurl + "?game=ask&action=test")
 		.then (result => {
 			console.log (result.data);
 			return res.status (200).json (res.data);

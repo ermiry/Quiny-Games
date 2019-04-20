@@ -470,6 +470,11 @@ void sendServerInfo (Server *server, i32 sock_fd, struct sockaddr_storage addres
 
 }
 
+// FIXME:
+// TODO: move this from here to the config section
+// set an action to be executed when a client connects to the server
+void server_set_send_server_info () {}
+
 #pragma endregion
 
 /*** SESSIONS ***/
@@ -1259,6 +1264,8 @@ void server_recieve (Server *server, i32 socket_fd, bool onHold) {
     // } while (true);
 
 }
+
+// FIXME: move this from here!!
 
 i32 server_accept (Server *server) {
 

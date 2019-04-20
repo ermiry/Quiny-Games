@@ -205,42 +205,64 @@ int quiny_end (void) {
 
 }
 
-
-static void quiny_handle_action (RecvdBufferData *data, DoubleList *pairs) {
+static char *game_ask_handler (DoubleList *pairs) {
 
     if (pairs) {
-        // first search for wahat action to handle
-        const char *action = NULL;
+        
+    }
+
+}
+
+// TODO: handle the creation of generic responses with a struct and a function!!
+// FIXME: how can we handle global errors?
+static void quiny_main_handler (RecvdBufferData *data, DoubleList *pairs) {
+
+    if (pairs) {
+        char *res = NULL;
+
+        // first search for what game we need
+        const char *game = NULL;
         KeyValuePair *kvp = NULL;
         for (ListElement *le = dlist_start (pairs); le; le = le->next) {
             kvp = (KeyValuePair *) le->data;
-            if (!strcmp (kvp->key, "action")) {
-                action = kvp->value;
+            if (!strcmp (kvp->key, "game")) {
+                game = kvp->value;
                 break;
             }
         }
 
-        // handle the action
-        if (!strcmp (action, "test")) {
-            char res[1024] = "HTTP/1.1 200 OK\r\n\nHello World";
-            send (data->sock_fd, res, strlen (res), 0);
-            printf ("Sent response: %s\n", res);
+        // if a game was found, send it to the game action handler
+        if (game) {
+            if (!strcmp (game, "ask")) res = game_ask_handler (pairs);
 
-            // disconnect the client from the server
-            Client *c = getClientBySocket (data->server->clients->root, data->sock_fd);
-            if (c) 
-                if (c->n_active_cons <= 1) 
-                    client_closeConnection (data->server, c);
-
-            else {
-                #ifdef CERVER_DEBUG
-                logMsg (stderr, ERROR, CLIENT, 
-                    "Couldn't find an active client with the requested socket!");
-                #endif
-            }
+            else logMsg (stdout, WARNING, NO_TYPE, createString ("Got unknown game %s", game));
         }
 
-        else logMsg (stdout, WARNING, NO_TYPE, createString ("Got unkown action %s", action));
+        // if no game was found, search for another action
+        else {
+            const char *action = NULL;
+            for (ListElement *le = dlist_start (pairs); le; le = le->next) {
+                kvp = (KeyValuePair *) le->data;
+                if (!strcmp (kvp->key, "action")) {
+                    action = kvp->value;
+                    break;
+                }
+            }
+
+            // handle the action
+            if (!strcmp (action, "test")) {
+                // FIXME: send json instead
+                // char res[1024] = "HTTP/1.1 200 OK\r\n\nHello World";
+                // send (data->sock_fd, res, strlen (res), 0);
+            }
+
+            else logMsg (stdout, WARNING, NO_TYPE, createString ("Got unkown action %s", action));
+        }
+
+        // TODO: send the response to the client
+
+        // after the performed action, close the client socket
+        client_disconnect_by_socket (data->server, data->sock_fd);
 
         dlist_destroy (pairs);
     }
@@ -288,7 +310,7 @@ void quiny_handle_recieved_buffer (void *rcvd_buffer_data) {
                 DoubleList *pairs = http_parse_query_into_pairs (query, last);
 
                 // now we can handle the action and its values
-                quiny_handle_action (data, pairs);
+                quiny_main_handler (data, pairs);
 
                 // KeyValuePair *kvp = NULL;
                 // for (ListElement *le = dlist_start (pairs); le; le = le->next) {

@@ -111,7 +111,8 @@ struct _Server {
 
     threadpool thpool;
 
-    void *serverInfo;           // useful info that we can send to clients                      
+    void *serverInfo;           // useful info that we can send to clients 
+    Action sendServerInfo;      // method to send server into to the client              
 
     // allow the clients to use sessions (have multiple connections)
     bool useSessions;  

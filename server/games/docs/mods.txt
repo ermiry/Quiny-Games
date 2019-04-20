@@ -9,4 +9,7 @@ Modifications to cerver framework
 
 - created a new module for cerver framework -> http
     - we moved our request and query parser to a unique file -> http/parser.c
+
 - we are getting a sigsev wehn we try to disconnect a client from a server that does nto required authentication
+
+- adding the option to sent server data to the client when he connects --> we still need to handle the action the server struct 19/april/2019 - 23:07
