@@ -9,6 +9,7 @@
 #include "types/myString.h"
 
 #include "cerver/cerver.h"
+#include "cerver/client.h"
 #include "cerver/http/parser.h"
 
 #include "utils/myUtils.h"
@@ -204,6 +205,53 @@ int quiny_end (void) {
 
 }
 
+
+static void quiny_handle_action (RecvdBufferData *data, DoubleList *pairs) {
+
+    if (pairs) {
+        // first search for wahat action to handle
+        const char *action = NULL;
+        KeyValuePair *kvp = NULL;
+        for (ListElement *le = dlist_start (pairs); le; le = le->next) {
+            kvp = (KeyValuePair *) le->data;
+            if (!strcmp (kvp->key, "action")) {
+                action = kvp->value;
+                break;
+            }
+        }
+
+        // handle the action
+        if (!strcmp (action, "test")) {
+            char res[1024] = "HTTP/1.1 200 OK\r\n\nHello World";
+            send (data->sock_fd, res, strlen (res), 0);
+            printf ("Sent response: %s\n", res);
+
+            // disconnect the client from the server
+            Client *c = getClientBySocket (data->server->clients->root, data->sock_fd);
+            if (c) 
+                if (c->n_active_cons <= 1) 
+                    client_closeConnection (data->server, c);
+
+            else {
+                #ifdef CERVER_DEBUG
+                logMsg (stderr, ERROR, CLIENT, 
+                    "Couldn't find an active client with the requested socket!");
+                #endif
+            }
+        }
+
+        else logMsg (stdout, WARNING, NO_TYPE, createString ("Got unkown action %s", action));
+
+        dlist_destroy (pairs);
+    }
+
+}
+
+/**** 
+// TODO: maybe handle the creation of a new thread to handle this from the server_recieve
+****/
+
+// FIXME: getting sigsev if we get a requets withput query!!
 // custom function to handle the received buffer from the server
 void quiny_handle_recieved_buffer (void *rcvd_buffer_data) {
 
@@ -233,31 +281,20 @@ void quiny_handle_recieved_buffer (void *rcvd_buffer_data) {
                 printf ("%s\n", str);
                 char *query = http_strip_path_from_query (str);
                 printf ("%s\n", query);
-                // printf("\nrequest is %d bytes long\n", pret);
-                // printf("method is %.*s\n", (int)method_len, method);
-                // TODO: copy this path, then we need to parse it and finally we handle the actions with the data!!
-                // printf("path is %.*s\n", (int) path_len, path);
-                // printf("HTTP version is 1.%d\n", minor_version);
-                // printf("headers:\n");
-                // for (int i = 0; i != num_headers; ++i) {
-                //     printf("%.*s: %.*s\n", (int)headers[i].name_len, headers[i].name,
-                //         (int)headers[i].value_len, headers[i].value);
-                // }
-                // printf ("\n");
-
-                // DoubleList *pairs = parse_query_into_pairs (query);
-                // int uri_dissect_query (int *itemCount, const char *first, const char *afterLast);
+                
                 int count = 0;
-                char *first = query;
-                char *last = first + strlen (query);
-                // FIXME: dont forget to free up this list!!
+                const char *first = query;
+                const char *last = first + strlen (query);
                 DoubleList *pairs = http_parse_query_into_pairs (query, last);
 
-                KeyValuePair *kvp = NULL;
-                for (ListElement *le = dlist_start (pairs); le; le = le->next) {
-                    kvp = (KeyValuePair *) le->data;
-                    printf ("key: %s - value: %s\n", kvp->key, kvp->value);
-                }
+                // now we can handle the action and its values
+                quiny_handle_action (data, pairs);
+
+                // KeyValuePair *kvp = NULL;
+                // for (ListElement *le = dlist_start (pairs); le; le = le->next) {
+                //     kvp = (KeyValuePair *) le->data;
+                //     printf ("key: %s - value: %s\n", kvp->key, kvp->value);
+                // }
             }
         }
 

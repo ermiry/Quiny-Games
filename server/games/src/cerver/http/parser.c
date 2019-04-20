@@ -370,6 +370,23 @@ int phr_parse_request(const char *buf_start, size_t len, const char **method, si
     return (int)(buf - buf_start);
 }
 
+// TODO:
+void http_request_print () {
+
+    // printf("\nrequest is %d bytes long\n", pret);
+    // printf("method is %.*s\n", (int)method_len, method);
+    // TODO: copy this path, then we need to parse it and finally we handle the actions with the data!!
+    // printf("path is %.*s\n", (int) path_len, path);
+    // printf("HTTP version is 1.%d\n", minor_version);
+    // printf("headers:\n");
+    // for (int i = 0; i != num_headers; ++i) {
+    //     printf("%.*s: %.*s\n", (int)headers[i].name_len, headers[i].name,
+    //         (int)headers[i].value_len, headers[i].value);
+    // }
+    // printf ("\n");
+
+}
+
 #pragma endregion
 
 #pragma region Query

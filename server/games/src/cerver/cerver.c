@@ -1190,8 +1190,8 @@ void default_handle_recieved_buffer (void *rcvd_buffer_data) {
 // recive all incoming data from the socket
 void server_recieve (Server *server, i32 socket_fd, bool onHold) {
 
-    if (onHold) logMsg (stdout, SUCCESS, PACKET, "server_recieve () - on hold client!");
-    else logMsg (stdout, SUCCESS, PACKET, "server_recieve () - normal client!");
+    // if (onHold) logMsg (stdout, SUCCESS, PACKET, "server_recieve () - on hold client!");
+    // else logMsg (stdout, SUCCESS, PACKET, "server_recieve () - normal client!");
 
     ssize_t rc;
     char packetBuffer[MAX_UDP_PACKET_SIZE];
@@ -1321,7 +1321,8 @@ i32 server_accept (Server *server) {
         client_registerToServer (server, client, newfd);
     } 
 
-    if (server->type != WEB_SERVER) sendServerInfo (server, newfd, clientAddress);
+    // FIXME: add the option to select which connection values to send!!!
+    // if (server->type != WEB_SERVER) sendServerInfo (server, newfd, clientAddress);
    
     #ifdef CERVER_DEBUG
         logMsg (stdout, DEBUG_MSG, SERVER, "A new client connected to the server!");
