@@ -10,6 +10,7 @@
 
 #include "cerver/game/game.h"
 #include "cerver/game/player.h"
+#include "cerver/game/lobby.h"
 
 #include "collections/dllist.h"
 #include "collections/avl.h"
@@ -45,6 +46,7 @@ void lobby_set_game_data (Lobby *lobby, void *game_data, Action delete_lobby_gam
 
 }
 
+// FIXME: set a unique id
 // lobby constructor, it also initializes basic lobby data
 Lobby *lobby_new (Server *server, unsigned int max_players) {
 
@@ -110,6 +112,19 @@ void lobby_delete (void *ptr) {
 
 }
 
+int lobby_comparator (void *one, void *two) {
+
+    if (one && two) {
+        Lobby *lobby_one = (Lobby *) one;
+        Lobby *lobby_two = (Lobby *) two;
+
+        if (lobby_one->id < lobby_two->id) return -1;
+        else if (lobby_one->id <= lobby_two->id) return 0;
+        else return 1;
+    }
+
+}
+
 // we remove any fd that was set to -1 for what ever reason
 void compressPlayers (Lobby *lobby) {
 
@@ -129,8 +144,132 @@ void compressPlayers (Lobby *lobby) {
 
 }
 
+// create a list to manage the server lobbys
+// called when we init the game server
+u8 game_init_lobbys (GameServerData *game_data, u8 n_lobbys) {
+
+    u8 retval = 1;
+
+    if (game_data) {
+        if (game_data->currentLobbys) logMsg (stdout, WARNING, SERVER, "The server has already a list of lobbys.");
+        else {
+            game_data->currentLobbys = dlist_init (lobby_delete, lobby_comparator);
+            if (game_data->currentLobbys) retval = 0;
+            else logMsg (stderr, ERROR, NO_TYPE, "Failed to init server's lobby list!");
+        }
+    }
+
+    return retval;
+
+}
+
+// add a player to a lobby
+static u8 lobby_add_player (Lobby *lobby, Player *player) {
+
+    if (lobby && player) {
+        if (!player_is_in_lobby (player, lobby)) {
+
+        }
+    }
+
+}
+
+// removes a player from the lobby
+static u8 lobby_remove_player (Lobby *lobby, Player *player) {
+
+    u8 retval = 1;
+
+    if (lobby && player) {
+
+    }
+
+    return retval;
+
+}
+
+// add a player to the lobby structures
+u8 player_add_to_lobby (Server *server, Lobby *lobby, Player *player) {
+
+    if (lobby && player) {
+        if (server->type == GAME_SERVER) {
+            GameServerData *gameData = (GameServerData *) server->serverData;
+            if (gameData) {
+                if (!player_isInLobby (player, lobby)) {
+                    Player *p = avl_removeNode (gameData->players, player);
+                    if (p) {
+                        i32 client_sock_fd = player->client->active_connections[0];
+
+                        avl_insertNode (lobby->players, p);
+
+                        // for (u32 i = 0; i < poll_n_fds; i++) {
+                        //     if (server->fds[i].fd == client_sock_fd) {
+                        //         server->fds[i].fd = -1;
+                        //         server->fds[i].events = -1;
+                        //     }
+                        // } 
+
+                        lobby->players_fds[lobby->players_nfds].fd = client_sock_fd;
+                        lobby->players_fds[lobby->players_nfds].events = POLLIN;
+                        lobby->players_nfds++;
+
+                        player->inLobby = true;
+
+                        return 0;
+                    }
+
+                    else logMsg (stderr, ERROR, GAME, "Failed to get player from avl!");
+                }
+            }
+        }
+    }
+
+    return 1;    
+
+}
+
+// FIXME: client socket!!
+// removes a player from the lobby's players structures and sends it to the game server's players
+u8 player_remove_from_lobby (Server *server, Lobby *lobby, Player *player) {
+
+    if (server && lobby && player) {
+        if (server->type == GAME_SERVER) {
+            GameServerData *gameData = (GameServerData *) gameData;
+            if (gameData) {
+                // make sure that the player is inside the lobby...
+                if (player_isInLobby (player, lobby)) {
+                    // create a new player and add it to the server's players
+                    // Player *p = newPlayer (gameData->playersPool, NULL, player);
+
+                    // remove from the poll fds
+                    for (u8 i = 0; i < lobby->players_nfds; i++) {
+                        /* if (lobby->players_fds[i].fd == player->client->clientSock) {
+                            lobby->players_fds[i].fd = -1;
+                            lobby->players_nfds--;
+                            lobby->compress_players = true;
+                            break;
+                        } */
+                    }
+
+                    // delete the player from the lobby
+                    avl_removeNode (lobby->players, player);
+
+                    // p->inLobby = false;
+
+                    // player_registerToServer (server, p);
+
+                    return 0;
+                }
+            }
+        }
+    }
+
+    return 1;
+
+}
+
 void handleGamePacket (void *);
 
+// FIXME: give the option to add a custom hanlder!!
 // FIXME: create a similar logic to on hold players!!!
 // recieves packages from players inside the lobby
 void handlePlayersInLobby (void *data) {
@@ -210,198 +349,75 @@ void handlePlayersInLobby (void *data) {
 
 void deleteGamePacketInfo (void *data);
 
-
-
-// create a list to manage the server lobbys
-// called when we init the game server
-u8 game_initLobbys (GameServerData *gameData, u8 n_lobbys) {
-
-    if (!gameData) {
-        logMsg (stderr, ERROR, SERVER, "Can't init lobbys in a NULL game data!");
-        return 1;
-    }
-
-    if (gameData->currentLobbys) 
-        logMsg (stdout, WARNING, SERVER, "The server has already a list of lobbys.");
-    else {
-        gameData->currentLobbys = dlist_init (deleteLobby, NULL);
-        if (!gameData->currentLobbys) {
-            logMsg (stderr, ERROR, NO_TYPE, "Failed to init server's lobby list!");
-            return 1;
-        }
-    }
-
-    if (gameData->lobbyPool) 
-        logMsg (stdout, WARNING, SERVER, "The server has already a pool of lobbys.");
-    else {
-        gameData->lobbyPool = pool_init (deleteLobby);
-        if (!gameData->lobbyPool) {
-            logMsg (stderr, ERROR, NO_TYPE, "Failed to init server's lobby pool!");
-            return 1;
-        }
-    }
-    
-    for (u8 i = 0; i < n_lobbys; i++) pool_push (gameData->lobbyPool, malloc (sizeof (Lobby)));
-
-    #ifdef DEBUG
-    logMsg (stdout, DEBUG_MSG, GAME, "Lobbys have been init in the game server.");
-    #endif
-
-    return 0;
-
-}
-
-// loads the settings for the selected game type from the game server data
-GameSettings *getGameSettings (Config *gameConfig, GameType gameType) {
-
-    ConfigEntity *cfgEntity = config_get_entity_with_id (gameConfig, gameType);
-	if (!cfgEntity) {
-        logMsg (stderr, ERROR, GAME, "Problems with game settings config!");
-        return NULL;
-    } 
-
-    GameSettings *settings = (GameSettings *) malloc (sizeof (GameSettings));
-
-    char *playerTimeout = config_get_entity_value (cfgEntity, "playerTimeout");
-    if (playerTimeout) {
-        settings->playerTimeout = atoi (playerTimeout);
-        free (playerTimeout);
-    } 
-    else {
-        logMsg (stdout, WARNING, GAME, "No player timeout found in cfg. Using default.");        
-        settings->playerTimeout = DEFAULT_PLAYER_TIMEOUT;
-    }
-
-    #ifdef DEBUG
-    logMsg (stdout, DEBUG_MSG, GAME, createString ("Player timeout: %i", settings->playerTimeout));
-    #endif
-
-    char *fps = config_get_entity_value (cfgEntity, "fps");
-    if (fps) {
-        settings->fps = atoi (fps);
-        free (fps);
-    } 
-    else {
-        logMsg (stdout, WARNING, GAME, "No fps found in cfg. Using default.");        
-        settings->fps = DEFAULT_FPS;
-    }
-
-    #ifdef DEBUG
-    logMsg (stdout, DEBUG_MSG, GAME, createString ("FPS: %i", settings->fps));
-    #endif
-
-    char *minPlayers = config_get_entity_value (cfgEntity, "minPlayers");
-    if (minPlayers) {
-        settings->minPlayers = atoi (minPlayers);
-        free (minPlayers);
-    } 
-    else {
-        logMsg (stdout, WARNING, GAME, "No min players found in cfg. Using default.");        
-        settings->minPlayers = DEFAULT_MIN_PLAYERS;
-    }
-
-    #ifdef DEBUG
-    logMsg (stdout, DEBUG_MSG, GAME, createString ("Min players: %i", settings->minPlayers));
-    #endif
-
-    char *maxPlayers = config_get_entity_value (cfgEntity, "maxPlayers");
-    if (maxPlayers) {
-        settings->maxPlayers = atoi (maxPlayers);
-        free (maxPlayers);
-    } 
-    else {
-        logMsg (stdout, WARNING, GAME, "No max players found in cfg. Using default.");        
-        settings->maxPlayers = DEFAULT_MIN_PLAYERS;
-    }
-
-    #ifdef DEBUG
-    logMsg (stdout, DEBUG_MSG, GAME, createString ("Max players: %i", settings->maxPlayers));
-    #endif
-
-    settings->gameType = gameType;
-
-    return settings;
-
-}
-
-// FIXME: lobby thread with a bool
 // TODO: add a timestamp of the creation of the lobby
-// creates a new lobby and inits his values with an owner and a game type
-Lobby *createLobby (Server *server, Player *owner, GameType gameType) {
+// creates a new lobby and inits his values with an owner
+Lobby *lobby_create (Server *server, Player *owner, unsigned int max_players) {
 
-    if (!server) {
-        logMsg (stderr, ERROR, SERVER, "Don't know in which server to create the lobby!");
-        return NULL;
-    }
+    Lobby *lobby = NULL;
 
-    else {
-        if (server->type != GAME_SERVER) {
-            logMsg (stderr, ERROR, SERVER, "Can't create a lobby in a server of incorrect type!");
-            return NULL;
+    if (server && owner) {
+        lobby = lobby_new (server, max_players);
+        if (lobby) {
+            if (!lobby_add_player (lobby, owner)) {
+                lobby->owner = owner;
+                lobby->current_players = 1;
+
+                // add the lobby the server active ones
+                GameServerData *game_data = (GameServerData *) server->serverData;
+                dlist_insert_after (game_data->currentLobbys, dlist_end (game_data->currentLobbys), lobby);
+
+                // FIXME: 20/04/2019 -- do we want to init the lobby from here or create a separte method?
+                // lobby->inGame = false;
+                // lobby->isRunning = true;
+                // thpool_add_work (server->thpool, (void *) handlePlayersInLobby, sl);
+            }
+
+            else {
+                logMsg (stderr, ERROR, GAME, "Failed to add owner to lobby!");
+                lobby_delete (lobby);
+                lobby = NULL;
+            }
         }
     }
-
-    if (!owner) {
-        logMsg (stderr, ERROR, SERVER, "A NULL player can't create a lobby!");
-        return NULL;
-    }
-
-    #ifdef DEBUG
-    logMsg (stdout, DEBUG_MSG, GAME, "Creatting a new lobby...");
-    #endif
-
-    GameServerData *data = (GameServerData *) server->serverData;
-    Lobby *lobby = newLobby (server);
-
-    lobby->owner = owner;
-    lobby->settings = getGameSettings (data->gameSettingsConfig, gameType);
-    if (!lobby->settings) {
-        logMsg (stderr, ERROR, GAME, "Failed to get the settings for the new lobby!");
-        lobby->owner = NULL;
-        // send the lobby back to the object pool
-        pool_push (data->lobbyPool, lobby);
-
-        return NULL;
-    } 
-
-    // init the clients/players structures inside the lobby
-    lobby->players = avl_init (player_comparator_client_id, deletePlayer);
-    lobby->players_nfds = 0;
-    lobby->compress_players = false;
-    lobby->pollTimeout = server->pollTimeout;    // inherit the poll timeout from server
-
-    lobby->deleteLobbyGameData = data->deleteLobbyGameData;
-
-    if (!player_addToLobby (server, lobby, owner)) {
-        lobby->inGame = false;
-        lobby->isRunning = true;
-
-        // add the lobby the server active ones
-        dlist_insert_after (data->currentLobbys, dlist_end (data->currentLobbys), lobby);
-
-        // create a unique thread to handle this lobby
-        ServerLobby *sl = (ServerLobby *) malloc (sizeof (ServerLobby));
-        sl->server = server;
-        sl->lobby = lobby;
-
-        // thpool_add_work (server->thpool, (void *) handlePlayersInLobby, sl);
-
-        return lobby;
-    }
-
-    else {
-        logMsg (stderr, ERROR, GAME, "Failed to register the owner of the lobby to the lobby!");
-        logMsg (stderr, ERROR, GAME, "Failed to create new lobby!");
-
-        pool_push (data->lobbyPool, lobby);      // dispose the lobby
-
-        return NULL;
-    } 
 
     return lobby;
 
 }
 
+// called by a registered player that wants to join a lobby on progress
+// the lobby model gets updated with new values
+u8 lobby_join (Lobby *lobby, Player *player) {
+
+    u8 retval = 1;
+
+    if (lobby && player) {
+        // check if for whatever reason a player al ready inside the lobby wants to join...
+        if (!player_is_in_lobby (player, lobby)) {
+            // check if the lobby is al ready running the game
+            if (!lobby->inGame) {
+                // check lobby capacity
+                if (lobby->current_players < lobby->max_players) {
+                    // the player is clear to join the lobby
+                    if (!lobby_add_player (lobby, player)) {
+                        lobby->current_players += 1;
+                        retval = 0;
+                    }
+                }
+
+                else logMsg (stdout, DEBUG_MSG, GAME, "A player tried to join a full lobby.");
+            }
+
+            else logMsg (stdout, DEBUG_MSG, GAME, "A player tried to join a lobby that is in game.");
+        }
+
+        else logMsg (stderr, ERROR, GAME, "A player tries to join the same lobby he is in.");
+    }
+
+    return retval;
+
+}
+
+// FIXME:
 // a lobby should only be destroyed when there are no players left or if we teardown the server
 u8 destroyLobby (Server *server, Lobby *lobby) {
 
@@ -471,106 +487,42 @@ u8 destroyLobby (Server *server, Lobby *lobby) {
 
 }
 
-// TODO: maybe the admin can add a custom ptr to a custom function?
-// FIXME:
-// TODO: pass the correct game type and maybe create a more advance algorithm
-// finds a suitable lobby for the player
-Lobby *findLobby (Server *server) {
+// called when a player requests to leave the lobby
+u8 lobby_leave (Lobby *lobby, Player *player) {
 
-    // FIXME: how do we want to handle these errors?
-    // perform some check here...
-    if (!server) return NULL;
-    if (server->type != GAME_SERVER) {
-        logMsg (stderr, ERROR, SERVER, "Can't search for lobbys in non game server.");
-        return NULL;
-    }
-    
-    GameServerData *gameData = (GameServerData *) server->serverData;
-    if (!gameData) {
-        logMsg (stderr, ERROR, SERVER, "NULL reference to game data in game server!");
-        return NULL;
-    }
+    u8 retval = 1;
 
-    // 11/11/2018 -- we have a simple algorithm that only searches for the first available lobby
-    Lobby *lobby = NULL;
-    for (ListElement *e = dlist_start (gameData->currentLobbys); e != NULL; e = e->next) {
-        lobby = (Lobby *) e->data;
-        if (lobby) {
-            if (!lobby->inGame) {
-                if (lobby->players_nfds < lobby->settings->maxPlayers) {
-                    // we have found a suitable lobby
-                    break;
-                }
+    if (lobby && player) {
+        // first check if the player is inside the lobby
+        if (player_is_in_lobby (player, lobby)) {
+            // FIXME:
+            // now check if the player is the owner
+
+            // remove the player from the lobby
+            if (!lobby_remove_player (lobby, player)) lobby->current_players -= 1;
+
+            // check if there are still players in the lobby
+            if (lobby->current_players > 0) {
+                // TODO: what do we do to the players??
             }
+
+            else {  
+                // the player was the last one in, so we can safely delete the lobby
+                lobby_delete (lobby);
+                retval = 0;
+            } 
         }
     }
 
-    // TODO: what do we do if we do not found a lobby? --> create a new one?
-    if (!lobby) {
-
-    }
-
-    return lobby;
-
-}
-
-// called by a registered player that wants to join a lobby on progress
-u8 joinLobby (Server *server, Lobby *lobby, Player *player) {
-
-    if (!lobby || !player) return 1;
-
-    // check if for whatever reason a player al ready inside the lobby wants to join...
-    if (player_isInLobby (player, lobby)) {
-        #ifdef DEBUG
-        logMsg (stdout, DEBUG_MSG, GAME, "A player tries to join the same lobby he is in.");
-        #endif
-        // FIXME:
-        // sendErrorPacket (server, player->client, ERR_JOIN_LOBBY, 
-        //     "You can't join the same lobby you are in!");
-        return 1;
-    }
-
-    // check that the player can join the actual game...
-    if (lobby->inGame) {
-        #ifdef DEBUG
-        logMsg (stdout, DEBUG_MSG, GAME, "A player tried to join a lobby that is in game.");
-        #endif
-        // FIXME:
-        // sendErrorPacket (server, player->client, ERR_JOIN_LOBBY, "A game is in progress in the lobby!");
-        return 1;
-    }
-
-    // lobby is already full
-    if (lobby->players_nfds >= lobby->settings->maxPlayers) {
-        #ifdef DEBUG
-        logMsg (stdout, DEBUG_MSG, GAME, "A player tried to join a full lobby.");
-        #endif
-        // FIXME:
-        // sendErrorPacket (server, player->client, ERR_JOIN_LOBBY, "The lobby is already full!");
-        return 1;
-    }
-
-    if (!player_addToLobby (server, lobby, player)) {
-        // sync the in lobby player(s) and the new player
-        sendLobbyPacket (server, lobby);
-
-        return 0;   // success
-    }
-    
-    else {
-        logMsg (stderr, ERROR, PLAYER, "Failed to register a player to a lobby!");
-        return 1;
-    }
+    return retval;
 
 }
 
 // FIXME: client socket!!
 // FIXME: send packet!
 // TODO: add a timestamp when the player leaves
-// called when a player requests to leave the lobby
-u8 leaveLobby (Server *server, Lobby *lobby, Player *player) {
 
-    if (!lobby || player) return 1;
+u8 leaveLobby (Server *server, Lobby *lobby, Player *player) {
 
     // make sure that the player is inside the lobby
     if (player_isInLobby (player, lobby)) {
@@ -639,3 +591,118 @@ u8 leaveLobby (Server *server, Lobby *lobby, Player *player) {
     return 1;
 
 }
+
+// TODO: maybe the admin can add a custom ptr to a custom function?
+// FIXME:
+// TODO: pass the correct game type and maybe create a more advance algorithm
+// finds a suitable lobby for the player
+Lobby *findLobby (Server *server) {
+
+    // FIXME: how do we want to handle these errors?
+    // perform some check here...
+    if (!server) return NULL;
+    if (server->type != GAME_SERVER) {
+        logMsg (stderr, ERROR, SERVER, "Can't search for lobbys in non game server.");
+        return NULL;
+    }
+    
+    GameServerData *gameData = (GameServerData *) server->serverData;
+    if (!gameData) {
+        logMsg (stderr, ERROR, SERVER, "NULL reference to game data in game server!");
+        return NULL;
+    }
+
+    // 11/11/2018 -- we have a simple algorithm that only searches for the first available lobby
+    Lobby *lobby = NULL;
+    for (ListElement *e = dlist_start (gameData->currentLobbys); e != NULL; e = e->next) {
+        lobby = (Lobby *) e->data;
+        if (lobby) {
+            if (!lobby->inGame) {
+                if (lobby->players_nfds < lobby->settings->maxPlayers) {
+                    // we have found a suitable lobby
+                    break;
+                }
+            }
+        }
+    }
+
+    // TODO: what do we do if we do not found a lobby? --> create a new one?
+    if (!lobby) {
+
+    }
+
+    return lobby;
+
+}
+
+// FIXME: this is blackrcock specific code!!
+// loads the settings for the selected game type from the game server data
+/* GameSettings *getGameSettings (Config *gameConfig, GameType gameType) {
+
+    ConfigEntity *cfgEntity = config_get_entity_with_id (gameConfig, gameType);
+	if (!cfgEntity) {
+        logMsg (stderr, ERROR, GAME, "Problems with game settings config!");
+        return NULL;
+    } 
+
+    GameSettings *settings = (GameSettings *) malloc (sizeof (GameSettings));
+
+    char *playerTimeout = config_get_entity_value (cfgEntity, "playerTimeout");
+    if (playerTimeout) {
+        settings->playerTimeout = atoi (playerTimeout);
+        free (playerTimeout);
+    } 
+    else {
+        logMsg (stdout, WARNING, GAME, "No player timeout found in cfg. Using default.");        
+        settings->playerTimeout = DEFAULT_PLAYER_TIMEOUT;
+    }
+
+    #ifdef DEBUG
+    logMsg (stdout, DEBUG_MSG, GAME, createString ("Player timeout: %i", settings->playerTimeout));
+    #endif
+
+    char *fps = config_get_entity_value (cfgEntity, "fps");
+    if (fps) {
+        settings->fps = atoi (fps);
+        free (fps);
+    } 
+    else {
+        logMsg (stdout, WARNING, GAME, "No fps found in cfg. Using default.");        
+        settings->fps = DEFAULT_FPS;
+    }
+
+    #ifdef DEBUG
+    logMsg (stdout, DEBUG_MSG, GAME, createString ("FPS: %i", settings->fps));
+    #endif
+
+    char *minPlayers = config_get_entity_value (cfgEntity, "minPlayers");
+    if (minPlayers) {
+        settings->minPlayers = atoi (minPlayers);
+        free (minPlayers);
+    } 
+    else {
+        logMsg (stdout, WARNING, GAME, "No min players found in cfg. Using default.");        
+        settings->minPlayers = DEFAULT_MIN_PLAYERS;
+    }
+
+    #ifdef DEBUG
+    logMsg (stdout, DEBUG_MSG, GAME, createString ("Min players: %i", settings->minPlayers));
+    #endif
+
+    char *maxPlayers = config_get_entity_value (cfgEntity, "maxPlayers");
+    if (maxPlayers) {
+        settings->maxPlayers = atoi (maxPlayers);
+        free (maxPlayers);
+    } 
+    else {
+        logMsg (stdout, WARNING, GAME, "No max players found in cfg. Using default.");        
+        settings->maxPlayers = DEFAULT_MIN_PLAYERS;
+    }
+
+    #ifdef DEBUG
+    logMsg (stdout, DEBUG_MSG, GAME, createString ("Max players: %i", settings->maxPlayers));
+    #endif
+
+    return settings;
+
+} */

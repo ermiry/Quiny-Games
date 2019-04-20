@@ -155,98 +155,17 @@ void player_unregister_to_server (Server *server, Player *player) {
 
 }
 
-// FIXME: client socket!!
-// make sure that the player is inside the lobby
+// FIXME:
+// check if a player is inside a lobby  
 bool player_is_in_lobby (Player *player, Lobby *lobby) {
 
-    /* if (player && lobby) {
+    if (player && lobby) {
         for (u8 i = 0; i < lobby->players_nfds; i++) 
             if (lobby->players_fds[i].fd == player->client->clientSock)
                 return true;
-
-    } */
+    }
 
     return false;
-
-}
-
-// add a player to the lobby structures
-u8 player_add_to_lobby (Server *server, Lobby *lobby, Player *player) {
-
-    if (lobby && player) {
-        if (server->type == GAME_SERVER) {
-            GameServerData *gameData = (GameServerData *) server->serverData;
-            if (gameData) {
-                if (!player_isInLobby (player, lobby)) {
-                    Player *p = avl_removeNode (gameData->players, player);
-                    if (p) {
-                        i32 client_sock_fd = player->client->active_connections[0];
-
-                        avl_insertNode (lobby->players, p);
-
-                        // for (u32 i = 0; i < poll_n_fds; i++) {
-                        //     if (server->fds[i].fd == client_sock_fd) {
-                        //         server->fds[i].fd = -1;
-                        //         server->fds[i].events = -1;
-                        //     }
-                        // } 
-
-                        lobby->players_fds[lobby->players_nfds].fd = client_sock_fd;
-                        lobby->players_fds[lobby->players_nfds].events = POLLIN;
-                        lobby->players_nfds++;
-
-                        player->inLobby = true;
-
-                        return 0;
-                    }
-
-                    else logMsg (stderr, ERROR, GAME, "Failed to get player from avl!");
-                }
-            }
-        }
-    }
-
-    return 1;    
-
-}
-
-// FIXME: client socket!!
-// removes a player from the lobby's players structures and sends it to the game server's players
-u8 player_remove_from_lobby (Server *server, Lobby *lobby, Player *player) {
-
-    if (server && lobby && player) {
-        if (server->type == GAME_SERVER) {
-            GameServerData *gameData = (GameServerData *) gameData;
-            if (gameData) {
-                // make sure that the player is inside the lobby...
-                if (player_isInLobby (player, lobby)) {
-                    // create a new player and add it to the server's players
-                    // Player *p = newPlayer (gameData->playersPool, NULL, player);
-
-                    // remove from the poll fds
-                    for (u8 i = 0; i < lobby->players_nfds; i++) {
-                        /* if (lobby->players_fds[i].fd == player->client->clientSock) {
-                            lobby->players_fds[i].fd = -1;
-                            lobby->players_nfds--;
-                            lobby->compress_players = true;
-                            break;
-                        } */
-                    }
-
-                    // delete the player from the lobby
-                    avl_removeNode (lobby->players, player);
-
-                    // p->inLobby = false;
-
-                    // player_registerToServer (server, p);
-
-                    return 0;
-                }
-            }
-        }
-    }
-
-    return 1;
 
 }
 

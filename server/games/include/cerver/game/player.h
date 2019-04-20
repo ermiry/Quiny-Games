@@ -56,14 +56,8 @@ extern void player_register_to_server (struct _Server *server, Player *player);
 // client from the main server poll
 extern void player_unregister_to_server (struct _Server *server, Player *player);
 
-// make sure that the player is inside the lobby
-extern bool player_is_in_lobby (Player *player, Lobby *lobby);
-
-// add a player to the lobby structures
-extern u8 player_add_to_lobby (struct _Server *server, Lobby *lobby, Player *player);
-
-// removes a player from the lobby's players structures and sends it to the game server's players
-extern u8 player_remove_from_lobby (struct _Server, Lobby *lobby, Player *player);
+// check if a player is inside a lobby  
+bool player_is_in_lobby (Player *player, Lobby *lobby);
 
 // recursively get the player associated with the socket
 extern Player *player_get_by_socket (AVLNode *node, i32 socket_fd);

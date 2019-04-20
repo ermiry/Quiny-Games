@@ -32,6 +32,8 @@ typedef struct _GameSettings GameSettings;
 
 struct _Lobby {
 
+	unsigned int id;
+
 	// GameSettings *settings;
 	void *game_settings;
 	Action delete_lobby_game_settings;
@@ -46,6 +48,7 @@ struct _Lobby {
 	// lobby with more players in it
 	AVLTree *players;							// players inside the lobby -> reference to the main player avl
 	unsigned int max_players;
+	unsigned int current_players;
     struct pollfd *players_fds;     			
     u16 players_nfds;                           // n of active fds in the pollfd array
     bool compress_players;              		// compress the fds array?
@@ -73,5 +76,20 @@ extern Lobby *lobby_new (Server *server, unsigned int max_players);
 // deletes a lobby for ever -- called when we teardown the server
 // we do not need to give any feedback to the players if there is any inside
 extern void lobby_delete (void *ptr);
+extern int lobby_comparator (void *one, void *two);
+
+// create a list to manage the server lobbys
+// called when we init the game server
+extern u8 game_init_lobbys (GameServerData *game_data, u8 n_lobbys);
+
+/*** Player interaction ***/
+
+// creates a new lobby and inits his values with an owner
+extern Lobby *lobby_create (Server *server, Player *owner, unsigned int max_players);
+// called by a registered player that wants to join a lobby on progress
+// the lobby model gets updated with new values
+extern u8 lobby_join (Lobby *lobby, Player *player);
+// called when a player requests to leave the lobby
+extern u8 lobby_leave (Lobby *lobby, Player *player);
 
 #endif
