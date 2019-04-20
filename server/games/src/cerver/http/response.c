@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 
 #include "cerver/http/response.h"
+#include "cerver/http/json.h"
 
 // TODO: get the size fo this when we start the server!!
 char *default_header = "HTTP/1.1 200 OK\r\n\n";
@@ -93,5 +94,23 @@ int http_response_send_to_socket (const HttpResponse *res, const int socket_fd) 
     } 
 
     return retval;
+
+}
+
+HttpResponse *http_response_json_error (const char *error_msg) {
+
+    HttpResponse *res = NULL;
+
+    if (error_msg) {
+        String *error = str_new (error_msg);
+        JsonKeyValue *jkvp = json_key_value_create ("error", error, VALUE_TYPE_STRING);
+        size_t json_len;
+        char *json = json_create_with_one_pair (jkvp, &json_len);
+        json_key_value_delete (jkvp);
+        res = http_response_create (200, NULL, 0, json, json_len);
+        free (json);        // we copy the data into the response
+    }
+
+    return res;
 
 }

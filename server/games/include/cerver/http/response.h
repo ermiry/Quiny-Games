@@ -28,4 +28,6 @@ extern void http_response_compile (HttpResponse *res);
 
 extern int http_response_send_to_socket (const HttpResponse *res, const int socket_fd);
 
+extern HttpResponse *http_response_json_error (const char *error_msg);
+
 #endif
