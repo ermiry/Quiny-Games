@@ -205,10 +205,153 @@ int quiny_end (void) {
 
 }
 
+// TODO: maybe add a header, the data is used just as raw data, and we can create a method to actually create the response???
+// TODO: maybe we can have a similar model for requests in the framework??
+typedef struct HttpResponse {
+
+    unsigned int status;
+    char *data;
+    size_t data_len;
+
+} HttpResponse;
+
+HttpResponse *http_response_new (void) {
+
+    HttpResponse *res = (HttpResponse *) malloc (sizeof (HttpResponse));
+    if (res) {
+        memset (res, 0, sizeof (HttpResponse));
+        res->data = NULL;
+    } 
+
+    return res;
+
+}
+
+HttpResponse *http_response_create (unsigned int status, const char *data, size_t data_len) {
+
+    HttpResponse *res = NULL;
+    if (data) {
+        res = (HttpResponse *) malloc (sizeof (HttpResponse));
+        if (res) {
+            res->status = status;
+            memcpy (res->data, data, data_len);
+            res->data_len = data_len;
+        }
+    }
+
+    return res;
+
+}
+
+void http_respponse_delete (HttpResponse *res) {
+
+    if (res) {
+        if (res->data) free (res->data);
+        free (res);
+    }
+
+}
+
+int http_response_send_to_socket (const HttpResponse *res, const int socket_fd) {
+
+    int retval = 1;
+
+    if (res) retval = send (socket_fd, res->data, res->data_len, 0);
+
+    return retval;
+
+}
+
+typedef enum ServerType {
+
+    FILE_SERVER = 1,
+    WEB_SERVER, 
+    GAME_SERVER
+
+} ServerType;
+
+typedef enum ValueType {
+
+    VALUE_INT,
+    VALUE_DOUBLE,
+    VALUE_STRING,
+
+} ValueType;
+
+// TODO: maybe create a json utily function with bson??
+typedef struct JsonKeyValue {
+
+    String *key;
+    void *value;
+    ValueType valueType;
+
+} JsonKeyValue;
+
+// uses the reference to a value, do not free the value, it will be free when the list gets destroy
+JsonKeyValue *json_key_value_new (void) {
+
+    JsonKeyValue *jkvp = (JsonKeyValue *) malloc (sizeof (JsonKeyValue));
+    if (jkvp) {
+        jkvp->key = NULL;
+        jkvp->value = NULL;
+    }
+
+    return jkvp;
+
+}
+
+JsonKeyValue *json_key_value_create (const char *key, const void *value, ValueType value_type) {
+
+    JsonKeyValue *jkvp = NULL;
+
+    if (key && value) {
+        jkvp = (JsonKeyValue *) malloc (sizeof (JsonKeyValue));
+        if (jkvp) {
+            jkvp->key = str_new (key);
+            jkvp->value = value;
+            jkvp->valueType = value_type;
+        }
+    }
+
+    return jkvp;
+
+}
+
+void json_key_value_delete (void *ptr) {
+
+    if (ptr) {
+        JsonKeyValue *jkvp = (JsonKeyValue *) ptr;
+
+        if (jkvp->key) str_delete (jkvp->key);
+        if (jkvp->valueType == VALUE_STRING) str_delete ((String *) jkvp->key);
+
+        free (jkvp);
+    }
+
+}
+
+
 static char *game_ask_handler (DoubleList *pairs) {
 
     if (pairs) {
-        
+        // get the action to perform
+        const char *action = NULL;
+        KeyValuePair *kvp = NULL;
+        for (ListElement *le = dlist_start (pairs); le; le = le->next) {
+            kvp = (KeyValuePair *) le->data;
+            if (!strcmp (kvp->key, "action")) {
+                action = kvp->value;
+                break;
+            }
+        }
+
+        if (action) {
+            if (!strcmp (action, "test")) {
+
+            }
+        }
+
+        else logMsg (stdout, ERROR, NO_TYPE, "No action provided for ask game!");
     }
 
 }
@@ -218,7 +361,7 @@ static char *game_ask_handler (DoubleList *pairs) {
 static void quiny_main_handler (RecvdBufferData *data, DoubleList *pairs) {
 
     if (pairs) {
-        char *res = NULL;
+        HttpResponse *res = NULL;
 
         // first search for what game we need
         const char *game = NULL;
@@ -259,7 +402,8 @@ static void quiny_main_handler (RecvdBufferData *data, DoubleList *pairs) {
             else logMsg (stdout, WARNING, NO_TYPE, createString ("Got unkown action %s", action));
         }
 
-        // TODO: send the response to the client
+        // send the response to the client
+        http_response_send_to_socket (res, data->sock_fd);
 
         // after the performed action, close the client socket
         client_disconnect_by_socket (data->server, data->sock_fd);
