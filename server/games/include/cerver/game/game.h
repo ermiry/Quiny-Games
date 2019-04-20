@@ -43,11 +43,13 @@ struct _GameServerData {
 
     Config *gameSettingsConfig;     // stores game modes info
 
-    Pool *lobbyPool;        // 21/10/2018 -- 22:04 -- each game server has its own pool
+    // Pool *lobbyPool;        // 21/10/2018 -- 22:04 -- each game server has its own pool
     DoubleList *currentLobbys;    // a list of the current lobbys
 
-    Pool *playersPool;          // 22/10/2018 -- each server has its own player's pool
+    // Pool *playersPool;          // 22/10/2018 -- each server has its own player's pool
     AVLTree *players;
+    // FIXME: set this when creating the game server!!!!
+    Comparator *player_comparator;      // used in the avl tree
 
 	// an admin can set a custom function to find a lobby bassed on 
 	// some game parameters

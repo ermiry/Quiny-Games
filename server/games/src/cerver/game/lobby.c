@@ -23,6 +23,93 @@
 void *createLobbyPacket (RequestType reqType, struct _Lobby *lobby, size_t packetSize);
 void sendLobbyPacket (Server *server, Lobby *lobby);
 
+/*** Lobby Configuration ***/
+
+// sets the lobby settings and a function to delete it
+void lobby_set_game_settings (Lobby *lobby, void *game_settings, Action delete_game_settings) {
+
+    if (lobby) {
+        lobby->game_settings = game_settings;
+        lobby->delete_lobby_game_settings = delete_game_settings;
+    }
+
+}
+
+// sets the lobby game data and a function to delete it
+void lobby_set_game_data (Lobby *lobby, void *game_data, Action delete_lobby_game_data) {
+
+    if (lobby) {
+        lobby->game_data = game_data;
+        lobby->delete_lobby_game_data = delete_lobby_game_data;
+    }
+
+}
+
+// lobby constructor, it also initializes basic lobby data
+Lobby *lobby_new (Server *server, unsigned int max_players) {
+
+    Lobby *lobby = (Lobby *) malloc (sizeof (Lobby));
+    if (lobby) {
+        memset (lobby, 0, sizeof (Lobby));
+
+        lobby->game_settings = NULL;
+
+        GameServerData *game_data = (GameServerData *) server->serverData;
+        // FIXME: we dont want to delete the players here!! they also have a refrence in the main avl tree!!
+        lobby->players = avl_init (game_data->player_comparator, player_delete);
+        lobby->owner = NULL; 
+        
+        lobby->max_players = max_players;
+        lobby->players_fds = (struct pollfd *) calloc (max_players, sizeof (struct pollfd));
+        lobby->compress_players = false;        // default
+
+        lobby->game_data = NULL;
+        lobby->delete_lobby_game_data = NULL;
+
+        lobby->isRunning = false;
+        lobby->inGame = false;
+    }
+
+    return lobby;
+
+}
+
+// deletes a lobby for ever -- called when we teardown the server
+// we do not need to give any feedback to the players if there is any inside
+void lobby_delete (void *ptr) {
+
+    if (ptr) {
+        Lobby *lobby = (Lobby *) ptr;
+
+        lobby->inGame = false;          // just to be sure
+        lobby->isRunning = false;
+        lobby->owner = NULL;            // the owner is destroyed in the avl tree
+
+        if (lobby->game_data) {
+            if (lobby->delete_lobby_game_data) lobby->delete_lobby_game_data (lobby->game_data);
+            else free (lobby->game_data);
+        }
+
+        if (lobby->players_fds) {
+            memset (lobby->players_fds, 0, sizeof (struct pollfd) * lobby->max_players);
+            free (lobby->players_fds);
+        }
+
+        if (lobby->players) {
+            avl_clearTree (&lobby->players->root, lobby->players->destroy);
+            free (lobby->players);
+        }   
+
+        if (lobby->game_settings) {
+            if (lobby->delete_lobby_game_settings) lobby->delete_lobby_game_settings (lobby->game_settings);
+            else free (lobby->game_settings);
+        }
+
+        free (lobby);
+    }
+
+}
+
 // we remove any fd that was set to -1 for what ever reason
 void compressPlayers (Lobby *lobby) {
 
@@ -123,87 +210,7 @@ void handlePlayersInLobby (void *data) {
 
 void deleteGamePacketInfo (void *data);
 
-Lobby *newLobby (Server *server) {
 
-    if (server) {
-        if (server->type == GAME_SERVER) {
-            Lobby *lobby = NULL;
-            GameServerData *gameData = (GameServerData *) server->serverData;
-            if (gameData->lobbyPool) {
-                if (POOL_SIZE (gameData->lobbyPool) > 0) {
-                    lobby = (Lobby *) pool_pop (gameData->lobbyPool);
-                    if (!lobby) lobby = (Lobby *) malloc (sizeof (Lobby));
-                }
-            }
-
-            else {
-                logMsg (stderr, WARNING, SERVER, "Game server has no refrence to a lobby pool!");
-                lobby = (Lobby *) malloc (sizeof (Lobby));
-
-                // one time init values
-                if (lobby) {
-                    lobby->players = avl_init (player_comparator_client_id, deletePlayer);
-                    lobby->gamePacketsPool = pool_init (deleteGamePacketInfo);
-
-                    // add some packets to the pool
-                    for (u8 i = 0; i < 3; i++)
-                        pool_push (lobby->gamePacketsPool, malloc (sizeof (GamePacketInfo)));
-
-                    if (gameData) lobby->deleteLobbyGameData = gameData->deleteLobbyGameData;
-
-                    lobby->pollTimeout = server->pollTimeout;
-                }
-            }
-
-            // values that have to be init when calling from the pool
-            if (lobby) {
-                lobby->settings = NULL;
-                lobby->owner = NULL;
-                lobby->players_nfds = 0;
-                lobby->compress_players = false;
-            }
-
-            return lobby;
-        }
-    }
-
-    return NULL;
-
-}
-
-// deletes a lobby for ever -- called when we teardown the server
-// we do not need to give any feedback to the players if there is any inside
-void deleteLobby (void *data) {
-
-    if (data) {
-        Lobby *lobby = (Lobby *) data;
-
-        lobby->inGame = false;      // just to be sure
-        lobby->isRunning = false;
-        lobby->owner = NULL;
-
-        if (lobby->gameData) {
-            if (lobby->deleteLobbyGameData) lobby->deleteLobbyGameData (lobby->gameData);
-            else free (lobby->gameData);
-        }
-
-        memset (lobby->players_fds, 0, sizeof (lobby->players_fds));
-
-        // delete players avl structure
-        if (lobby->players) {
-            avl_clearTree (&lobby->players->root, lobby->players->destroy);
-            free (lobby->players);
-        }
-
-        if (lobby->gamePacketsPool) pool_clear (lobby->gamePacketsPool);
-
-        // clear lobby data
-        if (lobby->settings) free (lobby->settings);
-
-        free (lobby); 
-    }
-    
-}
 
 // create a list to manage the server lobbys
 // called when we init the game server

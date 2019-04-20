@@ -32,31 +32,46 @@ typedef struct _GameSettings GameSettings;
 
 struct _Lobby {
 
-	GameSettings *settings;
+	// GameSettings *settings;
+	void *game_settings;
+	Action delete_lobby_game_settings;
+
 	bool inGame;
 
 	struct _Player *owner;				// the client that created the lobby -> he has higher privileges
 
-	bool isRunning;				// lobby is listening for player packets
+	bool isRunning;						// lobby is listening for player packets
 
 	// 04/11/2018 -- lets try this and see how it goes - intended to also work for a bigger 
 	// lobby with more players in it
-	AVLTree *players;							// players inside the lobby
-    struct pollfd players_fds[4];     			// 04/11/2018 - 4 max players in lobby
+	AVLTree *players;							// players inside the lobby -> reference to the main player avl
+	unsigned int max_players;
+    struct pollfd *players_fds;     			
     u16 players_nfds;                           // n of active fds in the pollfd array
     bool compress_players;              		// compress the fds array?
-    u32 pollTimeout;    
+    u32 pool_timeout;    
 
 	// the server admin can add its server specific data types
-	void *gameData;
-	Action deleteLobbyGameData;
+	void *game_data;
+	Action delete_lobby_game_data;
 
 	// 21/11/2018 - we put this here to avoid race conditions if we put it on
 	// the server game data
-	Pool *gamePacketsPool;
+	// Pool *gamePacketsPool;
 
 };
 
 typedef struct _Lobby Lobby;
+
+// sets the lobby settings and a function to delete it
+extern void lobby_set_game_settings (Lobby *lobby, void *game_settings, Action delete_game_settings);
+// sets the lobby game data and a function to delete it
+extern void lobby_set_game_data (Lobby *lobby, void *game_data, Action delete_lobby_game_data);
+
+// lobby constructor, it also initializes basic lobby data
+extern Lobby *lobby_new (Server *server, unsigned int max_players);
+// deletes a lobby for ever -- called when we teardown the server
+// we do not need to give any feedback to the players if there is any inside
+extern void lobby_delete (void *ptr);
 
 #endif

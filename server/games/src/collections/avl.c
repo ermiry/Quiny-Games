@@ -1,6 +1,10 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
 #include "collections/avl.h"
 
-AVLTree *avl_init (CompPointer comparator, void (*destroy)(void *data)) {
+AVLTree *avl_init (Comparator comparator, void (*destroy)(void *data)) {
 
     AVLTree *tree = (AVLTree *) malloc (sizeof (AVLTree));
     if (tree) {
@@ -55,7 +59,7 @@ void *avl_getNodeData (AVLTree *tree, void *id) {
 
 }
 
-void avl_insertNodeR (AVLNode **parent, CompPointer comparator, void *id, char *flag) ;
+void avl_insertNodeR (AVLNode **parent, Comparator comparator, void *id, char *flag) ;
 
 // user function for insertion
 void avl_insertNode (AVLTree *tree, void *data) {
@@ -66,7 +70,7 @@ void avl_insertNode (AVLTree *tree, void *data) {
 
 }
 
-void *avl_removeNodeR (AVLTree *tree, AVLNode **parent, CompPointer comparator, void *id, char *flag);
+void *avl_removeNodeR (AVLTree *tree, AVLNode **parent, Comparator comparator, void *id, char *flag);
 
 // user function to remove a node
 void *avl_removeNode (AVLTree *tree, void *data) {
@@ -284,7 +288,7 @@ void avl_treatRightReduction (AVLNode **parent, char *flag) {
 }
 
 // recursive function to insert in the tree
-void avl_insertNodeR (AVLNode **parent, CompPointer comparator, void *id, char *flag) {
+void avl_insertNodeR (AVLNode **parent, Comparator comparator, void *id, char *flag) {
 
     // we are on a leaf, create node and set flag
     if (*parent == NULL){
@@ -314,7 +318,7 @@ void avl_insertNodeR (AVLNode **parent, CompPointer comparator, void *id, char *
 }
 
 // recursive function to remove a node from the tree
-void *avl_removeNodeR (AVLTree *tree, AVLNode **parent, CompPointer comparator, void *id, char *flag) {
+void *avl_removeNodeR (AVLTree *tree, AVLNode **parent, Comparator comparator, void *id, char *flag) {
 
     //Wrong way
     if (*parent != NULL) {
