@@ -210,10 +210,18 @@ int quiny_end (void) {
 typedef struct HttpResponse {
 
     unsigned int status;
+    char *header;
+    size_t header_len;
     char *data;
     size_t data_len;
 
+    char *res;
+    size_t res_len;
+
 } HttpResponse;
+
+// TODO: get the size fo this when we start the server!!
+char *default_header = "HTTP/1.1 200 OK\r\n\n";
 
 HttpResponse *http_response_new (void) {
 
@@ -221,21 +229,39 @@ HttpResponse *http_response_new (void) {
     if (res) {
         memset (res, 0, sizeof (HttpResponse));
         res->data = NULL;
+        res->header = NULL;
+        res->res = NULL;
     } 
 
     return res;
 
 }
 
-HttpResponse *http_response_create (unsigned int status, const char *data, size_t data_len) {
+HttpResponse *http_response_create (unsigned int status, const char *header, size_t header_len, 
+    const char *data, size_t data_len) {
 
     HttpResponse *res = NULL;
     if (data) {
         res = (HttpResponse *) malloc (sizeof (HttpResponse));
         if (res) {
+            memset (res, 0, sizeof (HttpResponse));
+
             res->status = status;
+            res->data = (char *) calloc (data_len, sizeof (char));
             memcpy (res->data, data, data_len);
             res->data_len = data_len;
+
+            if (header) {
+                res->header_len = header_len;
+                res->header = (char *) calloc (header_len, sizeof (char));
+                memcpy (res->header, header, header_len);
+            } 
+
+            else {
+                res->header_len = strlen (default_header);
+                res->header = (char *) calloc (res->header_len, sizeof (default_header));
+                memcpy (res->header, default_header, res->header_len);
+            } 
         }
     }
 
@@ -243,10 +269,30 @@ HttpResponse *http_response_create (unsigned int status, const char *data, size_
 
 }
 
+// merge the response header and the data into the final response
+void http_response_compile (HttpResponse *res) {
+
+    if (res) {
+        if (res->header) {
+            res->res_len = res->header_len;
+            if (res->data) res->res_len += res->data_len;
+
+            res->res = (char *) calloc (res->res_len, sizeof (char));
+            memcpy (res->res, res->header, res->res_len);
+
+            if (res->data) strcat (res->res, res->data);
+        }
+    }
+
+}
+
 void http_respponse_delete (HttpResponse *res) {
 
     if (res) {
         if (res->data) free (res->data);
+        if (res->header) free (res->header);
+        if (res->res) free (res->res);
+
         free (res);
     }
 
@@ -256,25 +302,20 @@ int http_response_send_to_socket (const HttpResponse *res, const int socket_fd) 
 
     int retval = 1;
 
-    if (res) retval = send (socket_fd, res->data, res->data_len, 0);
+    if (res && res->res) {
+        retval = send (socket_fd, res->res, res->res_len, 0) <= 0 ? 1 : 0;
+    } 
 
     return retval;
 
 }
 
-typedef enum ServerType {
-
-    FILE_SERVER = 1,
-    WEB_SERVER, 
-    GAME_SERVER
-
-} ServerType;
-
+// TODO: handle different data lengths
 typedef enum ValueType {
 
-    VALUE_INT,
-    VALUE_DOUBLE,
-    VALUE_STRING,
+    VALUE_TYPE_INT,
+    VALUE_TYPE_DOUBLE,
+    VALUE_TYPE_STRING,
 
 } ValueType;
 
@@ -308,7 +349,7 @@ JsonKeyValue *json_key_value_create (const char *key, const void *value, ValueTy
         jkvp = (JsonKeyValue *) malloc (sizeof (JsonKeyValue));
         if (jkvp) {
             jkvp->key = str_new (key);
-            jkvp->value = value;
+            jkvp->value = (void *) value;
             jkvp->valueType = value_type;
         }
     }
@@ -323,15 +364,47 @@ void json_key_value_delete (void *ptr) {
         JsonKeyValue *jkvp = (JsonKeyValue *) ptr;
 
         if (jkvp->key) str_delete (jkvp->key);
-        if (jkvp->valueType == VALUE_STRING) str_delete ((String *) jkvp->key);
+        if (jkvp->valueType == VALUE_TYPE_STRING) str_delete ((String *) jkvp->key);
 
         free (jkvp);
     }
 
 }
 
+// creates a json string with the passed jkvp
+// frees the jkvp
+char *json_create_with_one_pair (JsonKeyValue *jkvp, size_t *len) {
 
-static char *game_ask_handler (DoubleList *pairs) {
+    char *retval = NULL;
+
+    if (jkvp) {
+        bson_t *doc = bson_new ();
+
+        if (doc) {
+            switch (jkvp->valueType) {
+                case VALUE_TYPE_INT: bson_append_int32 (doc, jkvp->key->str, jkvp->key->len, *(int32_t *) jkvp->value); break;
+                case VALUE_TYPE_DOUBLE: bson_append_double (doc, jkvp->key->str, jkvp->key->len, *(double *) jkvp->value); break;
+                case VALUE_TYPE_STRING: {
+                    String *str = (String *) jkvp->value;
+                    bson_append_utf8 (doc, jkvp->key->str, jkvp->key->len, str->str, str->len);
+                } 
+                break;
+
+                default: break;
+            }
+        }
+
+        // TODO: do we need to free the doc after this?
+        retval = bson_as_json (doc, len);
+    }
+
+    return retval;
+
+}
+
+static HttpResponse *game_ask_handler (DoubleList *pairs) {
+
+    HttpResponse *res = NULL;
 
     if (pairs) {
         // get the action to perform
@@ -347,12 +420,19 @@ static char *game_ask_handler (DoubleList *pairs) {
 
         if (action) {
             if (!strcmp (action, "test")) {
-
+                String *test = str_new ("Ask game works!");
+                JsonKeyValue *jkvp = json_key_value_create ("msg", test, VALUE_TYPE_STRING);
+                size_t json_len;
+                char *json = json_create_with_one_pair (jkvp, &json_len);
+                res = http_response_create (200, NULL, 0, json, json_len);
+                free (json);        // we copy the data into the response
             }
         }
 
         else logMsg (stdout, ERROR, NO_TYPE, "No action provided for ask game!");
     }
+
+    return res;
 
 }
 
@@ -402,8 +482,13 @@ static void quiny_main_handler (RecvdBufferData *data, DoubleList *pairs) {
             else logMsg (stdout, WARNING, NO_TYPE, createString ("Got unkown action %s", action));
         }
 
-        // send the response to the client
-        http_response_send_to_socket (res, data->sock_fd);
+        if (res) {
+            // send the response to the client
+            http_response_compile (res);
+            printf ("Response: %s\n", res->res);
+            http_response_send_to_socket (res, data->sock_fd);
+            http_respponse_delete (res);
+        }
 
         // after the performed action, close the client socket
         client_disconnect_by_socket (data->server, data->sock_fd);
@@ -417,6 +502,7 @@ static void quiny_main_handler (RecvdBufferData *data, DoubleList *pairs) {
 // TODO: maybe handle the creation of a new thread to handle this from the server_recieve
 ****/
 
+// FIXME: also parse path!!
 // FIXME: getting sigsev if we get a requets withput query!!
 // custom function to handle the received buffer from the server
 void quiny_handle_recieved_buffer (void *rcvd_buffer_data) {

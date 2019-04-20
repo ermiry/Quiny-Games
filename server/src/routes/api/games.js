@@ -47,7 +47,7 @@ router.get ('/ask/test', (req, res) => {
 	axios.get (gamesurl + "?game=ask&action=test")
 		.then (result => {
 			console.log (result.data);
-			return res.status (200).json (res.data);
+			res.send (result.data);
 		})
 		.catch (err => {
 			console.error (err);
@@ -65,7 +65,7 @@ router.post ('/ask/create', (req, res) => {
 	// get the game creation parameters
 
 	// make a request to the game to create the new lobby
-	axios.get (gamesurl + "games?name=ask&action=create_lobby")
+	axios.get (gamesurl + "?game=ask&action=create_lobby")
 		.then (result => {
 			// TODO: return the new lobby id
 			// FIXME: how can we keep updating this info?
@@ -87,7 +87,7 @@ router.post ('/ask/join', (req, res) => {
 
 	// request the game to join the game
 	// FIXME: pass the lobby id
-	axios.get (gamesurl + "games?name=ask&action=join_lobby")
+	axios.get (gamesurl + "?game=ask&action=join_lobby")
 		.then (result => {
 			// TODO: return the new lobby id & a list of the current players
 			// console.log (result.data);
@@ -108,7 +108,7 @@ router.post ('/ask/leave', (req, res) => {
 
 	// request the game to leave the game lobby
 	// FIXME: pass the lobby id
-	axios.get (gamesurl + "games?name=ask&action=leave_lobby")
+	axios.get (gamesurl + "?game=ask&action=leave_lobby")
 		.then (result => {
 			// TODO: return a success code?
 			// console.log (result.data);
