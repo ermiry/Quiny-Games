@@ -760,6 +760,7 @@ u8 defaultAuthMethod (void *data) {
                         createString ("Default auth: client provided code: %i.", authData->code));
                     #endif
 
+                    // FIXME: 19/april/2019 -- 19:08 -- dont we need to use server->generateSessionID?
                     char *sessionID = session_default_generate_id (pack_info->clientSock,
                         pack_info->client->address);
 
@@ -1300,7 +1301,25 @@ i32 server_accept (Server *server) {
     if (server->authRequired) onHoldClient (server, client, newfd);
 
     // if not, just register to the server as new client
-    else client_registerToServer (server, client, newfd);
+    else {
+        // if we need to generate session ids...
+        if (server->useSessions) {
+            // FIXME: change to the custom generate session id action in server->generateSessionID
+            char *session_id = session_default_generate_id (newfd, clientAddress);
+            if (session_id) {
+                #ifdef CERVER_DEBUG
+                logMsg (stdout, DEBUG_MSG, CLIENT, 
+                    createString ("Generated client session id: %s", session_id));
+                #endif
+
+                client_set_sessionID (client, session_id);
+            }
+            
+            else logMsg (stderr, ERROR, CLIENT, "Failed to generate session id!");
+        }
+
+        client_registerToServer (server, client, newfd);
+    } 
 
     if (server->type != WEB_SERVER) sendServerInfo (server, newfd, clientAddress);
    
@@ -1393,7 +1412,9 @@ const char welcome[64] = "Welcome to cerver!";
 // init server's data structures
 u8 initServerDS (Server *server, ServerType type) {
 
-    server->clients = avl_init (client_comparator_sessionID, destroyClient);
+    if (server->useSessions) server->clients = avl_init (client_comparator_sessionID, destroyClient);
+    else server->clients = avl_init (client_comparator_clientID, destroyClient);
+
     server->clientsPool = pool_init (destroyClient);
 
     server->packetPool = pool_init (destroyPacketInfo);

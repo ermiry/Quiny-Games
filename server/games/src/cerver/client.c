@@ -9,10 +9,6 @@
 #include "utils/log.h"
 #include "utils/myUtils.h"
 
-/*** CLIENTS ***/
-
-#pragma region CLIENTS
-
 // get from where the client is connecting
 char *client_getConnectionValues (i32 fd, const struct sockaddr_storage address) {
 
@@ -365,5 +361,3 @@ void client_closeConnection (Server *server, Client *client) {
 
 // TODO: used to check for client timeouts in any type of server
 void client_checkTimeouts (Server *server) {}
-
-#pragma endregion
