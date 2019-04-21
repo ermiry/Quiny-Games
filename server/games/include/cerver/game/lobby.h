@@ -93,6 +93,9 @@ extern u8 game_init_lobbys (struct _GameServerData *game_data, u8 n_lobbys);
 
 /*** Player interaction ***/
 
+// starts the lobby in a separte thread using its hanlder
+extern u8 lobby_start (Server *server, Lobby *lobby);
+
 // creates a new lobby and inits his values with an owner
 extern Lobby *lobby_create (struct _Server *server, struct _Player *owner, unsigned int max_players);
 // called by a registered player that wants to join a lobby on progress

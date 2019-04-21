@@ -61,6 +61,7 @@ void player_delete (void *data) {
 
 }
 
+// this is our default player comparator
 // comparator for players's avl tree
 int player_comparator_client_id (const void *a, const void *b) {
 
@@ -70,6 +71,13 @@ int player_comparator_client_id (const void *a, const void *b) {
 
         return strcmp (player_a->client->clientID, player_b->client->clientID);
     }
+
+}
+
+// compare two players' session id
+int player_comparator_by_session_id (const void *a, const void *b) {
+
+    if (a && b) return strcmp (((Player *) a)->session_id, ((Player *) b)->session_id);
 
 }
 
@@ -117,17 +125,23 @@ void player_unregister_to_server (Server *server, Player *player) {
 
 }
 
-// FIXME: we need to check the player id or by the comparator!!!
-// check if a player is inside a lobby  
-bool player_is_in_lobby (Player *player, Lobby *lobby) {
+// get a player from an avl tree using a comparator and a query
+Player *player_get (AVLNode *node, Comparator comparator, void *query) {
 
-    // if (player && lobby) {
-    //     for (u8 i = 0; i < lobby->players_nfds; i++) 
-    //         if (lobby->players_fds[i].fd == player->client->clientSock)
-    //             return true;
-    // }
+    if (node && query) {
+        Player *player = NULL;
 
-    // return false;
+        player = player_get (node->right, comparator, query);
+
+        if (!player) 
+            if (!comparator (node->id, query)) return (Player *) node->id;
+
+        if (!player) player = player_get (node->left, comparator, query)   ;
+
+        return player;
+    }
+
+    return NULL;
 
 }
 
@@ -157,6 +171,18 @@ Player *player_get_by_socket (AVLNode *node, i32 socket_fd) {
     }
 
     return NULL;
+
+}
+
+// check if a player is inside a lobby using a comparator and a query
+bool player_is_in_lobby (Lobby *lobby, Comparator comparator, void *query) {
+
+    if (lobby && query) {
+        Player *player = player_get (lobby->players->root, comparator, query);
+        if (player) return true;
+    }
+
+    return false;
 
 }
 

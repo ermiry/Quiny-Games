@@ -49,6 +49,8 @@ extern void player_delete (void *data);
 
 // comparator for players's avl tree
 extern int player_comparator_client_id (const void *a, const void *b);
+// compare two players' session id
+extern int player_comparator_by_session_id (const void *a, const void *b);
 
 // adds a player to the game server data main structures
 extern void player_register_to_server (struct _Server *server, Player *player);
@@ -56,11 +58,14 @@ extern void player_register_to_server (struct _Server *server, Player *player);
 // client from the main server poll
 extern void player_unregister_to_server (struct _Server *server, Player *player);
 
-// check if a player is inside a lobby  
-bool player_is_in_lobby (Player *player, Lobby *lobby);
+// get a player from an avl tree using a comparator and a query
+extern Player *player_get (AVLNode *node, Comparator comparator, void *query);
 
 // recursively get the player associated with the socket
 extern Player *player_get_by_socket (AVLNode *node, i32 socket_fd);
+
+// check if a player is inside a lobby using a comparator and a query
+extern bool player_is_in_lobby (Lobby *lobby, Comparator comparator, void *query);
 
 // broadcast a packet/msg to all clients/players inside an avl structure
 extern void player_broadcast_to_all (AVLNode *node, struct _Server *server, void *packet, size_t packetSize);

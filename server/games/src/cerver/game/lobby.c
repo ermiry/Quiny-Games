@@ -273,6 +273,28 @@ u8 player_remove_from_lobby (Server *server, Lobby *lobby, Player *player) {
 
 }
 
+// starts the lobby in a separte thread using its hanlder
+u8 lobby_start (Server *server, Lobby *lobby) {
+
+    u8 retval = 1;
+
+    if (server && lobby) {
+        if (lobby->handler) {
+            ServerLobby *sl = (ServerLobby *) malloc (sizeof (ServerLobby));
+            sl->server = server;
+            sl->lobby = lobby;
+            if (thpool_add_work (server->thpool, (void *) lobby->handler, sl) < 0)
+                logMsg (stderr, ERROR, GAME, "Failed to start lobby - failed to add to thpool!");
+            else retval = 0;        // success
+        } 
+
+        else logMsg (stderr, ERROR, GAME, "Failed to start lobby - no reference to lobby handler.");
+    }
+
+    return retval;
+
+}
+
 // TODO: add a timestamp of the creation of the lobby
 // creates a new lobby and inits his values with an owner
 Lobby *lobby_create (Server *server, Player *owner, unsigned int max_players) {
@@ -289,11 +311,6 @@ Lobby *lobby_create (Server *server, Player *owner, unsigned int max_players) {
                 // add the lobby the server active ones
                 GameServerData *game_data = (GameServerData *) server->serverData;
                 dlist_insert_after (game_data->currentLobbys, dlist_end (game_data->currentLobbys), lobby);
-
-                // FIXME: 20/04/2019 -- do we want to init the lobby from here or create a separte method?
-                // lobby->inGame = false;
-                // lobby->isRunning = true;
-                // thpool_add_work (server->thpool, (void *) handlePlayersInLobby, sl);
             }
 
             else {
@@ -570,8 +587,13 @@ u8 leaveLobby (Server *server, Lobby *lobby, Player *player) {
 static void lobby_default_handler (void *data) {
 
     if (data) {
-        Server *server = ((ServerLobby *) data)->server;
-        Lobby *lobby = ((ServerLobby *) data)->lobby;
+        ServerLobby *sl = (ServerLobby *) data;
+        Server *server = sl->server;
+        Lobby *lobby = sl->lobby;
+
+        // 21/04/2019 -- 6:09 -- these must go here!!
+        lobby->inGame = false;
+        lobby->isRunning = true;
 
         /* ssize_t rc;                                  // retval from recv -> size of buffer
         char packetBuffer[MAX_UDP_PACKET_SIZE];      // buffer for data recieved from fd
@@ -635,6 +657,9 @@ static void lobby_default_handler (void *data) {
 
             if (lobby->compress_players) compressPlayers (lobby);
         } */
+
+        // this must go here!!
+        free (sl);
     } 
 
 }

@@ -59,7 +59,7 @@ static void user_delete (void *ptr) {
 }
 
 // get a user doc from the db by oid
-const bson_t *user_find_by_oid (const bson_oid_t *oid) {
+static const bson_t *user_find_by_oid (const bson_oid_t *oid) {
 
     if (oid) {
         bson_t *user_query = bson_new ();
@@ -73,7 +73,7 @@ const bson_t *user_find_by_oid (const bson_oid_t *oid) {
 }
 
 // get a user doc from the db by username
-const bson_t *user_find_by_username (const char *username) {
+static const bson_t *user_find_by_username (const char *username) {
 
     if (username) {
         bson_t *user_query = bson_new ();
@@ -177,9 +177,25 @@ User *quiny_user_get (const char *username, const char *password, int *errors) {
 
 }
 
+// turn a user model into a json string
 static char *quiny_user_json_create (const User *user, size_t *json_len) {
 
+    char *retval = NULL;
 
+    if (user && json_len) {
+        bson_t *doc = bson_new ();
+        if (doc) {
+            bson_append_oid (doc, "_id", -1, &user->oid);
+            bson_append_utf8 (doc, "name", -1, user->name->str, user->name->len);
+            bson_append_utf8 (doc, "username", -1, user->username->str, user->username->len);
+            bson_append_utf8 (doc, "email", -1, user->email->str, user->email->len);
+
+            // TODO: do we need to free the doc after this?
+            retval = bson_as_json (doc, json_len);
+        }
+    }
+
+    return retval;
 
 }
 
@@ -259,6 +275,7 @@ static const char *quiny_get_password (DoubleList *pairs) {
 
 }
 
+// FIXME: how do we sent back the token??
 static HttpResponse *quiny_user_login (Server *server, DoubleList *pairs) {
 
     HttpResponse *res = NULL;
@@ -281,6 +298,7 @@ static HttpResponse *quiny_user_login (Server *server, DoubleList *pairs) {
             size_t json_len;
             char *user_json = quiny_user_json_create (user, &json_len);
             res = http_response_create (200, NULL, 0, user_json, json_len);
+            user_delete (user);
             free (user_json);        // we copy the data into the response
         }
 
