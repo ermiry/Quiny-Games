@@ -73,44 +73,6 @@ int player_comparator_client_id (const void *a, const void *b) {
 
 }
 
-// inits the players server's structures
-u8 players_init (GameServerData *gameData, u8 n_players) {
-
-    if (!gameData) {
-        logMsg (stderr, ERROR, SERVER, "Can't init players in a NULL game data!");
-        return 1;
-    }
-
-    if (gameData->players)
-        logMsg (stdout, WARNING, SERVER, "The server already has an avl of players!");
-    else {
-        gameData->players = avl_init (player_comparator_client_id, player_delete);
-        if (!gameData->players) {
-            logMsg (stderr, ERROR, NO_TYPE, "Failed to init server's players avl!");
-            return 1;
-        }
-    } 
-
-    if (gameData->playersPool)  
-        logMsg (stdout, WARNING, SERVER, "The server already has a pool of players.");
-    else {
-        gameData->playersPool = pool_init (player_delete);
-        if (!gameData->playersPool) {
-            logMsg (stderr, ERROR, NO_TYPE, "Failed to init server's players pool!");
-            return 1;
-        }
-    } 
-
-    for (u8 i = 0; i < n_players; i++) pool_push (gameData->playersPool, malloc (sizeof (Player)));
-
-    #ifdef DEBUG
-        logMsg (stdout, DEBUG_MSG, GAME, "Players have been init in the game server.");
-    #endif
-
-    return 0;
-
-}
-
 // adds a player to the game server data main structures
 void player_register_to_server (Server *server, Player *player) {
 
@@ -155,17 +117,17 @@ void player_unregister_to_server (Server *server, Player *player) {
 
 }
 
-// FIXME:
+// FIXME: we need to check the player id or by the comparator!!!
 // check if a player is inside a lobby  
 bool player_is_in_lobby (Player *player, Lobby *lobby) {
 
-    if (player && lobby) {
-        for (u8 i = 0; i < lobby->players_nfds; i++) 
-            if (lobby->players_fds[i].fd == player->client->clientSock)
-                return true;
-    }
+    // if (player && lobby) {
+    //     for (u8 i = 0; i < lobby->players_nfds; i++) 
+    //         if (lobby->players_fds[i].fd == player->client->clientSock)
+    //             return true;
+    // }
 
-    return false;
+    // return false;
 
 }
 
@@ -219,20 +181,47 @@ void player_broadcast_to_all (AVLNode *node, Server *server, void *packet, size_
 }
 
 // performs an action on every player in an avl tree 
-void player_travers (AVLNode *node, Action action, void *data) {
+void player_traverse (AVLNode *node, Action action, void *data) {
 
     if (node && action) {
-        player_travers (node->right, action, data);
+        player_traverse (node->right, action, data);
 
         if (node->id) {
             PlayerAndData pd = { .playerData = node->id, .data = data };
             action (&pd);
         } 
 
-        player_travers (node->left, action, data);
+        player_traverse (node->left, action, data);
     }
 
 }
+
+// inits the players server's structures
+u8 game_players_init (GameServerData *gameData, u8 n_players) {
+
+    if (!gameData) {
+        logMsg (stderr, ERROR, SERVER, "Can't init players in a NULL game data!");
+        return 1;
+    }
+
+    if (gameData->players)
+        logMsg (stdout, WARNING, SERVER, "The server already has an avl of players!");
+    else {
+        gameData->players = avl_init (player_comparator_client_id, player_delete);
+        if (!gameData->players) {
+            logMsg (stderr, ERROR, NO_TYPE, "Failed to init server's players avl!");
+            return 1;
+        }
+    } 
+
+    #ifdef DEBUG
+        logMsg (stdout, DEBUG_MSG, GAME, "Players have been init in the game server.");
+    #endif
+
+    return 0;
+
+}
+
 
 // TODO:
 // this is used to clean disconnected players inside a lobby

@@ -37,6 +37,9 @@ struct _Player {
 
 typedef struct _Player Player;
 
+// inits the players server's structures
+extern u8 game_players_init (struct _GameServerData *gameData, u8 n_players);
+
 extern void player_set_delete_player_data (Player *player, Action destroy);
 
 // constructor for a new player, option to directly pass player data
@@ -46,9 +49,6 @@ extern void player_delete (void *data);
 
 // comparator for players's avl tree
 extern int player_comparator_client_id (const void *a, const void *b);
-
-// inits the players server's structures
-extern u8 players_init (struct _GameServerData *gameData, u8 n_players);
 
 // adds a player to the game server data main structures
 extern void player_register_to_server (struct _Server *server, Player *player);
@@ -66,6 +66,6 @@ extern Player *player_get_by_socket (AVLNode *node, i32 socket_fd);
 extern void player_broadcast_to_all (AVLNode *node, struct _Server *server, void *packet, size_t packetSize);
 
 // performs an action on every player in an avl tree 
-extern void player_travers (AVLNode *node, Action action, void *data);
+extern void player_traverse (AVLNode *node, Action action, void *data);
 
 #endif
