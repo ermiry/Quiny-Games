@@ -29,6 +29,12 @@ GamePacketInfo *newGamePacketInfo (Server *server, Lobby *lobby, Player *player,
 
 #pragma region GAME SERVER
 
+void game_set_lobby_id_generator (GameServerData *game_data, void (*lobby_id_generator)(char *)) {
+
+    if (game_data) game_data->lobby_id_generator = lobby_id_generator;
+
+}
+
 // add a function to load game data like from a db
 void gs_set_loadGameData (Server *server, Func loadData) {
 

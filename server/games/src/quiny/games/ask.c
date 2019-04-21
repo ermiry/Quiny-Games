@@ -87,14 +87,14 @@ static HttpResponse *game_ask_create_lobby (Server *server, DoubleList *pairs) {
     HttpResponse *res = NULL;
 
     if (server && pairs) {
-        const char *token = game_ask_get_username (pairs);
+        const char *token = game_ask_get_value (pairs, "sessionID");
         if (token) {
             // get the player info suing the token
             GameServerData *game_data = (GameServerData *) server->serverData;
 
-            // get the player with the session id from the request
-            Player *player_query = player_new (NULL, game_ask_get_value (pairs, "sessionID"), NULL);
-            Player *owner = player_get (game_data->players, player_comparator_by_session_id, player_query);
+            // get the player with the session id (token) from the request
+            Player *player_query = player_new (NULL, token, NULL);
+            Player *owner = player_get (game_data->players->root, player_comparator_by_session_id, player_query);
             player_delete (player_query);
 
             if (owner) {
@@ -139,18 +139,19 @@ static HttpResponse *game_ask_join_lobby (Server *server, DoubleList *pairs) {
     HttpResponse *res = NULL;
 
     if (server && pairs) {
-        const char *username = game_ask_get_username (pairs);
-        if (username) {
-            // get the player info
-            // get the lobby info
-            // join the lobby
-            // send back the lobby data
-        }
+        // FIXME:
+        // const char *username = game_ask_get_username (pairs);
+        // if (username) {
+        //     // get the player info
+        //     // get the lobby info
+        //     // join the lobby
+        //     // send back the lobby data
+        // }
 
-        else {
-            logMsg (stderr, ERROR, NO_TYPE, "No username provided to join a lobby!");
-            res = http_response_json_error ("No username provided!");
-        }
+        // else {
+        //     logMsg (stderr, ERROR, NO_TYPE, "No username provided to join a lobby!");
+        //     res = http_response_json_error ("No username provided!");
+        // }
     }
 
     return res;
@@ -162,18 +163,19 @@ static HttpResponse *game_ask_leave_lobby (Server *server, DoubleList *pairs) {
     HttpResponse *res = NULL;
 
     if (server && pairs) {
-        const char *username = game_ask_get_username (pairs);
-        if (username) {
-            // get the player info
-            // get the lobby info
-            // leave the lobby
-            // send back a success message
-        }
+        // FIXME:
+        // const char *username = game_ask_get_username (pairs);
+        // if (username) {
+        //     // get the player info
+        //     // get the lobby info
+        //     // leave the lobby
+        //     // send back a success message
+        // }
 
-        else {
-            logMsg (stderr, ERROR, NO_TYPE, "No username provided to join a lobby!");
-            res = http_response_json_error ("No username provided!");
-        }
+        // else {
+        //     logMsg (stderr, ERROR, NO_TYPE, "No username provided to join a lobby!");
+        //     res = http_response_json_error ("No username provided!");
+        // }
     }
 
     return res;
@@ -189,7 +191,7 @@ static HttpResponse *game_ask_question (Server *server, DoubleList *pairs) {
 
         // get the player with the session id from the request
         Player *player_query = player_new (NULL, game_ask_get_value (pairs, "sessionID"), NULL);
-        Player *player = player_get (game_data->players, player_comparator_by_session_id, player_query);
+        Player *player = player_get (game_data->players->root, player_comparator_by_session_id, player_query);
 
         // get the lobby with the lobby id from the request
         Lobby *lobby = NULL;

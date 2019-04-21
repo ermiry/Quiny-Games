@@ -1,6 +1,8 @@
 #ifndef _CERVER_LOBBY_H_
 #define _CERVER_LOBBY_H_
 
+#include <time.h>
+
 #include "types/myTypes.h"
 
 #include "game.h"
@@ -34,7 +36,8 @@ typedef struct _GameSettings GameSettings;
 
 struct _Lobby {
 
-	unsigned int id;
+	const char *id;						// lobby unique id - generated using the creation timestamp
+	time_t creation_time_stamp;
 
 	bool isRunning;						// lobby is listening for player packets
 	bool inGame;						// lobby is inside a game
@@ -81,7 +84,7 @@ extern void lobby_set_game_data (Lobby *lobby, void *game_data, Action delete_lo
 extern void lobby_set_handler (Lobby *lobby, Action handler);
 
 // lobby constructor, it also initializes basic lobby data
-extern Lobby *lobby_new (struct _Server *server, unsigned int max_players);
+extern Lobby *lobby_new (struct _GameServerData *game_data, unsigned int max_players);
 // deletes a lobby for ever -- called when we teardown the server
 // we do not need to give any feedback to the players if there is any inside
 extern void lobby_delete (void *ptr);
@@ -94,14 +97,14 @@ extern u8 game_init_lobbys (struct _GameServerData *game_data, u8 n_lobbys);
 /*** Player interaction ***/
 
 // starts the lobby in a separte thread using its hanlder
-extern u8 lobby_start (Server *server, Lobby *lobby);
+extern u8 lobby_start (struct _Server *server, Lobby *lobby);
 
 // creates a new lobby and inits his values with an owner
 extern Lobby *lobby_create (struct _Server *server, struct _Player *owner, unsigned int max_players);
 // called by a registered player that wants to join a lobby on progress
 // the lobby model gets updated with new values
-extern u8 lobby_join (Lobby *lobby, struct _Player *player);
+extern u8 lobby_join (struct _GameServerData *game_data, Lobby *lobby, struct _Player *player);
 // called when a player requests to leave the lobby
-extern u8 lobby_leave (Lobby *lobby, struct _Player *player);
+extern u8 lobby_leave (struct _GameServerData *game_data, Lobby *lobby, struct _Player *player);
 
 #endif

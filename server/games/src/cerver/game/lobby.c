@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include <time.h>
+
 #include <poll.h>
 #include <errno.h>
 
@@ -20,6 +22,7 @@
 #include "utils/myUtils.h"
 #include "utils/config.h"
 #include "utils/log.h"
+#include "utils/sha-256.h"
 
 static void lobby_default_handler (void *data);
 
@@ -48,17 +51,37 @@ void lobby_set_game_data (Lobby *lobby, void *game_data, Action delete_lobby_gam
 // set the lobby player handler
 void lobby_set_handler (Lobby *lobby, Action handler) { if (lobby) lobby->handler = handler; }
 
-// FIXME: set a unique id
+static void lobby_default_generate_id (char *lobby_id) {
+
+    time_t rawtime = time (NULL);
+    struct tm *timeinfo = localtime (&rawtime);
+    // we generate the string timestamp in order to generate the lobby id
+    char temp[50];
+    size_t len = strftime (temp, 50, "%F - %r", timeinfo);
+    printf ("%s\n", temp);
+
+    uint8_t hash[32];
+    char hash_string[65];
+
+    sha_256_calc (hash, temp, len);
+    sha_256_hash_to_string (hash_string, hash);
+
+    lobby_id = createString ("%s", hash_string);
+
+}
+
 // lobby constructor, it also initializes basic lobby data
-Lobby *lobby_new (Server *server, unsigned int max_players) {
+Lobby *lobby_new (GameServerData *game_data, unsigned int max_players) {
 
     Lobby *lobby = (Lobby *) malloc (sizeof (Lobby));
     if (lobby) {
         memset (lobby, 0, sizeof (Lobby));
 
+        lobby->creation_time_stamp = time (NULL);
+        game_data->lobby_id_generator ((char *) lobby->id);
+
         lobby->game_settings = NULL;
 
-        GameServerData *game_data = (GameServerData *) server->serverData;
         // FIXME: we dont want to delete the players here!! they also have a refrence in the main avl tree!!
         lobby->players = avl_init (game_data->player_comparator, player_delete);
         lobby->owner = NULL; 
@@ -86,6 +109,8 @@ void lobby_delete (void *ptr) {
 
     if (ptr) {
         Lobby *lobby = (Lobby *) ptr;
+
+        if (lobby->id) free ((void *) lobby->id);
 
         lobby->inGame = false;          // just to be sure
         lobby->isRunning = false;
@@ -172,9 +197,9 @@ u8 game_init_lobbys (GameServerData *game_data, u8 n_lobbys) {
 static u8 lobby_add_player (Lobby *lobby, Player *player) {
 
     if (lobby && player) {
-        if (!player_is_in_lobby (player, lobby)) {
+        // if (!player_is_in_lobby (player, lobby)) {
 
-        }
+        // }
     }
 
 }
@@ -193,10 +218,11 @@ static u8 lobby_remove_player (Lobby *lobby, Player *player) {
 
 }
 
+// FIXME:
 // add a player to the lobby structures
 u8 player_add_to_lobby (Server *server, Lobby *lobby, Player *player) {
 
-    if (lobby && player) {
+    /* if (lobby && player) {
         if (server->type == GAME_SERVER) {
             GameServerData *gameData = (GameServerData *) server->serverData;
             if (gameData) {
@@ -227,7 +253,7 @@ u8 player_add_to_lobby (Server *server, Lobby *lobby, Player *player) {
                 }
             }
         }
-    }
+    } */
 
     return 1;    
 
@@ -237,37 +263,37 @@ u8 player_add_to_lobby (Server *server, Lobby *lobby, Player *player) {
 // removes a player from the lobby's players structures and sends it to the game server's players
 u8 player_remove_from_lobby (Server *server, Lobby *lobby, Player *player) {
 
-    if (server && lobby && player) {
-        if (server->type == GAME_SERVER) {
-            GameServerData *gameData = (GameServerData *) gameData;
-            if (gameData) {
-                // make sure that the player is inside the lobby...
-                if (player_is_in_lobby (player, lobby)) {
-                    // create a new player and add it to the server's players
-                    // Player *p = newPlayer (gameData->playersPool, NULL, player);
+    // if (server && lobby && player) {
+    //     if (server->type == GAME_SERVER) {
+    //         GameServerData *gameData = (GameServerData *) gameData;
+    //         if (gameData) {
+    //             // make sure that the player is inside the lobby...
+    //             if (player_is_in_lobby (player, lobby)) {
+    //                 // create a new player and add it to the server's players
+    //                 // Player *p = newPlayer (gameData->playersPool, NULL, player);
 
-                    // remove from the poll fds
-                    for (u8 i = 0; i < lobby->players_nfds; i++) {
-                        /* if (lobby->players_fds[i].fd == player->client->clientSock) {
-                            lobby->players_fds[i].fd = -1;
-                            lobby->players_nfds--;
-                            lobby->compress_players = true;
-                            break;
-                        } */
-                    }
+    //                 // remove from the poll fds
+    //                 for (u8 i = 0; i < lobby->players_nfds; i++) {
+    //                     /* if (lobby->players_fds[i].fd == player->client->clientSock) {
+    //                         lobby->players_fds[i].fd = -1;
+    //                         lobby->players_nfds--;
+    //                         lobby->compress_players = true;
+    //                         break;
+    //                     } */
+    //                 }
 
-                    // delete the player from the lobby
-                    avl_removeNode (lobby->players, player);
+    //                 // delete the player from the lobby
+    //                 avl_removeNode (lobby->players, player);
 
-                    // p->inLobby = false;
+    //                 // p->inLobby = false;
 
-                    // player_registerToServer (server, p);
+    //                 // player_registerToServer (server, p);
 
-                    return 0;
-                }
-            }
-        }
-    }
+    //                 return 0;
+    //             }
+    //         }
+    //     }
+    // }
 
     return 1;
 
@@ -295,21 +321,22 @@ u8 lobby_start (Server *server, Lobby *lobby) {
 
 }
 
-// TODO: add a timestamp of the creation of the lobby
 // creates a new lobby and inits his values with an owner
 Lobby *lobby_create (Server *server, Player *owner, unsigned int max_players) {
 
     Lobby *lobby = NULL;
 
     if (server && owner) {
-        lobby = lobby_new (server, max_players);
+        GameServerData *game_data = (GameServerData *) server->serverData;
+
+        // we create a timestamp of the creation of the lobby
+        lobby = lobby_new (game_data, max_players);
         if (lobby) {
             if (!lobby_add_player (lobby, owner)) {
                 lobby->owner = owner;
                 lobby->current_players = 1;
 
                 // add the lobby the server active ones
-                GameServerData *game_data = (GameServerData *) server->serverData;
                 dlist_insert_after (game_data->currentLobbys, dlist_end (game_data->currentLobbys), lobby);
             }
 
@@ -327,13 +354,13 @@ Lobby *lobby_create (Server *server, Player *owner, unsigned int max_players) {
 
 // called by a registered player that wants to join a lobby on progress
 // the lobby model gets updated with new values
-u8 lobby_join (Lobby *lobby, Player *player) {
+u8 lobby_join (GameServerData *game_data, Lobby *lobby, Player *player) {
 
     u8 retval = 1;
 
     if (lobby && player) {
         // check if for whatever reason a player al ready inside the lobby wants to join...
-        if (!player_is_in_lobby (player, lobby)) {
+        if (!player_is_in_lobby (lobby, game_data->player_comparator, player)) {
             // check if the lobby is al ready running the game
             if (!lobby->inGame) {
                 // check lobby capacity
@@ -359,13 +386,13 @@ u8 lobby_join (Lobby *lobby, Player *player) {
 }
 
 // called when a player requests to leave the lobby
-u8 lobby_leave (Lobby *lobby, Player *player) {
+u8 lobby_leave (GameServerData *game_data, Lobby *lobby, Player *player) {
 
     u8 retval = 1;
 
     if (lobby && player) {
         // first check if the player is inside the lobby
-        if (player_is_in_lobby (player, lobby)) {
+        if (player_is_in_lobby (lobby, game_data->player_comparator, player)) {
             // FIXME:
             // now check if the player is the owner
 

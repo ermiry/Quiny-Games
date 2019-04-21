@@ -43,8 +43,9 @@ struct _GameServerData {
 
     Config *gameSettingsConfig;     // stores game modes info
 
-    // Pool *lobbyPool;        // 21/10/2018 -- 22:04 -- each game server has its own pool
-    DoubleList *currentLobbys;    // a list of the current lobbys
+    void (*lobby_id_generator)(char *);
+    // Pool *lobbyPool;             // 21/10/2018 -- 22:04 -- each game server has its own pool
+    DoubleList *currentLobbys;      // a list of the current lobbys
 
     // Pool *playersPool;          // 22/10/2018 -- each server has its own player's pool
     AVLTree *players;
@@ -90,6 +91,9 @@ typedef struct PlayerAndData {
 } PlayerAndData;
 
 /*** GAME SERVER FUNCTIONS ***/
+
+// option to set a custom lobby id generator
+extern void game_set_lobby_id_generator (GameServerData *game_data, void (*lobby_id_generator)(char *));
 
 extern u8 destroyGameServer (struct _Server *server);
 
