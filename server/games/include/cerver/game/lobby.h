@@ -34,29 +34,27 @@ struct _Lobby {
 
 	unsigned int id;
 
-	// GameSettings *settings;
+	bool isRunning;						// lobby is listening for player packets
+	bool inGame;						// lobby is inside a game
+
 	void *game_settings;
 	Action delete_lobby_game_settings;
 
-	bool inGame;
-
 	struct _Player *owner;				// the client that created the lobby -> he has higher privileges
-
-	bool isRunning;						// lobby is listening for player packets
-
-	// 04/11/2018 -- lets try this and see how it goes - intended to also work for a bigger 
-	// lobby with more players in it
-	AVLTree *players;							// players inside the lobby -> reference to the main player avl
+	AVLTree *players;					// players inside the lobby -> reference to the main player avl
 	unsigned int max_players;
 	unsigned int current_players;
+
     struct pollfd *players_fds;     			
     u16 players_nfds;                           // n of active fds in the pollfd array
     bool compress_players;              		// compress the fds array?
-    u32 pool_timeout;    
+    u32 poll_timeout;    
 
 	// the server admin can add its server specific data types
 	void *game_data;
 	Action delete_lobby_game_data;
+
+	Action handler;						// lobby player handler
 
 	// 21/11/2018 - we put this here to avoid race conditions if we put it on
 	// the server game data
@@ -66,10 +64,19 @@ struct _Lobby {
 
 typedef struct _Lobby Lobby;
 
+typedef struct ServerLobby {
+
+    struct _Server *server;
+    Lobby *lobby;
+
+} ServerLobby;
+
 // sets the lobby settings and a function to delete it
 extern void lobby_set_game_settings (Lobby *lobby, void *game_settings, Action delete_game_settings);
 // sets the lobby game data and a function to delete it
 extern void lobby_set_game_data (Lobby *lobby, void *game_data, Action delete_lobby_game_data);
+// set the lobby player handler
+extern void lobby_set_handler (Lobby *lobby, Action handler);
 
 // lobby constructor, it also initializes basic lobby data
 extern Lobby *lobby_new (Server *server, unsigned int max_players);

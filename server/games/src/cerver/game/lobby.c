@@ -21,8 +21,7 @@
 #include "utils/config.h"
 #include "utils/log.h"
 
-void *createLobbyPacket (RequestType reqType, struct _Lobby *lobby, size_t packetSize);
-void sendLobbyPacket (Server *server, Lobby *lobby);
+static void lobby_default_handler (void *data);
 
 /*** Lobby Configuration ***/
 
@@ -45,6 +44,9 @@ void lobby_set_game_data (Lobby *lobby, void *game_data, Action delete_lobby_gam
     }
 
 }
+
+// set the lobby player handler
+void lobby_set_handler (Lobby *lobby, Action handler) { if (lobby) lobby->handler = handler; }
 
 // FIXME: set a unique id
 // lobby constructor, it also initializes basic lobby data
@@ -70,6 +72,8 @@ Lobby *lobby_new (Server *server, unsigned int max_players) {
 
         lobby->isRunning = false;
         lobby->inGame = false;
+
+        lobby->handler = lobby_default_handler;
     }
 
     return lobby;
@@ -126,7 +130,7 @@ int lobby_comparator (void *one, void *two) {
 }
 
 // we remove any fd that was set to -1 for what ever reason
-void compressPlayers (Lobby *lobby) {
+static void lobby_players_compress (Lobby *lobby) {
 
     if (lobby) {
         lobby->compress_players = false;
@@ -163,6 +167,7 @@ u8 game_init_lobbys (GameServerData *game_data, u8 n_lobbys) {
 
 }
 
+// FIXME:
 // add a player to a lobby
 static u8 lobby_add_player (Lobby *lobby, Player *player) {
 
@@ -174,6 +179,7 @@ static u8 lobby_add_player (Lobby *lobby, Player *player) {
 
 }
 
+// FIXME:
 // removes a player from the lobby
 static u8 lobby_remove_player (Lobby *lobby, Player *player) {
 
@@ -267,88 +273,6 @@ u8 player_remove_from_lobby (Server *server, Lobby *lobby, Player *player) {
 
 }
 
-void handleGamePacket (void *);
-
-// FIXME: give the option to add a custom hanlder!!
-// FIXME: create a similar logic to on hold players!!!
-// recieves packages from players inside the lobby
-void handlePlayersInLobby (void *data) {
-
-    if (!data) {
-        logMsg (stderr, ERROR, SERVER, "Can't handle packets of a NULL lobby!");
-        return;
-    }
-
-    Server *server = ((ServerLobby *) data)->server;
-    Lobby *lobby = ((ServerLobby *) data)->lobby;
-
-    ssize_t rc;                                  // retval from recv -> size of buffer
-    char packetBuffer[MAX_UDP_PACKET_SIZE];      // buffer for data recieved from fd
-    GamePacketInfo *info = NULL;
-
-    #ifdef CERVER_DEBUG
-    logMsg (stdout, SUCCESS, SERVER, "New lobby has started!");
-    #endif
-
-    int poll_retval;    // ret val from poll function
-    int currfds;        // copy of n active server poll fds
-    while (lobby->isRunning) {
-        poll_retval = poll (lobby->players_fds, lobby->players_nfds, lobby->pollTimeout);
-
-        // poll failed
-        if (poll_retval < 0) {
-            logMsg (stderr, ERROR, SERVER, "Lobby poll failed!");
-            perror ("Error");
-            lobby->isRunning = false;
-            break;
-        }
-
-        // if poll has timed out, just continue to the next loop... 
-        if (poll_retval == 0) {
-            #ifdef DEBUG
-            logMsg (stdout, DEBUG_MSG, SERVER, "Lobby poll timeout.");
-            #endif
-            continue;
-        }
-
-        // one or more fd(s) are readable, need to determine which ones they are
-        currfds = lobby->players_nfds;
-        for (u8 i = 0; i < currfds; i++) {
-            if (lobby->players_fds[i].fd <= -1) continue;
-
-            if (lobby->players_fds[i].revents == 0) continue;
-
-            if (lobby->players_fds[i].revents != POLLIN) 
-                logMsg (stderr, ERROR, GAME, "Lobby poll - Unexpected poll result!");
-
-            do {
-                rc = recv (lobby->players_fds[i].fd, packetBuffer, sizeof (packetBuffer), 0);
-                
-                if (rc < 0) {
-                    if (errno != EWOULDBLOCK) {
-                        logMsg (stderr, ERROR, SERVER, "On hold recv failed!");
-                        perror ("Error:");
-                    }
-
-                    break;  // there is no more data to handle
-                }
-
-                if (rc == 0) break;
-
-                info = newGamePacketInfo (server, lobby, 
-                    getPlayerBySock (lobby->players->root, lobby->players_fds[i].fd), packetBuffer, rc);
-
-                thpool_add_work (server->thpool, (void *) handleGamePacket, info);
-            } while (true);
-        }
-
-        if (lobby->compress_players) compressPlayers (lobby);
-    }
-
-}
-
-void deleteGamePacketInfo (void *data);
-
 // TODO: add a timestamp of the creation of the lobby
 // creates a new lobby and inits his values with an owner
 Lobby *lobby_create (Server *server, Player *owner, unsigned int max_players) {
@@ -417,11 +341,44 @@ u8 lobby_join (Lobby *lobby, Player *player) {
 
 }
 
-// FIXME:
+// called when a player requests to leave the lobby
+u8 lobby_leave (Lobby *lobby, Player *player) {
+
+    u8 retval = 1;
+
+    if (lobby && player) {
+        // first check if the player is inside the lobby
+        if (player_is_in_lobby (player, lobby)) {
+            // FIXME:
+            // now check if the player is the owner
+
+            // remove the player from the lobby
+            if (!lobby_remove_player (lobby, player)) lobby->current_players -= 1;
+
+            // check if there are still players in the lobby
+            if (lobby->current_players > 0) {
+                // TODO: what do we do to the players??
+            }
+
+            else {  
+                // the player was the last one in, so we can safely delete the lobby
+                lobby_delete (lobby);
+                retval = 0;
+            } 
+        }
+    }
+
+    return retval;
+
+}
+
+u8 lobby_destroy (Server *server, Lobby *lobby) {}
+
+// FIXME: 19/april/2019 -- do we still need this?
 // a lobby should only be destroyed when there are no players left or if we teardown the server
 u8 destroyLobby (Server *server, Lobby *lobby) {
 
-    if (server && lobby) {
+    /* if (server && lobby) {
         if (server->type == GAME_SERVER) {
             GameServerData *gameData = (GameServerData *) server->serverData;
             if (gameData) {
@@ -483,38 +440,7 @@ u8 destroyLobby (Server *server, Lobby *lobby) {
         }
     }
 
-    return 1;
-
-}
-
-// called when a player requests to leave the lobby
-u8 lobby_leave (Lobby *lobby, Player *player) {
-
-    u8 retval = 1;
-
-    if (lobby && player) {
-        // first check if the player is inside the lobby
-        if (player_is_in_lobby (player, lobby)) {
-            // FIXME:
-            // now check if the player is the owner
-
-            // remove the player from the lobby
-            if (!lobby_remove_player (lobby, player)) lobby->current_players -= 1;
-
-            // check if there are still players in the lobby
-            if (lobby->current_players > 0) {
-                // TODO: what do we do to the players??
-            }
-
-            else {  
-                // the player was the last one in, so we can safely delete the lobby
-                lobby_delete (lobby);
-                retval = 0;
-            } 
-        }
-    }
-
-    return retval;
+    return 1; */
 
 }
 
@@ -592,11 +518,14 @@ u8 leaveLobby (Server *server, Lobby *lobby, Player *player) {
 
 }
 
+/*** BLACKROCK SPECIFIC ***/
+
+// FIXME: 20/04/2019 - we need to check this - this is kind of blackrock specific
 // TODO: maybe the admin can add a custom ptr to a custom function?
 // FIXME:
 // TODO: pass the correct game type and maybe create a more advance algorithm
 // finds a suitable lobby for the player
-Lobby *findLobby (Server *server) {
+/* Lobby *findLobby (Server *server) {
 
     // FIXME: how do we want to handle these errors?
     // perform some check here...
@@ -632,6 +561,80 @@ Lobby *findLobby (Server *server) {
     }
 
     return lobby;
+
+} */
+
+// FIXME: 20/04/2019 - we need to check this - this is kind of blackrock specific
+// recieves packages from players inside the lobby
+static void lobby_default_handler (void *data) {
+
+    if (data) {
+        Server *server = ((ServerLobby *) data)->server;
+        Lobby *lobby = ((ServerLobby *) data)->lobby;
+
+        /* ssize_t rc;                                  // retval from recv -> size of buffer
+        char packetBuffer[MAX_UDP_PACKET_SIZE];      // buffer for data recieved from fd
+        GamePacketInfo *info = NULL;
+
+        #ifdef CERVER_DEBUG
+        logMsg (stdout, SUCCESS, SERVER, "New lobby has started!");
+        #endif
+
+        int poll_retval;    // ret val from poll function
+        int currfds;        // copy of n active server poll fds
+        while (lobby->isRunning) {
+            poll_retval = poll (lobby->players_fds, lobby->players_nfds, lobby->poll_timeout);
+
+            // poll failed
+            if (poll_retval < 0) {
+                logMsg (stderr, ERROR, SERVER, "Lobby poll failed!");
+                perror ("Error");
+                lobby->isRunning = false;
+                break;
+            }
+
+            // if poll has timed out, just continue to the next loop... 
+            if (poll_retval == 0) {
+                #ifdef DEBUG
+                logMsg (stdout, DEBUG_MSG, SERVER, "Lobby poll timeout.");
+                #endif
+                continue;
+            }
+
+            // one or more fd(s) are readable, need to determine which ones they are
+            currfds = lobby->players_nfds;
+            for (u8 i = 0; i < currfds; i++) {
+                if (lobby->players_fds[i].fd <= -1) continue;
+
+                if (lobby->players_fds[i].revents == 0) continue;
+
+                if (lobby->players_fds[i].revents != POLLIN) 
+                    logMsg (stderr, ERROR, GAME, "Lobby poll - Unexpected poll result!");
+
+                do {
+                    rc = recv (lobby->players_fds[i].fd, packetBuffer, sizeof (packetBuffer), 0);
+                    
+                    if (rc < 0) {
+                        if (errno != EWOULDBLOCK) {
+                            logMsg (stderr, ERROR, SERVER, "On hold recv failed!");
+                            perror ("Error:");
+                        }
+
+                        break;  // there is no more data to handle
+                    }
+
+                    if (rc == 0) break;
+
+                    info = newGamePacketInfo (server, lobby, 
+                        getPlayerBySock (lobby->players->root, lobby->players_fds[i].fd), packetBuffer, rc);
+
+                    thpool_add_work (server->thpool, (void *) handleGamePacket, info);
+                } while (true);
+            }
+
+            if (lobby->compress_players) compressPlayers (lobby);
+        }
+    } */
 
 }
 

@@ -80,14 +80,6 @@ enum _GameType {
 
 typedef enum _GameType GameType;
 
-// 10/11/2018 - aux reference to a server and lobby for thread functions
-typedef struct ServerLobby {
-
-    struct _Server *server;
-    Lobby *lobby;
-
-} ServerLobby;
-
 // 17/11/2018 -- aux structure for traversing a players tree
 typedef struct PlayerAndData {
 
