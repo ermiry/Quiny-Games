@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "types/myTypes.h"
 
@@ -9,6 +10,9 @@
 
 #include "collections/avl.h"
 #include "collections/htab.h"
+
+#include "utils/myUtils.h"
+#include "utils/log.h"
 
 // 15/11/2018 - starting to implement a easy to use score manager for any popouse game
 // implementing a C# Dictionary <string, Dictionary <string, int>> using hastables

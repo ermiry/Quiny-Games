@@ -49,7 +49,8 @@ struct _GameServerData {
     // Pool *playersPool;          // 22/10/2018 -- each server has its own player's pool
     AVLTree *players;
     // FIXME: set this when creating the game server!!!!
-    Comparator *player_comparator;      // used in the avl tree
+    // FIXME: do we have a function to set this?
+    Comparator player_comparator;      // used in the avl tree
 
 	// an admin can set a custom function to find a lobby bassed on 
 	// some game parameters

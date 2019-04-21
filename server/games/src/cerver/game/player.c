@@ -137,7 +137,7 @@ Player *player_get_by_socket (AVLNode *node, i32 socket_fd) {
     if (node) {
         Player *player = NULL;
 
-        player = getPlayerBySock (node->right, socket_fd);
+        player = player_get_by_socket (node->right, socket_fd);
 
         if (!player) {
             if (node->id) {
@@ -151,7 +151,7 @@ Player *player_get_by_socket (AVLNode *node, i32 socket_fd) {
             }
         }
 
-        if (!player) player = getPlayerBySock (node->left, socket_fd);
+        if (!player) player = player_get_by_socket (node->left, socket_fd);
 
         return player;
     }
@@ -165,7 +165,7 @@ Player *player_get_by_socket (AVLNode *node, i32 socket_fd) {
 void player_broadcast_to_all (AVLNode *node, Server *server, void *packet, size_t packetSize) {
 
     if (node && server && packet && (packetSize > 0)) {
-        broadcastToAllPlayers (node->right, server, packet, packetSize);
+        player_broadcast_to_all (node->right, server, packet, packetSize);
 
         // send packet to curent player
         if (node->id) {
@@ -175,7 +175,7 @@ void player_broadcast_to_all (AVLNode *node, Server *server, void *packet, size_
                     player->client->address, packet, packetSize);
         }
 
-        broadcastToAllPlayers (node->left, server, packet, packetSize);
+        player_broadcast_to_all (node->left, server, packet, packetSize);
     }
 
 }
@@ -197,7 +197,7 @@ void player_traverse (AVLNode *node, Action action, void *data) {
 }
 
 // inits the players server's structures
-u8 game_players_init (GameServerData *gameData, u8 n_players) {
+u8 game_init_players (GameServerData *gameData, u8 n_players) {
 
     if (!gameData) {
         logMsg (stderr, ERROR, SERVER, "Can't init players in a NULL game data!");

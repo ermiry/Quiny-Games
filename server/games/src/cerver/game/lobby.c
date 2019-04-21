@@ -200,7 +200,7 @@ u8 player_add_to_lobby (Server *server, Lobby *lobby, Player *player) {
         if (server->type == GAME_SERVER) {
             GameServerData *gameData = (GameServerData *) server->serverData;
             if (gameData) {
-                if (!player_isInLobby (player, lobby)) {
+                if (!player_is_in_lobby (player, lobby)) {
                     Player *p = avl_removeNode (gameData->players, player);
                     if (p) {
                         i32 client_sock_fd = player->client->active_connections[0];
@@ -242,7 +242,7 @@ u8 player_remove_from_lobby (Server *server, Lobby *lobby, Player *player) {
             GameServerData *gameData = (GameServerData *) gameData;
             if (gameData) {
                 // make sure that the player is inside the lobby...
-                if (player_isInLobby (player, lobby)) {
+                if (player_is_in_lobby (player, lobby)) {
                     // create a new player and add it to the server's players
                     // Player *p = newPlayer (gameData->playersPool, NULL, player);
 
@@ -413,7 +413,7 @@ u8 destroyLobby (Server *server, Lobby *lobby) {
                     Player *tempPlayer = NULL;
                     while (lobby->players_nfds > 0) {
                         tempPlayer = (Player *) lobby->players->root->id;
-                        if (tempPlayer) player_removeFromLobby (server, lobby, tempPlayer);
+                        if (tempPlayer) player_remove_from_lobby (server, lobby, tempPlayer);
                     }
                 }
 
@@ -448,73 +448,74 @@ u8 destroyLobby (Server *server, Lobby *lobby) {
 // FIXME: send packet!
 // TODO: add a timestamp when the player leaves
 
+// FIXME: finish refcatoring lobby_leaver with this!!
 u8 leaveLobby (Server *server, Lobby *lobby, Player *player) {
 
     // make sure that the player is inside the lobby
-    if (player_isInLobby (player, lobby)) {
-        // check to see if the player is the owner of the lobby
-        bool wasOwner = false;
-        // TODO: we should be checking for the player's id instead
-        // if (lobby->owner->client->clientSock == player->client->clientSock) 
-        //     wasOwner = true;
+    // if (player_is_in_lobby (player, lobby)) {
+    //     // check to see if the player is the owner of the lobby
+    //     bool wasOwner = false;
+    //     // TODO: we should be checking for the player's id instead
+    //     // if (lobby->owner->client->clientSock == player->client->clientSock) 
+    //     //     wasOwner = true;
 
-        if (player_removeFromLobby (server, lobby, player)) return 1;
+    //     if (player_remove_from_lobby (server, lobby, player)) return 1;
 
-        // there are still players in the lobby
-        if (lobby->players_nfds > 0) {
-            if (lobby->inGame) {
-                // broadcast the other players that the player left
-                // we need to send an update lobby packet and the players handle the logic
-                sendLobbyPacket (server, lobby);
+    //     // there are still players in the lobby
+    //     if (lobby->players_nfds > 0) {
+    //         if (lobby->inGame) {
+    //             // broadcast the other players that the player left
+    //             // we need to send an update lobby packet and the players handle the logic
+    //             sendLobbyPacket (server, lobby);
 
-                // if he was the owner -> set a new owner of the lobby -> first one in the array
-                if (wasOwner) {
-                    Player *temp = NULL;
-                    u8 i = 0;
-                    do {
-                        temp = getPlayerBySock (lobby->players->root, lobby->players_fds[i].fd);
-                        if (temp) {
-                            lobby->owner = temp;
-                            size_t packetSize = sizeof (PacketHeader) + sizeof (RequestData);
-                            void *packet = generatePacket (GAME_PACKET, packetSize);
-                            if (packet) {
-                                // server->protocol == IPPROTO_TCP ?
-                                // tcp_sendPacket (temp->client->clientSock, packet, packetSize, 0) :
-                                // udp_sendPacket (server, packet, packetSize, temp->client->address);
-                                free (packet);
-                            }
-                        }
+    //             // if he was the owner -> set a new owner of the lobby -> first one in the array
+    //             if (wasOwner) {
+    //                 Player *temp = NULL;
+    //                 u8 i = 0;
+    //                 do {
+    //                     temp = getPlayerBySock (lobby->players->root, lobby->players_fds[i].fd);
+    //                     if (temp) {
+    //                         lobby->owner = temp;
+    //                         size_t packetSize = sizeof (PacketHeader) + sizeof (RequestData);
+    //                         void *packet = generatePacket (GAME_PACKET, packetSize);
+    //                         if (packet) {
+    //                             // server->protocol == IPPROTO_TCP ?
+    //                             // tcp_sendPacket (temp->client->clientSock, packet, packetSize, 0) :
+    //                             // udp_sendPacket (server, packet, packetSize, temp->client->address);
+    //                             free (packet);
+    //                         }
+    //                     }
 
-                        // we got a NULL player in the structures -> we don't expect this to happen!
-                        else {
-                            logMsg (stdout, WARNING, GAME, 
-                                "Got a NULL player when searching for new owner!");
-                            lobby->players_fds[i].fd = -1;
-                            lobby->compress_players = true; 
-                            i++;
-                        }
-                    } while (!temp);
-                }
-            }
+    //                     // we got a NULL player in the structures -> we don't expect this to happen!
+    //                     else {
+    //                         logMsg (stdout, WARNING, GAME, 
+    //                             "Got a NULL player when searching for new owner!");
+    //                         lobby->players_fds[i].fd = -1;
+    //                         lobby->compress_players = true; 
+    //                         i++;
+    //                     }
+    //                 } while (!temp);
+    //             }
+    //         }
 
-            // players are in the lobby screen -> owner destroyed the lobby
-            else destroyLobby (server, lobby);
-        }
+    //         // players are in the lobby screen -> owner destroyed the lobby
+    //         else destroyLobby (server, lobby);
+    //     }
 
-        // player that left was the last one 
-        // 21/11/2018 -- destroy lobby is in charge of correctly ending the game
-        else destroyLobby (server, lobby);
+    //     // player that left was the last one 
+    //     // 21/11/2018 -- destroy lobby is in charge of correctly ending the game
+    //     else destroyLobby (server, lobby);
         
-        return 0;   // the player left the lobby successfully
-    }
+    //     return 0;   // the player left the lobby successfully
+    // }
 
-    else {
-        #ifdef DEBUG
-            logMsg (stderr, ERROR, GAME, "The player doesn't belong to the lobby!");
-        #endif
-    }
+    // else {
+    //     #ifdef DEBUG
+    //         logMsg (stderr, ERROR, GAME, "The player doesn't belong to the lobby!");
+    //     #endif
+    // }
 
-    return 1;
+    // return 1;
 
 }
 
@@ -633,8 +634,8 @@ static void lobby_default_handler (void *data) {
             }
 
             if (lobby->compress_players) compressPlayers (lobby);
-        }
-    } */
+        } */
+    } 
 
 }
 

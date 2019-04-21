@@ -177,6 +177,12 @@ User *quiny_user_get (const char *username, const char *password, int *errors) {
 
 }
 
+static char *quiny_user_json_create (const User *user, size_t *json_len) {
+
+
+
+}
+
 #pragma endregion
 
 #pragma region Public
@@ -273,7 +279,7 @@ static HttpResponse *quiny_user_login (Server *server, DoubleList *pairs) {
 
             // return the user data as json
             size_t json_len;
-            char *user_json = user_json_create (user, &json_len);
+            char *user_json = quiny_user_json_create (user, &json_len);
             res = http_response_create (200, NULL, 0, user_json, json_len);
             free (user_json);        // we copy the data into the response
         }

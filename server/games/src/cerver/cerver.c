@@ -1465,13 +1465,13 @@ u8 initServerDS (Server *server, ServerType type) {
             GameServerData *gameData = (GameServerData *) malloc (sizeof (GameServerData));
 
             // init the lobbys with n inactive in the pool
-            if (game_initLobbys (gameData, GS_LOBBY_POOL_INIT)) {
+            if (game_init_lobbys (gameData, GS_LOBBY_POOL_INIT)) {
                 logMsg (stderr, ERROR, NO_TYPE, "Failed to init server lobbys!");
                 return 1;
             }
 
             // init the players with n inactive in the pool
-            if (game_initPlayers (gameData, GS_PLAYER_POOL_INT)) {
+            if (game_init_players (gameData, GS_PLAYER_POOL_INT)) {
                 logMsg (stderr, ERROR, NO_TYPE, "Failed to init server players!");
                 return 1;
             }
