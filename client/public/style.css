@@ -1,0 +1,85 @@
+.body {
+	background-image: url("img/back-main.jpg");
+	background-size: cover;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+  }
+  .jumbotronc{
+	background-color: #7AB93C;
+  }
+  .myButtonazul{ 
+  background-color: #D0D075 !important
+  }
+  
+  .myButtonamarillo{ 
+	background-color: #AAD278 !important
+   }
+  
+  .myButtonverdelimon{ 
+	  background-color: #84D57B !important
+   }
+   .rosa{
+	 background-color: var(--rosa);
+   }
+   .beige{
+	background-color: var(--beige);
+  }
+  .esmeralda{
+	background-color: var(--esmeralda);
+  }
+  .moco{
+	background-color: var(--moco);
+  }
+  .verde1{
+	background-color: var(--verde1);
+  }
+  .verde2{
+	background-color: var(--verde2);
+  }
+
+:root {
+	--esmeralda: #37786c;
+	--azul: #3A9584;
+	--amarillo: #B3AC3C;
+	--verdelimon: #7AB93C;
+	--verde: #5BB574;
+	--verdecl: #68c281;
+	--rosa: #d28b7b;
+	--beige: #d4b47e;
+
+	--azul2: #56AAb2;
+	--azul3: #62B7C0;
+	--moco: #D0D075;
+	--verde1: #AAD278;
+	--verde2: #84D57B;
+
+	--blue: #007bff;
+	--indigo: #6610f2;
+	--purple: #6f42c1;
+	--pink: #e83e8c;
+	--red: #dc3545;
+	--orange: #fd7e14;
+	--yellow: #ffc107;
+	--green: #28a745;
+	--teal: #20c997;
+	--cyan: #17a2b8;
+	--white: #fff;
+	--gray: #6c757d;
+	--gray-dark: #343a40;
+	--primary: #007bff;
+	--secondary: #6c757d;
+	--success: #28a745;
+	--info: #17a2b8;
+	--warning: #ffc107;
+	--danger: #dc3545;
+	--light: #f8f9fa;
+	--dark: #343a40;
+	--breakpoint-xs: 0;
+	--breakpoint-sm: 576px;
+	--breakpoint-md: 768px;
+	--breakpoint-lg: 992px;
+	--breakpoint-xl: 1200px;
+	--font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	--font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
