@@ -25,127 +25,75 @@
 GamePacketInfo *newGamePacketInfo (Server *server, Lobby *lobby, Player *player, 
     char *packetData, size_t packetSize);
 
-/*** GAME SERVER ***/
+/*** Game Server configuration ***/
 
-#pragma region GAME SERVER
-
+// option to set the game server lobby id generator
 void game_set_lobby_id_generator (GameServerData *game_data, void (*lobby_id_generator)(char *)) {
 
     if (game_data) game_data->lobby_id_generator = lobby_id_generator;
 
 }
 
-// add a function to load game data like from a db
-void gs_set_loadGameData (Server *server, Func loadData) {
+// option to set the main game server player comprator
+void game_set_player_comparator (GameServerData *game_data, Comparator *player_comparator) {
+
+    if (game_data) game_data->player_comparator = player_comparator;
+
+}
+
+// option to set the a func to be executed only once at the start of the game server
+void game_set_load_game_data (GameServerData *game_data, Action load_game_data) {
+
+    if (game_data) game_data->load_game_data = load_game_data;
+
+}
+
+// option to set the func to be executed only once when the game server gets destroyed
+void game_set_delete_game_data (GameServerData *game_data, Action delete_game_data) {
+
+    if (game_data) game_data->delete_game_data = delete_game_data;
+
+}
+
+// option to set an action to be performed right before the game server teardown
+// the server reference will be passed to the action
+// eg. send a message to all players
+void game_set_final_action (GameServerData *game_data, Action final_action) {
+
+    if (game_data) game_data->final_game_action = final_action;
+
+}
+
+
+/*** Game Server ***/
+
+u8 game_server_teardown (Server *server) {
+
+    int retval = 1;
 
     if (server) {
-        if (server->type != GAME_SERVER) {
-            logMsg (stderr, ERROR, SERVER, 
-                "Can't add a load game data func. Server of incorrect type.");
-            return;
+        GameServerData *game_server_data = (GameServerData *) server->serverData;
+        if (game_server_data) {
+            #ifdef CERVER_DEBUG
+            logMsg (stdout, DEBUG_MSG, SERVER, createString ("Destroying server's: %s game data...", server->name));
+            #endif
+            
+            if (game_server_data->final_game_action) final_game_action (server);
         }
 
-        GameServerData *gameData = (GameServerData *) server->serverData;
-        if (!gameData) {
-            logMsg (stderr, ERROR, SERVER, "NULL game data in the game server!");
-            return;
-        }
-
-        gameData->loadGameData = loadData;
+        else logMsg (stderr, WARNING, NO_TYPE, createString ("Server %s does not have a refernce to a game data.", server->name));
     }
 
-}
-
-void gs_set_deleteGameData (Server *server, Func deleteData) {
-
-    if (server) {
-        if (server->type != GAME_SERVER) {
-            logMsg (stderr, ERROR, SERVER, 
-                "Can't add a delete game data func. Server of incorrect type.");
-            return;
-        }
-
-        GameServerData *gameData = (GameServerData *) server->serverData;
-        if (!gameData) {
-            logMsg (stderr, ERROR, SERVER, "NULL game data in the game server!");
-            return;
-        }
-
-        gameData->deleteGameData = deleteData;
-    }
+    return retval;
 
 }
-
-// TODO: 13/11/2018 - do we still need a hash table for a better implementation?
-// we need the game types enum to be 0 indexed and to be in order!
-// adds a game init function to use with a game type
-// TODO: 13/11/2018 -- we need to support the admin to add new game modes without
-// changing the original GameType enum
-void gs_add_gameInit (struct _Server *server, GameType gameType, delegate gameInit) {
-
-    if (server) {
-        if (server->type != GAME_SERVER) {
-            logMsg (stderr, ERROR, SERVER, "Can't add a game init func. Server of incorrect type.");
-            return;
-        }
-
-        GameServerData *gameData = (GameServerData *) server->serverData;
-        if (!gameData) {
-            logMsg (stderr, ERROR, SERVER, "NULL game data in the game server!");
-            return;
-        }
-
-        // the first time we add a function, we create the array
-        if (!gameData->gameInitFuncs) {
-            gameData->gameInitFuncs = (delegate *) calloc (1, sizeof (delegate));
-            gameData->gameInitFuncs[gameType] = gameInit;
-            gameData->n_gameInits++;
-        }
-
-        // realloc the array and add the new function at the end
-        else {
-            gameData->gameInitFuncs = 
-                (delegate *) realloc (gameData->gameInitFuncs, 
-                sizeof (delegate) * gameData->n_gameInits + 1);
-            gameData->gameInitFuncs[gameType] = gameInit;
-            gameData->n_gameInits++;
-        }
-    }
-
-}
-
-void gs_set_lobbyDeleteGameData (Server *server, Action deleteData) {
-
-     if (server) {
-        if (server->type != GAME_SERVER) {
-            logMsg (stderr, ERROR, SERVER, 
-                "Can't add a lobby delete game data func. Server of incorrect type.");
-            return;
-        }
-
-        GameServerData *gameData = (GameServerData *) server->serverData;
-        if (!gameData) {
-            logMsg (stderr, ERROR, SERVER, "NULL game data in the game server!");
-            return;
-        }
-
-        gameData->deleteLobbyGameData = deleteData;
-    }
-
-}
-
-void player_broadcast_to_all (AVLNode *, Server *, void *, size_t);
-
-u8 destroyLobby (Server *server, Lobby *lobby);
 
 // cleans up all the game structs like lobbys and in game data set by the admin
 // if there are players connected, it sends a server teardown packet
 u8 destroyGameServer (Server *server) {
 
     if (server) {
-        #ifdef CERVER_DEBUG
-            logMsg (stdout, DEBUG_MSG, SERVER, "Destroying game server data...");
-        #endif
+        
 
         GameServerData *gameData = (GameServerData *) server->serverData;
         if (gameData) {
@@ -162,25 +110,9 @@ u8 destroyGameServer (Server *server) {
                 logMsg (stdout, DEBUG_MSG, SERVER, "Done clearing server lobbys.");
             #endif
 
-            // send server destroy packet to all the players
-            size_t packetSize = sizeof (PacketHeader) + sizeof (RequestData);
-            void *packet = generatePacket (SERVER_PACKET, packetSize);
-            if (packet) {
-                char *end = packet + sizeof (PacketHeader);
-                RequestData *req = (RequestData *) end;
-                req->type = SERVER_TEARDOWN;
+            
 
-                // send the packet to players outside the lobby
-                player_broadcast_to_all (gameData->players->root, server, packet, packetSize);
-
-                free (packet);
-            }
-
-            else logMsg (stderr, ERROR, PACKET, "Failed to create server teardown packet!");
-
-            #ifdef DEBUG
-                logMsg (stdout, DEBUG_MSG, SERVER, "Done sending server teardown packet to players.");
-            #endif
+            
 
             // disconnect all players from the server
                 // -> close connections -> take them out of server poll structures
@@ -196,14 +128,15 @@ u8 destroyGameServer (Server *server) {
                 logMsg (stdout, DEBUG_MSG, SERVER, "Done clearing server players.");
             #endif
 
+            // FIXME:
             // destroy game specific data set by the game admin
-            if (gameData->deleteGameData) gameData->deleteGameData ();
+            // if (gameData->deleteGameData) gameData->deleteGameData ();
 
-            // remove any other data or values in the game server...
-            if (gameData->gameSettingsConfig) 
-                config_destroy (gameData->gameSettingsConfig);
-            gameData->loadGameData = NULL;
-            gameData->deleteGameData = NULL;
+            // // remove any other data or values in the game server...
+            // if (gameData->gameSettingsConfig) 
+            //     config_destroy (gameData->gameSettingsConfig);
+            // gameData->loadGameData = NULL;
+            // gameData->deleteGameData = NULL;
 
             free (gameData);
 
@@ -219,7 +152,33 @@ u8 destroyGameServer (Server *server) {
 
 }
 
-#pragma endregion
+
+/*** THE FOLLOWING AND KIND OF BLACKROCK SPECIFIC ***/
+/*** WE NEED TO DECIDE WITH NEED TO BE ON THE FRAMEWORK AND WHICH DOES NOT!! ***/
+
+void blackrock_game_server_final_action () {
+
+    // send server destroy packet to all the players
+    // size_t packetSize = sizeof (PacketHeader) + sizeof (RequestData);
+    // void *packet = generatePacket (SERVER_PACKET, packetSize);
+    // if (packet) {
+    //     char *end = packet + sizeof (PacketHeader);
+    //     RequestData *req = (RequestData *) end;
+    //     req->type = SERVER_TEARDOWN;
+
+    //     // send the packet to players outside the lobby
+    //     player_broadcast_to_all (gameData->players->root, server, packet, packetSize);
+
+    //     free (packet);
+    // }
+
+    // else logMsg (stderr, ERROR, PACKET, "Failed to create server teardown packet!");
+
+    // #ifdef DEBUG
+    //     logMsg (stdout, DEBUG_MSG, SERVER, "Done sending server teardown packet to players.");
+    // #endif
+
+}
 
 // FIXME:
 #pragma region GAME SERIALIZATION 
@@ -268,10 +227,11 @@ u8 gs_startGame (Server *server, Lobby *lobby) {
     if (server && lobby) {
         GameServerData *gameData = (GameServerData *) server->serverData;
 
-        if (!gameData->gameInitFuncs) {
-            logMsg (stderr, ERROR, GAME, "Init game functions not set!");
-            return 1;
-        }
+        // FIXME:
+        // if (!gameData->gameInitFuncs) {
+        //     logMsg (stderr, ERROR, GAME, "Init game functions not set!");
+        //     return 1;
+        // }
 
         // delegate temp = gameData->gameInitFuncs[lobby->settings->gameType];
         /* if (temp) {

@@ -17,6 +17,8 @@ typedef struct User {
 
     bson_oid_t oid;
 
+    String *amazon_access_token;
+
     String *name;
     String *username;
     String *email;

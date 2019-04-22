@@ -1513,14 +1513,15 @@ void initServerValues (Server *server, ServerType type) {
         case GAME_SERVER: {
             GameServerData *data = (GameServerData *) server->serverData;
 
+            // FIXME:
             // get game modes info from a config file
-            data->gameSettingsConfig = config_parse_file (GS_GAME_SETTINGS_CFG);
-            if (!data->gameSettingsConfig) 
-                logMsg (stderr, ERROR, GAME, "Problems loading game settings config!");
+            // data->gameSettingsConfig = config_parse_file (GS_GAME_SETTINGS_CFG);
+            // if (!data->gameSettingsConfig) 
+            //     logMsg (stderr, ERROR, GAME, "Problems loading game settings config!");
 
-            data->n_gameInits = 0;
-            data->gameInitFuncs = NULL;
-            data->loadGameData = NULL;
+            // data->n_gameInits = 0;
+            // data->gameInitFuncs = NULL;
+            // data->loadGameData = NULL;
         } break;
         default: break;
     }
@@ -1910,15 +1911,16 @@ u8 cerver_startServer (Server *server) {
 
     // one time only inits
     // if we have a game server, we might wanna load game data -> set by server admin
-    if (server->type == GAME_SERVER) {
-        GameServerData *gameData = (GameServerData *) server->serverData;
-        if (gameData && gameData->loadGameData) {
-            if (gameData->loadGameData ()) 
-                logMsg (stderr, ERROR, GAME, "Failed to load game data!");
-        }
+    // FIXME:
+    // if (server->type == GAME_SERVER) {
+    //     GameServerData *gameData = (GameServerData *) server->serverData;
+    //     if (gameData && gameData->loadGameData) {
+    //         if (gameData->loadGameData ()) 
+    //             logMsg (stderr, ERROR, GAME, "Failed to load game data!");
+    //     }
 
-        else logMsg (stdout, WARNING, GAME, "Game server doesn't have a reference to a game data!");
-    }
+    //     else logMsg (stdout, WARNING, GAME, "Game server doesn't have a reference to a game data!");
+    // }
 
     u8 retval = 1;
     switch (server->protocol) {

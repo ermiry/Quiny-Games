@@ -41,38 +41,53 @@ struct _PacketInfo;
 
 struct _GameServerData {
 
-    Config *gameSettingsConfig;     // stores game modes info
-
     void (*lobby_id_generator)(char *);
     // Pool *lobbyPool;             // 21/10/2018 -- 22:04 -- each game server has its own pool
     DoubleList *currentLobbys;      // a list of the current lobbys
 
     // Pool *playersPool;          // 22/10/2018 -- each server has its own player's pool
     AVLTree *players;
-    // FIXME: set this when creating the game server!!!!
-    // FIXME: do we have a function to set this?
     Comparator player_comparator;      // used in the avl tree
-
-	// an admin can set a custom function to find a lobby bassed on 
-	// some game parameters
-	Action findLobby;
 
     // we can define a function to load game data at start, 
     // for example to connect to a db or something like that
-    Func loadGameData;
-    Func deleteGameData;
+    Action load_game_data;
+    Action delete_game_data;
+    void *game_data;
 
-    Action deleteLobbyGameData;
+    // an admin can set a custom function to find a lobby bassed on 
+	// some game parameters
+    // TODO: do we want this here?  21/04/2019
+	Action findLobby;
 
-    // 13//11/2018 -- depending on the game type, we can have different init game functions
-    u8 n_gameInits;
-    delegate *gameInitFuncs;
-
-    // TODO: 13/11/2018 - do we also need separte functions to handle the game stop?
+    // action to be performed right before the game server teardown
+    // eg. send a message to all players
+    Action final_game_action;
 
 };
 
 typedef struct _GameServerData GameServerData;
+
+/*** Game Server Configuration ***/
+
+// option to set a custom lobby id generator
+extern void game_set_lobby_id_generator (GameServerData *game_data, void (*lobby_id_generator)(char *));
+// option to set the main game server player comprator
+extern void game_set_player_comparator (GameServerData *game_data, Comparator *player_comparator);
+// option to set the a func to be executed only once at the start of the game server
+extern void game_set_load_game_data (GameServerData *game_data, Action load_game_data);
+// option to set the func to be executed only once when the game server gets destroyed
+extern void game_set_delete_game_data (GameServerData *game_data, Action delete_game_data);
+
+// option to set an action to be performed right before the game server teardown
+// the server reference will be passed to the action
+// eg. send a message to all players
+extern void game_set_final_action (GameServerData *game_data, Action final_action);
+
+
+/*** THE FOLLOWING AND KIND OF BLACKROCK SPECIFIC ***/
+/*** WE NEED TO DECIDE WITH NEED TO BE ON THE FRAMEWORK AND WHICH DOES NOT!! ***/
+
 
 enum _GameType {
 
@@ -89,27 +104,6 @@ typedef struct PlayerAndData {
     void *data;
 
 } PlayerAndData;
-
-/*** GAME SERVER FUNCTIONS ***/
-
-// option to set a custom lobby id generator
-extern void game_set_lobby_id_generator (GameServerData *game_data, void (*lobby_id_generator)(char *));
-
-extern u8 destroyGameServer (struct _Server *server);
-
-extern u8 game_initPlayers (GameServerData *gameData, u8 n_players);
-extern u8 game_initLobbys (GameServerData *gameData, u8 n_lobbys);
-
-extern void broadcastToAllPlayers (AVLNode *playerNode, struct _Server *server,
-	void *packet, size_t packetSize);
-extern void traversePlayers (AVLNode *node, Action action, void *data);
-
-extern void gs_set_loadGameData (struct _Server *server, Func loadData);
-extern void gs_set_deleteGameData (struct _Server *server, Func deleteData);
-extern void gs_add_gameInit (struct _Server *server, GameType gameType, delegate gameInit);
-extern void gs_set_lobbyDeleteGameData (struct _Server *server, Action deleteData);
-
-extern void gs_handlePacket (struct _PacketInfo *packet);
 
 /*** GAME PACKETS ***/
 
