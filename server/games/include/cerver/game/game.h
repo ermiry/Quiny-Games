@@ -73,7 +73,7 @@ typedef struct _GameServerData GameServerData;
 // option to set a custom lobby id generator
 extern void game_set_lobby_id_generator (GameServerData *game_data, void (*lobby_id_generator)(char *));
 // option to set the main game server player comprator
-extern void game_set_player_comparator (GameServerData *game_data, Comparator *player_comparator);
+extern void game_set_player_comparator (GameServerData *game_data, Comparator player_comparator);
 // option to set the a func to be executed only once at the start of the game server
 extern void game_set_load_game_data (GameServerData *game_data, Action load_game_data);
 // option to set the func to be executed only once when the game server gets destroyed
@@ -90,7 +90,7 @@ extern GameServerData *game_server_data_new (void);
 extern void game_server_data_delete (GameServerData *game_server_data);
 
 // cleans up all the game structs like lobbys and in game data set by the admin
-u8 game_server_teardown (Server *server);
+u8 game_server_teardown (struct _Server *server);
 
 
 /*** THE FOLLOWING AND KIND OF BLACKROCK SPECIFIC ***/

@@ -8,6 +8,7 @@
 #include <poll.h>
 
 #include "types/myTypes.h"
+#include "types/myString.h"
 
 #include "network.h"
 #include "client.h"
@@ -125,7 +126,7 @@ struct _Server {
 
     // server info/stats
     // TODO: use this in the thpool names
-    char *name;
+    String *name;
     u32 connectedClients;
     u32 n_hold_clients;
 
@@ -133,18 +134,37 @@ struct _Server {
 
 typedef struct _Server Server;
 
-extern Server *cerver_createServer (Server *, ServerType, char *name);
-
-extern u8 cerver_startServer (Server *);
-
-extern u8 cerver_shutdownServer (Server *);
-extern u8 cerver_teardown (Server *);
-extern Server *cerver_restartServer (Server *);
+/*** Cerver Configuration ***/
 
 extern void cerver_set_auth_method (Server *server, delegate authMethod);
 
+extern void cerver_set_handler_received_buffer (Server *server, Action handler);
+
 extern void session_set_id_generator (Server *server, Action idGenerator);
 extern char *session_default_generate_id (i32 fd, const struct sockaddr_storage address);
+
+/*** Cerver Methods ***/
+
+// cerver constructor, with option to init with some values
+extern Server *cerver_new (Server *cerver);
+extern void cerver_delete (Server *cerver);
+
+// creates a new cerver of the specified type and with option for a custom name
+// also has the option to take another cerver as a paramater
+// if no cerver is passed, configuration will be read from config/server.cfg
+extern Server *cerver_create (ServerType type, const char *name, Server *cerver);
+
+// teardowns the cerver and creates a fresh new one with the same parameters
+extern Server *cerver_restart (Server *server);
+
+// starts the cerver
+extern u8 cerver_start (Server *server);
+
+// disable socket I/O in both ways and stop any ongoing job
+extern u8 cerver_shutdown (Server *server);
+
+// teardown a server -> stop the server and clean all of its data
+extern u8 cerver_teardown (Server *server);
 
 // auxiliary struct for handle_recieved_buffer Action
 typedef struct RecvdBufferData {
@@ -158,8 +178,6 @@ typedef struct RecvdBufferData {
 } RecvdBufferData;
 
 extern void rcvd_buffer_data_delete (RecvdBufferData *data);
-
-extern void cerver_set_handle_received_buffer (Server *server, Action handler);
 
 #pragma endregion
 

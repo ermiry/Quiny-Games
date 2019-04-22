@@ -35,7 +35,7 @@ void game_set_lobby_id_generator (GameServerData *game_data, void (*lobby_id_gen
 }
 
 // option to set the main game server player comprator
-void game_set_player_comparator (GameServerData *game_data, Comparator *player_comparator) {
+void game_set_player_comparator (GameServerData *game_data, Comparator player_comparator) {
 
     if (game_data) game_data->player_comparator = player_comparator;
 
@@ -120,7 +120,7 @@ u8 game_server_teardown (Server *server) {
             logMsg (stdout, DEBUG_MSG, SERVER, createString ("Destroying server's: %s game data...", server->name));
             #endif
             
-            if (game_server_data->final_game_action) final_game_action (server);
+            if (game_server_data->final_game_action) game_server_data->final_game_action (server);
 
             game_server_data_delete (game_server_data);
         }
