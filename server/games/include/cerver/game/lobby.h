@@ -83,6 +83,9 @@ extern void lobby_set_game_data (Lobby *lobby, void *game_data, Action delete_lo
 // set the lobby player handler
 extern void lobby_set_handler (Lobby *lobby, Action handler);
 
+// the default lobby id generator
+extern void lobby_default_generate_id (char *lobby_id);
+
 // lobby constructor, it also initializes basic lobby data
 extern Lobby *lobby_new (struct _GameServerData *game_data, unsigned int max_players);
 // deletes a lobby for ever -- called when we teardown the server

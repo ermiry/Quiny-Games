@@ -41,9 +41,9 @@ struct _PacketInfo;
 
 struct _GameServerData {
 
+    DoubleList *currentLobbys;      // a list of the current lobbys
     void (*lobby_id_generator)(char *);
     // Pool *lobbyPool;             // 21/10/2018 -- 22:04 -- each game server has its own pool
-    DoubleList *currentLobbys;      // a list of the current lobbys
 
     // Pool *playersPool;          // 22/10/2018 -- each server has its own player's pool
     AVLTree *players;
@@ -83,6 +83,14 @@ extern void game_set_delete_game_data (GameServerData *game_data, Action delete_
 // the server reference will be passed to the action
 // eg. send a message to all players
 extern void game_set_final_action (GameServerData *game_data, Action final_action);
+
+// constructor for a new game server data
+// initializes game server data structures and sets actions to defaults
+extern GameServerData *game_server_data_new (void);
+extern void game_server_data_delete (GameServerData *game_server_data);
+
+// cleans up all the game structs like lobbys and in game data set by the admin
+u8 game_server_teardown (Server *server);
 
 
 /*** THE FOLLOWING AND KIND OF BLACKROCK SPECIFIC ***/

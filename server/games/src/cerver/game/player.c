@@ -223,7 +223,7 @@ void player_traverse (AVLNode *node, Action action, void *data) {
 }
 
 // inits the players server's structures
-u8 game_init_players (GameServerData *gameData, u8 n_players) {
+u8 game_init_players (GameServerData *gameData, Comparator player_comparator) {
 
     if (!gameData) {
         logMsg (stderr, ERROR, SERVER, "Can't init players in a NULL game data!");
@@ -233,7 +233,7 @@ u8 game_init_players (GameServerData *gameData, u8 n_players) {
     if (gameData->players)
         logMsg (stdout, WARNING, SERVER, "The server already has an avl of players!");
     else {
-        gameData->players = avl_init (player_comparator_client_id, player_delete);
+        gameData->players = avl_init (player_comparator, player_delete);
         if (!gameData->players) {
             logMsg (stderr, ERROR, NO_TYPE, "Failed to init server's players avl!");
             return 1;

@@ -64,9 +64,51 @@ void game_set_final_action (GameServerData *game_data, Action final_action) {
 
 }
 
+/*** Game Server Data ***/
+
+// constructor for a new game server data
+// initializes game server data structures and sets actions to defaults
+GameServerData *game_server_data_new (void) {
+
+    GameServerData *game_server_data = (GameServerData *) malloc (sizeof (GameServerData));
+    if (game_server_data) {
+        game_server_data->currentLobbys = dlist_init (lobby_delete, lobby_comparator);
+        game_server_data->lobby_id_generator = lobby_default_generate_id;
+        game_server_data->findLobby = NULL;
+
+        game_server_data->player_comparator = player_comparator_client_id;
+        game_init_players (game_server_data, game_server_data->player_comparator);
+
+        game_server_data->load_game_data = game_server_data->delete_game_data = NULL;
+        game_server_data->game_data = NULL;
+
+        game_server_data->final_game_action = NULL;
+    }
+
+    return game_server_data;
+
+}
+
+void game_server_data_delete (GameServerData *game_server_data) {
+
+    if (game_server_data) {
+        // destroy current active lobbies
+        dlist_destroy (game_server_data->currentLobbys);
+
+        // destroy game players
+        avl_clearTree (&game_server_data->players->root, game_server_data->players->destroy);
+
+        // delete game server game data
+        if (game_server_data->delete_game_data) game_server_data->delete_game_data (game_server_data->game_data);
+
+        free (game_server_data);
+    }
+
+}
 
 /*** Game Server ***/
 
+// cleans up all the game structs like lobbys and in game data set by the admin
 u8 game_server_teardown (Server *server) {
 
     int retval = 1;
@@ -79,6 +121,8 @@ u8 game_server_teardown (Server *server) {
             #endif
             
             if (game_server_data->final_game_action) final_game_action (server);
+
+            game_server_data_delete (game_server_data);
         }
 
         else logMsg (stderr, WARNING, NO_TYPE, createString ("Server %s does not have a refernce to a game data.", server->name));
@@ -87,71 +131,6 @@ u8 game_server_teardown (Server *server) {
     return retval;
 
 }
-
-// cleans up all the game structs like lobbys and in game data set by the admin
-// if there are players connected, it sends a server teardown packet
-u8 destroyGameServer (Server *server) {
-
-    if (server) {
-        
-
-        GameServerData *gameData = (GameServerData *) server->serverData;
-        if (gameData) {
-            // first destroy the current lobbys, stoping any ongoing game and sending the players
-            // to the main server players avl structure
-            while (dlist_size (gameData->currentLobbys) > 0) 
-                destroyLobby (server, (Lobby *) (dlist_start (gameData->currentLobbys)));
-
-            // destroy all lobbys
-            dlist_clean (gameData->currentLobbys);
-            // pool_clear (gameData->lobbyPool);
-
-            #ifdef DEBUG
-                logMsg (stdout, DEBUG_MSG, SERVER, "Done clearing server lobbys.");
-            #endif
-
-            
-
-            
-
-            // disconnect all players from the server
-                // -> close connections -> take them out of server poll structures
-            // 20/11/2108 - this is done in the server teardown function because cleints
-            // and players share the same poll structure
-
-            // destroy players
-            if (gameData->players) 
-                avl_clearTree (&gameData->players->root, gameData->players->destroy);
-            // pool_clear (gameData->playersPool);
-
-            #ifdef DEBUG
-                logMsg (stdout, DEBUG_MSG, SERVER, "Done clearing server players.");
-            #endif
-
-            // FIXME:
-            // destroy game specific data set by the game admin
-            // if (gameData->deleteGameData) gameData->deleteGameData ();
-
-            // // remove any other data or values in the game server...
-            // if (gameData->gameSettingsConfig) 
-            //     config_destroy (gameData->gameSettingsConfig);
-            // gameData->loadGameData = NULL;
-            // gameData->deleteGameData = NULL;
-
-            free (gameData);
-
-            return 0;
-        }
-
-        else logMsg (stderr, ERROR, SERVER, "Game server doesn't have a reference to game data!");
-    }
-
-    else logMsg (stderr, ERROR, SERVER, "Can't destroy a NULL game server!");
-
-    return 1;
-
-}
-
 
 /*** THE FOLLOWING AND KIND OF BLACKROCK SPECIFIC ***/
 /*** WE NEED TO DECIDE WITH NEED TO BE ON THE FRAMEWORK AND WHICH DOES NOT!! ***/

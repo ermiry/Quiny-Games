@@ -51,7 +51,7 @@ void lobby_set_game_data (Lobby *lobby, void *game_data, Action delete_lobby_gam
 // set the lobby player handler
 void lobby_set_handler (Lobby *lobby, Action handler) { if (lobby) lobby->handler = handler; }
 
-static void lobby_default_generate_id (char *lobby_id) {
+void lobby_default_generate_id (char *lobby_id) {
 
     time_t rawtime = time (NULL);
     struct tm *timeinfo = localtime (&rawtime);

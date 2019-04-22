@@ -38,7 +38,7 @@ struct _Player {
 typedef struct _Player Player;
 
 // inits the players server's structures
-extern u8 game_init_players (struct _GameServerData *gameData, u8 n_players);
+extern u8 game_init_players (struct _GameServerData *gameData, Comparator player_comparator);
 
 extern void player_set_delete_player_data (Player *player, Action destroy);
 
