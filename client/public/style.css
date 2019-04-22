@@ -1,8 +1,6 @@
-.nav-color {
+body, html { height: 100% }
 
-	background-color: #1e824c;
-
-}
+.nav-color { background-color: #1e824c; }
 
 .body {
 	background-image: url("img/back-main.jpg");
@@ -90,18 +88,10 @@
 	--font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-/* ---- reset ---- */
-
-/* ---- particles.js container ---- */
-
-body,
-html {
-    height: 100%
-}
+/* ---- particles.js ---- */
 
 #particles-js canvas {
     display: block;
-    vertical-align: bottom;
     -webkit-transform: scale(1);
     -ms-transform: scale(1);
     transform: scale(1);

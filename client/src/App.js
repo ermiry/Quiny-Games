@@ -12,7 +12,12 @@ import jwt_decode from 'jwt-decode';
 // Layout components
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import Landing from './components/layout/Landing';
+
+// Main components
+import Landing from './components/main/Landing';
+import About from './components/main/About';
+import Games from './components/main/Games';
+import Contact from './components/main/Contact';
 
 import Test from './components/test/Test';
 
@@ -67,6 +72,11 @@ class App extends Component {
 					<Route exact path='/' component={ Landing } />
 					<div className="container">
 						{/* <Route exact path="/test" component={Test} /> */}
+
+						{/* Main components */}
+						<Route exact path="/about" component={ About } />
+						<Route exact path="/contact" component={ Contact } />
+						<Route exact path="/games" component={ Games } />
 
 						{/* User */}
 						<Route exact path="/register" component={ Register } />
