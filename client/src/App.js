@@ -62,11 +62,11 @@ class App extends Component {
 		<Provider store= { myStore }>
 			<Router>
 				<div className="App">
+					
 					<Navbar />
 					<Route exact path='/' component={ Landing } />
-
 					<div className="container">
-						<Route exact path="/test" component={Test} />
+						{/* <Route exact path="/test" component={Test} /> */}
 
 						{/* User */}
 						<Route exact path="/register" component={ Register } />

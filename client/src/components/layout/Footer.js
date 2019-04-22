@@ -9,6 +9,7 @@ export default () => {
         bottom: "0",
         height: "60px",
         width: "100%",
+        background: "#1e824c",
     }
     
     var phantom = {
@@ -19,11 +20,10 @@ export default () => {
     }
 
     return (
-        // TODO: render favicons for social networks...
         <div>
             <div style={phantom} />
-                <footer style={style} className="bg-dark text-white mt-5 p-4 text-center">
-                    Copyright &copy; { new Date().getFullYear() } Ermiry
+                <footer style={style} className="text-white mt-5 p-4 text-center">
+                    Copyright &copy; Quiny { new Date().getFullYear() }
                 </footer>
         </div>
     );

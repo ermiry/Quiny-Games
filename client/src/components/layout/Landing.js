@@ -8,37 +8,37 @@ class Landing extends Component {
         return (
             <div>
                 <div className="jumbotron-fluid p-3 mb-2 text-white jumbotronc">
-                    {/* <!-- <img src="img/f4.jpg" class="card-img" > card-img-overlay --> */}
+                    {/* <!-- <img src="img/f4.jpg" className="card-img" > card-img-overlay --> */}
                     <div className="container">
                         <h1 className="display-1">Quiny Games</h1>
-                        <p className="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>
+                        <p className="lead">A fun and interactive way to boost children education.</p>
                     </div>
 
                 </div>
 
-                <div class="card border-0 shadow my-5">
-                    <div class="card-body p-5" >
+                <div className="card border-0 shadow my-5">
+                    <div className="card-body p-5" >
                         <div>
-                            <div class="pt-5 container ">
-                                <div class="row">
-                                    <div class="col-sm">
-                                        <img src="img/quiny-yellow.png" class="rounded-circle" alt="Quiny Logo" />
+                            <div className="pt-5 container ">
+                                <div className="row">
+                                    <div className="col-sm">
+                                        <img src="img/quiny-yellow.png" className="rounded-circle" alt="Quiny Logo" />
 
                                     </div>
-                                    <div class=" col-sm mr-4">
-                                        <h1 class="text-center"> ¿Que somos?</h1>
-                                        <p class="text-center">Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+                                    <div className=" col-sm mr-4">
+                                        <h1 className="text-center"> ¿Que somos?</h1>
+                                        <p className="text-center">Lorem, ipsum dolor sit amet consectetur adipisicing elit.
                                             Eveniet sequi error mollitia amet voluptas quasi in
                                             iusto ipsam! Voluptas sunt modi suscipit doloremque vero odit exercitationem
                                             necessitatibus.</p>
                                     </div>
-                                    <div class="col-sm ml-3">
-                                        <h5 class="display-4">Nuestros juegos</h5>
-                                        <div class="pt-4 btn-group-vertical">
-                                            <button type="button" class="btn myButtonazul btn-lg text-white">¿Quien sabe
+                                    <div className="col-sm ml-3">
+                                        <h5 className="display-4">Nuestros juegos</h5>
+                                        <div className="pt-4 btn-group-vertical">
+                                            <button type="button" className="btn myButtonazul btn-lg text-white">¿Quien sabe
                                                 mas?</button>
-                                            <button type="button" class="btn myButtonamarillo btn-lg text-white">Secondary</button>
-                                            <button type="button" class="btn myButtonverdelimon btn-lg text-white">Success</button>
+                                            <button type="button" className="btn myButtonamarillo btn-lg text-white">Secondary</button>
+                                            <button type="button" className="btn myButtonverdelimon btn-lg text-white">Success</button>
 
                                         </div>
                                     </div>

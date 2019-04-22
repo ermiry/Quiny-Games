@@ -1790,7 +1790,7 @@ u8 initServer (Server *server, Config *cfg, ServerType type) {
 }
 
 // the server constructor
-Server *newServer (Server *server) {
+Server *server_new (Server *server) {
 
     Server *new = (Server *) malloc (sizeof (Server));
 
@@ -1823,7 +1823,7 @@ Server *cerver_createServer (Server *server, ServerType type, char *name) {
 
     // create a server with the requested parameters
     if (server) {
-        Server *s = newServer (server);
+        Server *s = server_new (server);
         if (!initServer (s, NULL, type)) {
             if (name) s->name = createString ("%s", name);
             log_newServer (server);
@@ -1846,7 +1846,7 @@ Server *cerver_createServer (Server *server, ServerType type, char *name) {
         } 
 
         else {
-            Server *s = newServer (NULL);
+            Server *s = server_new (NULL);
             if (!initServer (s, serverConfig, type)) {
                 if (name) s->name = createString ("%s", name);
                 log_newServer (server);
@@ -1902,7 +1902,7 @@ Server *cerver_restartServer (Server *server) {
 // connections and accept them -> then it will send them to the correct server
 // TODO: 13/10/2018 -- we can only handle a tcp server
 // depending on the protocol, the logic of each server might change...
-u8 cerver_startServer (Server *server) {
+u8 cerver_start (Server *server) {
 
     if (server->isRunning) {
         logMsg (stdout, WARNING, SERVER, "The server is already running!");
@@ -1911,16 +1911,14 @@ u8 cerver_startServer (Server *server) {
 
     // one time only inits
     // if we have a game server, we might wanna load game data -> set by server admin
-    // FIXME:
-    // if (server->type == GAME_SERVER) {
-    //     GameServerData *gameData = (GameServerData *) server->serverData;
-    //     if (gameData && gameData->loadGameData) {
-    //         if (gameData->loadGameData ()) 
-    //             logMsg (stderr, ERROR, GAME, "Failed to load game data!");
-    //     }
+    if (server->type == GAME_SERVER) {
+        GameServerData *game_data = (GameServerData *) server->serverData;
+        if (game_data && game_data->load_game_data) {
+            game_data->load_game_data (NULL);
+        }
 
-    //     else logMsg (stdout, WARNING, GAME, "Game server doesn't have a reference to a game data!");
-    // }
+        else logMsg (stdout, WARNING, GAME, "Game server doesn't have a reference to a game data!");
+    }
 
     u8 retval = 1;
     switch (server->protocol) {
