@@ -29,6 +29,12 @@ static AskGameData *ask_game_data_new (ScoreBoard *sb, AskTopic topic) {
         memset (data, 0, sizeof (AskGameData));
         data->sb = sb;
         data->topic = topic;
+
+        // FIXME: be sure of this!!!
+        // we don't have ot clear the user data here!!!
+        // we just have a reference to the real structure in the avl tree
+        data->competitors = dlist_init (NULL, NULL);
+        data->current_question = NULL;
     } 
 
     return data;
@@ -175,6 +181,10 @@ static HttpResponse *game_ask_start (Server *server, DoubleList *pairs) {
 
         // we get a user token and we need to get back the lobby id the user is in
         // and start a new game
+
+        // set the current question to a new one
+        // get the active user
+        // send back this info as a json
     }
 
     return res;
