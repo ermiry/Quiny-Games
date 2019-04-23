@@ -16,7 +16,7 @@ public class YesNoIntentHandler implements com.amazon.ask.dispatcher.request.han
         return input
                 .matches(Predicates.intentName("AMAZON.YesIntent")
                         .or(Predicates.intentName("AMAZON.NoIntent"))
-                .and(Predicates.sessionAttribute(Attributes.GAME_SELECTED,-1).negate()));
+                        .and(Predicates.sessionAttribute(Attributes.GAME_SELECTED,-1).negate()));
     }
 
     @Override

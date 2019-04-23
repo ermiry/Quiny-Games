@@ -40,20 +40,28 @@ public class QuienSabeMasStarterIntentHandler implements com.amazon.ask.dispatch
             if (accessToken == null) throw new Exception();
             params.put(Constants.ACCESS_TOKEN, accessToken);
             params.put("type", String.valueOf(Constants.QUIEN_SABE_MAS));
+
             in = FunctionApi.getInstance()
-                    .sendGet(FunctionApi.getInstance().UNIVERSAL_URL + "/api/quiny/start", params);
+                    .sendGet(FunctionApi.getInstance().UNIVERSAL_URL + "/start", params);
+
             JsonObject response = new JsonParser().parse(in).getAsJsonObject();
+
             numberOfParticipants = response.get("participants").getAsInt();
+
             String sessionID = response.get("sessionID").getAsString();
+
             String lobbyID = response.get("lobbyID").getAsString();
+
             sessionAttributes.put(Attributes.SESSION_ID, sessionID);
+
             sessionAttributes.put(Attributes.LOBBY_ID, lobbyID);
+
             responseText = Constants.INTENSE_TALK[0] + "oooh" + Constants.INTENSE_TALK[1];
+
             responseText += " Veo que son " + numberOfParticipants + " personas. " + "Esto estara interesante. Comencemos ";
 
-
             in = FunctionApi.getInstance()
-                    .sendGet(FunctionApi.getInstance().UNIVERSAL_URL + "/api/quiny/firstQuestion", params);
+                    .sendGet(FunctionApi.getInstance().UNIVERSAL_URL + "/firstQuestion", params);
 
             if(in==null) throw new NullPointerException();
             response = new JsonParser().parse(in).getAsJsonObject();
@@ -74,7 +82,6 @@ public class QuienSabeMasStarterIntentHandler implements com.amazon.ask.dispatch
 
             responseText += ". En sus marcas, listos, fuera. Tu pregunta es: " + question;
 
-            FunctionApi.getInstance().disconnect();
             return input.getResponseBuilder()
                     .withShouldEndSession(false)
                     .withSpeech(responseText)
@@ -84,7 +91,7 @@ public class QuienSabeMasStarterIntentHandler implements com.amazon.ask.dispatch
         } catch (Exception e) {
             e.printStackTrace();
         }
-        FunctionApi.getInstance().disconnect();
+
         return input.getResponseBuilder()
                 .withShouldEndSession(true)
                 .withSpeech("Hubo un error al iniciar sesion")

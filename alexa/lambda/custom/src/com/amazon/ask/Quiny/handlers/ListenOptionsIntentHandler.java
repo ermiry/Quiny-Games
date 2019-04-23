@@ -13,7 +13,7 @@ public class ListenOptionsIntentHandler implements com.amazon.ask.dispatcher.req
     @Override
     public boolean canHandle(HandlerInput input) {
         return input.matches(Predicates.intentName("ListenOptionsIntent")
-                    .and(Predicates.sessionAttribute(Attributes.GAME_SELECTED,-1)));
+                .and(Predicates.sessionAttribute(Attributes.GAME_SELECTED,-1)));
     }
 
     @Override

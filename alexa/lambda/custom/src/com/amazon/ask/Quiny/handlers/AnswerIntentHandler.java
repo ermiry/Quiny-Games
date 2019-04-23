@@ -45,7 +45,7 @@ public class AnswerIntentHandler implements com.amazon.ask.dispatcher.request.ha
         //TODO: To connect players and session, they introduce their account to Quiny.games, and they put the lobbyID
         //This will return them a sessionID, that will be saved in the user and the attributes
 
-    //TODO: Stop sending accessToken and send sessionToken
+        //TODO: Stop sending accessToken and send sessionToken
         if (accessToken != null) params.put(Constants.ACCESS_TOKEN, accessToken);
         else return QuinyUtils.noToken(input);
 
@@ -68,30 +68,30 @@ public class AnswerIntentHandler implements com.amazon.ask.dispatcher.request.ha
             params.put(Parameters.PLAYER, currentPlayer);
 
             in = FunctionApi.getInstance()
-                    .sendPost(FunctionApi.getInstance().UNIVERSAL_URL + "/api/quiny/question", params);
+                    .sendPost(FunctionApi.getInstance().UNIVERSAL_URL + "/answer", params);
 
             JsonObject response = new JsonParser().parse(in).getAsJsonObject();
 
-            if (!response.has("status")) throw new NullPointerException();
+            if (!response.has(Parameters.STATUS)) throw new NullPointerException();
 
-            String status = response.get("status").getAsString();
+            String status = response.get(Parameters.STATUS).getAsString();
 
-            nextParticipant = response.get("next").getAsString();
+            nextParticipant = response.get(Parameters.NEXT_PARTICIPANT).getAsString();
 
             if (nextParticipant == null) throw new NullPointerException();
 
-            if (nextParticipant.equals("end")) nextParticipant = "end";
+            if (nextParticipant.equals(Parameters.RESPONSE_END)) nextParticipant = "end";
 
-            if (status.equals("correct")) correct = true;
+            if (status.equals(Parameters.RESPONSE_CORRECT)) correct = true;
 
             responseText = QuinyUtils.getResponse(correct);
             if (correct)
-                responseText += ". La respuesta es correcta. Haz ganado un punto.";
+                responseText += " . La respuesta es correcta. Haz ganado un punto. ";
             else
-                responseText += ". La respuesta fue incorrecta. No haz ganado nada.";
+                responseText += " . La respuesta fue incorrecta. No haz ganado nada. ";
 
 
-            if (!nextParticipant.equals("end")) {
+            if (!nextParticipant.equals(Parameters.RESPONSE_END)) {
 
                 responseText += "El siguiente en jugar es: " + nextParticipant + ". Tienes 10 segundos para prepararte. <break time='10s'/>";
 
@@ -101,29 +101,38 @@ public class AnswerIntentHandler implements com.amazon.ask.dispatcher.request.ha
 
                 params.remove(Parameters.PLAYER);
                 params.remove(Parameters.ANSWER);
-                FunctionApi.getInstance().disconnect();
+                params.remove(Parameters.QUESTION_ID);
+
+
                 in = FunctionApi.getInstance()
                         .sendGet(FunctionApi.getInstance().UNIVERSAL_URL + "/getNextQuestion", params);
 
                 response = new JsonParser().parse(in).getAsJsonObject();
 
-                if (!response.has("question")) throw new IOException();
+                if (!response.has(Parameters.QUESTION)) throw new IOException();
 
-                if (!response.has("questionId")) throw new IOException();
+                if (!response.has(Parameters.QUESTION_ID)) throw new IOException();
 
-                question = response.get("question").getAsString();
+                question = response.get(Parameters.QUESTION).getAsString();
 
                 responseText += ". En sus marcas, listos, fuera. Tu pregunta es: " + question;
 
-                sessionAttributes.put(Attributes.QUESTION_ID, response.get("questionId").getAsString());
+                sessionAttributes.put(Attributes.QUESTION_ID, response.get(Parameters.QUESTION_ID).getAsString());
 
 
             } else {
-                responseText += "Listo, han terminado";
-                sessionAttributes.put(Attributes.STATE, Attributes.END_STATE);
-
+                responseText += " Listo, han terminado";
+                sessionAttributes.put(Attributes.STATE, Attributes.WAITING);
+                sessionAttributes.put(Attributes.RETRY,true);
+                in = FunctionApi.getInstance().sendGet(
+                        FunctionApi.getInstance().UNIVERSAL_URL + "/end",params);
+                response = new JsonParser().parse(in).getAsJsonObject();
+                if(!response.has("winner")) throw new IOException();
+                if(!response.has("points")) throw new IOException();
+                String winner = response.get("winner").getAsString();
+                String points = response.get("points").getAsString();
+                responseText += ". El ganador fue " + winner + " Con " + points;
             }
-            FunctionApi.getInstance().disconnect();
             return input.getResponseBuilder()
                     .withSpeech(responseText)
                     .withShouldEndSession(false)
@@ -134,9 +143,8 @@ public class AnswerIntentHandler implements com.amazon.ask.dispatcher.request.ha
             e.printStackTrace();
 
             System.out.println("An error was ocurred while posting the answer");
-            FunctionApi.getInstance().disconnect();
             return input.getResponseBuilder()
-                    .withSpeech("No se ha podido procesar la información correctamente, lamentablemente no podremos continuar, una disculpa, Adios")
+                    .withSpeech("No se ha podido procesar la informaci��n correctamente, lamentablemente no podremos continuar, una disculpa, Adios")
                     .withShouldEndSession(true)
                     .build();
         }

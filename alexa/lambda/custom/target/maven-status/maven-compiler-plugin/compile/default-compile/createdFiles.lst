@@ -11,5 +11,6 @@ com/amazon/ask/Quiny/handlers/HelpIntentHandler.class
 com/amazon/ask/Quiny/handlers/YesNoIntentHandler.class
 com/amazon/ask/Quiny/handlers/ExitIntentHandler.class
 com/amazon/ask/Quiny/handlers/RepeatIntentHandler.class
+com/amazon/ask/Quiny/handlers/LaunchRequestHandler$1.class
 com/amazon/ask/Quiny/model/Constants.class
 com/amazon/ask/Quiny/Api/FunctionApi.class

@@ -4,6 +4,7 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.Quiny.model.Attributes;
 import com.amazon.ask.Quiny.model.Constants;
+import com.amazon.ask.model.SupportedInterfaces;
 
 import java.util.Map;
 import java.util.Optional;
@@ -26,7 +27,7 @@ public class QuinyUtils {
     public static Optional<Response> listenOptions(HandlerInput input) {
         String responseText;
 
-        responseText = "Puedes escoger entre los siguientes juegos: Conocetón. Matetón y Quien Sabe Más, Escoge uno";
+        responseText = "Puedes escoger entre los siguientes juegos: Conocet��n. Matet��n y Quien Sabe M��s, Escoge uno";
 
         return input.getResponseBuilder()
                 .withSpeech(responseText)
@@ -38,11 +39,15 @@ public class QuinyUtils {
     }
 
     public static String getResponse(boolean correct) {
-
+        String response = Constants.INTENSE_TALK[0];
         if (correct)
-            return Constants.CORRECT_RESPONSES.get(new Random().nextInt(Constants.CORRECT_RESPONSES.size()));
+            response += Constants.CORRECT_RESPONSES.get(new Random().nextInt(Constants.CORRECT_RESPONSES.size()));
         else
-            return Constants.INCORRECT_RESPONSES.get(new Random().nextInt(Constants.INCORRECT_RESPONSES.size()));
+            response += Constants.INCORRECT_RESPONSES.get(new Random().nextInt(Constants.INCORRECT_RESPONSES.size()));
+
+        response += Constants.INTENSE_TALK[1];
+
+        return response;
     }
 
     public static Optional<Response> noToken(HandlerInput input) {
@@ -52,4 +57,10 @@ public class QuinyUtils {
                 .withShouldEndSession(true)
                 .build();
     }
+
+    public static boolean supportsApl(HandlerInput input) {
+        SupportedInterfaces supportedInterfaces = input.getRequestEnvelope().getContext().getSystem().getDevice().getSupportedInterfaces();
+        return supportedInterfaces.getAlexaPresentationAPL() != null;
+    }
+
 }

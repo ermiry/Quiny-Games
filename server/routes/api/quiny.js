@@ -18,6 +18,7 @@ router.get('/oauth',(req,res)=>{
 })
 
 router.get('/start',(req,res)=>{
+    console.log("In start");
         var info = {
             'participants':'20',
             'sessionID':'ABCDEFG',
@@ -26,10 +27,15 @@ router.get('/start',(req,res)=>{
         res.send(info);
 })
 
+router.get('/assets/startAudio',(req,res)=>{
+    
+})
+
 
 router.get('/firstQuestion',(req,res)=>{
+    console.log("In first");
     var info = {
-        'question_id':'1',
+        'questionID':'1',
         'question':'Quien es el presidente de algoritmia',
         'player':"Juan"
     }
@@ -37,24 +43,35 @@ router.get('/firstQuestion',(req,res)=>{
     res.send(info);
 });
 
-router.post('/question',(req,res)=>{
-    console.log(
-        "Answer: " + req.params.answer + "\n"
-        + "Current Player: " + req.params.player
-    );
-
+router.post('/answer',(req,res)=>{
     
-    res.send({"status":"correct","next":"Pedro"});
+    console.log(
+        "QuestionID: " + req.body.questionID + "\n" + 
+        "Answer: " + req.body.answer + "\n"
+        + "Current Player: " + req.body.player + "\n" +
+        "Token: " + req.body.token
+    );
+    
+
+    res.send({"status":"correct","nextPlayer":"pedro"});
 })
 
-router.get('getNextQuestion',(req,res)=>{
-    res.send({"question_id":"2","question":"Como me llamo"
-    })
+router.get('/getNextQuestion',(req,res)=>{
+
+    console.log("in next question + \n" + 
+            "sessionID: " + req.query.sessionID);
+
+    var info = {"questionID":"2","question":"Como me llamo"};
+
+    res.send(info);
+})
+
+router.get('/end',(req,res)=>{
+    console.log("in end");
+    var info = {"winner":"juan", "points":"10"};
+
+    res.send(info);
 })
 
 
-
-
-
-router.get
 module.exports = router;
