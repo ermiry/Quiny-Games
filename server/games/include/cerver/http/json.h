@@ -27,4 +27,7 @@ extern char *json_create_with_one_pair (JsonKeyValue *jkvp, size_t *len);
 // creates a json string with a list of jkvps
 extern char *json_create_with_pairs (DoubleList *pairs, size_t *len);
 
+// gets the value associated with a key
+const void *json_pairs_get_value (DoubleList *pairs, const char *key, ValueType *value_type);
+
 #endif

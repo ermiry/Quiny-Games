@@ -45,30 +45,11 @@ static void ask_game_data_delete (void *ptr) {
 
 }
 
-static const char *game_ask_get_value (DoubleList *pairs, const char *key) {
-
-    const char *value = NULL;
-
-    if (pairs) {
-        KeyValuePair *kvp = NULL;
-        for (ListElement *le = dlist_start (pairs); le; le = le->next) {
-            kvp = (KeyValuePair *) le->data;
-            if (!strcmp (kvp->key, key)) {
-                value = kvp->value;
-                break;
-            }
-        }
-    }
-
-    return value;
-
-}
-
 static AskTopic game_ask_get_topic (DoubleList *pairs) {
 
     AskTopic retval;
 
-    const char *topic = game_ask_get_value (pairs, "topic");
+    const char *topic = http_query_pairs_get_value (pairs, "topic");
     if (!topic) retval = TOPIC_GENERAL;
     else {
         if (!strcmp (topic, "science")) retval = TOPIC_SCIENCE;
@@ -87,7 +68,7 @@ static HttpResponse *game_ask_create_lobby (Server *server, DoubleList *pairs) {
     HttpResponse *res = NULL;
 
     if (server && pairs) {
-        const char *token = game_ask_get_value (pairs, "sessionID");
+        const char *token = http_query_pairs_get_value (pairs, "sessionID");
         if (token) {
             // get the player info suing the token
             GameServerData *game_data = (GameServerData *) server->serverData;
@@ -182,13 +163,18 @@ static HttpResponse *game_ask_leave_lobby (Server *server, DoubleList *pairs) {
 
 }
 
+/*** Alexa ***/
+
+// FIXME:
 static HttpResponse *game_ask_start (Server *server, DoubleList *pairs) {
 
     HttpResponse *res = NULL;
 
     if (server && pairs) {
-        // search the token
-        // get the player associated with the current token 
+        GameServerData *game_data = (GameServerData *) server->serverData;
+
+        // we get a user token and we need to get back the lobby id the user is in
+        // and start a new game
     }
 
     return res;
@@ -202,17 +188,30 @@ static HttpResponse *game_ask_question (Server *server, DoubleList *pairs) {
     if (server && pairs) {
         GameServerData *game_data = (GameServerData *) server->serverData;
 
-        // get the player with the session id from the request
-        Player *player_query = player_new (NULL, game_ask_get_value (pairs, "sessionID"), NULL);
-        Player *player = player_get (game_data->players->root, player_comparator_by_session_id, player_query);
+        // get the lobby token
+        const char *lobby_token = http_query_pairs_get_value (pairs, "token");
+        if (lobby_token) {
+            logMsg (stdout, DEBUG_MSG, NO_TYPE, createString ("Got lobby id: %s", lobby_token));
 
-        // get the lobby with the lobby id from the request
-        Lobby *lobby = NULL;
+            // get the lobby associated with the lobby id
+            Lobby query = { .id = createString ("%s", lobby_token) };
+            Lobby *lobby = lobby_get (game_data, &query);
+            if (lobby) {
+                // get the next user
+                // get the next question
+                // send back the question and data in a json
+            }
 
-        // generate the next question
-        // send back the question and data in a json
+            else {
+                logMsg (stderr, ERROR, GAME, createString ("Failed to get lobby with id: %s", lobby_token));
+                http_response_json_error ("Failed ot get lobby!");
+            }
+        }
 
-        player_delete (player_query);
+        else {
+            logMsg (stderr, ERROR, GAME, "Failed ot get token id from request!");
+            http_response_json_error ("Failed ot get lobby!");
+        }
     }
 
     return res;
@@ -224,13 +223,64 @@ static HttpResponse *game_ask_answer (Server *server, DoubleList *pairs) {
     HttpResponse *res = NULL;
 
     if (server && pairs) {
-        // get the player with the session id from the request
-        // get the lobby with the lobby id from the request
+        GameServerData *game_data = (GameServerData *) server->serverData;
 
-        // get the answer from the request
-        // check if it is the correct answer
-        // handle scores
-        // send back feedback and next action
+        // get the lobby token
+        const char *lobby_token = http_query_pairs_get_value (pairs, "token");
+        if (lobby_token) {
+            // get the lobby associated with the lobby id
+            Lobby query = { .id = createString ("%s", lobby_token) };
+            Lobby *lobby = lobby_get (game_data, &query);
+            if (lobby) {
+                // get the answer from the request
+                // check if it is the correct answer
+                // handle scores
+                // send back feedback and next action
+            }
+
+            else {
+                logMsg (stderr, ERROR, GAME, createString ("Failed to get lobby with id: %s", lobby_token));
+                http_response_json_error ("Failed ot get lobby!");
+            }
+        }
+
+        else {
+            logMsg (stderr, ERROR, GAME, "Failed ot get token id from request!");
+            http_response_json_error ("Failed ot get lobby!");
+        }
+    }
+
+    return res;
+
+}
+
+static HttpResponse *game_ask_end (Server *server, DoubleList *pairs) {
+
+    HttpResponse *res = NULL;
+
+    if (server && pairs) {
+        GameServerData *game_data = (GameServerData *) server->serverData;
+
+        // get the lobby token
+        const char *lobby_token = http_query_pairs_get_value (pairs, "token");
+        if (lobby_token) {
+            // get the lobby associated with the lobby id
+            Lobby query = { .id = createString ("%s", lobby_token) };
+            Lobby *lobby = lobby_get (game_data, &query);
+            if (lobby) {
+                // end the session and return the winner name and the scoreboard as json
+            }
+
+            else {
+                logMsg (stderr, ERROR, GAME, createString ("Failed to get lobby with id: %s", lobby_token));
+                http_response_json_error ("Failed ot get lobby!");
+            }
+        }
+
+        else {
+            logMsg (stderr, ERROR, GAME, "Failed ot get token id from request!");
+            http_response_json_error ("Failed ot get lobby!");
+        }
     }
 
     return res;
@@ -243,16 +293,7 @@ HttpResponse *game_ask_handler (Server *server, DoubleList *pairs) {
 
     if (pairs) {
         // get the action to perform
-        const char *action = NULL;
-        KeyValuePair *kvp = NULL;
-        for (ListElement *le = dlist_start (pairs); le; le = le->next) {
-            kvp = (KeyValuePair *) le->data;
-            if (!strcmp (kvp->key, "action")) {
-                action = kvp->value;
-                break;
-            }
-        }
-
+        const char *action = http_query_pairs_get_value (pairs, "action");
         if (action) {
             if (!strcmp (action, "test")) {
                 String *test = str_new ("Ask game works!");
@@ -270,11 +311,15 @@ HttpResponse *game_ask_handler (Server *server, DoubleList *pairs) {
 
             else if (!strcmp (action, "leave_lobby")) res = game_ask_leave_lobby (server, pairs);
 
+            /*** Alexa ***/
+
             else if (!strcmp (action, "start")) res = game_ask_start (server, pairs);
 
             else if (!strcmp (action, "question")) res = game_ask_question (server, pairs);
 
             else if (!strcmp (action, "answer")) res = game_ask_answer (server, pairs);
+
+            else if (!strcmp (action, "end")) res = game_ask_end (server, pairs);
 
             else logMsg (stdout, WARNING, NO_TYPE, createString ("Found unknow ask game action %s", action));
         }

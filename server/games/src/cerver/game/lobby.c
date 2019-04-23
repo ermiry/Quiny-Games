@@ -154,6 +154,20 @@ int lobby_comparator (void *one, void *two) {
 
 }
 
+// TODO: add the option to set a comparator in the game data
+// searchs a lobby in the game data and returns a reference to it
+Lobby *lobby_get (GameServerData *game_data, Lobby *query) {
+
+    Lobby *found = NULL;
+    for (ListElement *le = dlist_start (game_data->currentLobbys); le; le = le->next) {
+        found = (Lobby *) le->data;
+        if (!lobby_comparator (found, query)) break;
+    }
+
+    return found;
+
+}
+
 // we remove any fd that was set to -1 for what ever reason
 static void lobby_players_compress (Lobby *lobby) {
 

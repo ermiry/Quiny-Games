@@ -36,4 +36,6 @@ typedef struct KeyValuePair { char *key, *value; } KeyValuePair;
 extern DoubleList *http_parse_query_into_pairs (const char *first, const char *last);
 extern char *http_strip_path_from_query (char *str);
 
+extern const char *http_query_pairs_get_value (DoubleList *pairs, const char *key);
+
 #endif

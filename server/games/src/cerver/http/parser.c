@@ -489,6 +489,25 @@ DoubleList *http_parse_query_into_pairs (const char *first, const char *last) {
 
 }
 
+const char *http_query_pairs_get_value (DoubleList *pairs, const char *key) {
+
+    const char *value = NULL;
+
+    if (pairs) {
+        KeyValuePair *kvp = NULL;
+        for (ListElement *le = dlist_start (pairs); le; le = le->next) {
+            kvp = (KeyValuePair *) le->data;
+            if (!strcmp (kvp->key, key)) {
+                value = kvp->value;
+                break;
+            }
+        }
+    }
+
+    return value;
+
+}
+
 char *http_strip_path_from_query (char *str) {
 
     if (str) {

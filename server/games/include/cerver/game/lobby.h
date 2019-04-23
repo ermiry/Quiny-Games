@@ -93,6 +93,9 @@ extern Lobby *lobby_new (struct _GameServerData *game_data, unsigned int max_pla
 extern void lobby_delete (void *ptr);
 extern int lobby_comparator (void *one, void *two);
 
+// searchs a lobby in the game data and returns a reference to it
+extern Lobby *lobby_get (struct _GameServerData *game_data, Lobby *query);
+
 // create a list to manage the server lobbys
 // called when we init the game server
 extern u8 game_init_lobbys (struct _GameServerData *game_data, u8 n_lobbys);

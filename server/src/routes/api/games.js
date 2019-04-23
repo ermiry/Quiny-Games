@@ -112,9 +112,89 @@ router.post ('/ask/leave', (req, res) => {
 });
 
 // request from alexa!!
-// @route   POST api/games/ask/start
+// @route   GET api/games/ask/start
 // @desc    Start ask game
 router.get ('/ask/start', (req, res) => {
+
+	// request the game to leave the game lobby
+	// FIXME: pass the lobby id
+	axios.get (gamesurl + "?game=ask&action=leave_lobby")
+		.then (result => {
+			// TODO: return a success code?
+			// console.log (result.data);
+			// return res.status (200).json (res.data);
+		})
+		.catch (err => {
+			console.error (err);
+			return res.status (400).json ({ askError: 'Failed to leave lobby.'});
+		});
+
+});
+
+// request from alexa!!
+// @route   GET api/games/ask/firstQuestion
+// @desc    Get the first question for ask game
+router.get ('/ask/firstQuestion', (req, res) => {
+
+	// request the game to leave the game lobby
+	// FIXME: pass the lobby id
+	axios.get (gamesurl + "?game=ask&action=leave_lobby")
+		.then (result => {
+			// TODO: return a success code?
+			// console.log (result.data);
+			// return res.status (200).json (res.data);
+		})
+		.catch (err => {
+			console.error (err);
+			return res.status (400).json ({ askError: 'Failed to leave lobby.'});
+		});
+
+});
+
+// request from alexa!!
+// @route   POST api/games/ask/answer
+// @desc    Recieves an answer fro a question
+router.post ('/ask/answer', (req, res) => {
+
+	// request the game to leave the game lobby
+	// FIXME: pass the lobby id
+	axios.get (gamesurl + "?game=ask&action=leave_lobby")
+		.then (result => {
+			// TODO: return a success code?
+			// console.log (result.data);
+			// return res.status (200).json (res.data);
+		})
+		.catch (err => {
+			console.error (err);
+			return res.status (400).json ({ askError: 'Failed to leave lobby.'});
+		});
+
+});
+
+// request from alexa!!
+// @route   GET api/games/ask/answer
+// @desc    Gets the next question for the game
+router.get ('/ask/getNextQuestion', (req, res) => {
+
+	// request the game to leave the game lobby
+	// FIXME: pass the lobby id
+	axios.get (gamesurl + "?game=ask&action=leave_lobby")
+		.then (result => {
+			// TODO: return a success code?
+			// console.log (result.data);
+			// return res.status (200).json (res.data);
+		})
+		.catch (err => {
+			console.error (err);
+			return res.status (400).json ({ askError: 'Failed to leave lobby.'});
+		});
+
+});
+
+// request from alexa!!
+// @route   POST api/games/ask/answer
+// @desc    Ends the game and retrieves scoreboard
+router.get ('/ask/end', (req, res) => {
 
 	// request the game to leave the game lobby
 	// FIXME: pass the lobby id

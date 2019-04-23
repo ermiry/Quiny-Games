@@ -109,3 +109,23 @@ char *json_create_with_pairs (DoubleList *pairs, size_t *len) {
     return retval;
 
 }
+
+const void *json_pairs_get_value (DoubleList *pairs, const char *key, ValueType *value_type) {
+
+    const void *value = NULL;
+
+    if (pairs) {
+        JsonKeyValue *jkvp = NULL;
+        for (ListElement *le = dlist_start (pairs); le; le = le->next) {
+            jkvp = (JsonKeyValue *) le->data;
+            if (!strcmp (jkvp->key->str, key)) {
+                value = jkvp->value;
+                *value_type = jkvp->valueType;
+                break;
+            }
+        }
+    }
+
+    return value;
+
+}

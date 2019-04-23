@@ -1,0 +1,7 @@
+Los alumnos tendran la capacidad de tener sus propios perfiles de usuario,
+los cuales podra configirar con alguna informacion personal y a su gusto.
+Con su cuenta de usuario ellos podran particpar en las difrentes actividades,
+agregar a otros companeros como sus amigos, pertenecer a grupos escolares, 
+entre otras cosas.
+
+tambien se pueden agregar opciones sobre sonidos, luces, imagene, todo controlado por alexa

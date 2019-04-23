@@ -1,0 +1,44 @@
+Installing mongo db
+
+Last update: 07/02/2019 -- 23:00
+
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
+echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+
+Start mongo -> sudo service mongod start
+
+Stop mongo -> sudo service mongod stop
+
+Restart mongo -> sudo service mongod restart
+
+Get dependencies for building mongoc
+
+sudo apt-get install cmake libssl-dev libsasl2-dev
+
+Get source and building objs
+
+wget https://github.com/mongodb/mongo-c-driver/releases/download/1.13.1/mongo-c-driver-1.13.1.tar.gz
+tar xzf mongo-c-driver-1.13.1.tar.gz
+cd mongo-c-driver-1.13.1
+mkdir cmake-build
+cd cmake-build
+cmake -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF ..
+
+Compilling
+
+make
+
+Installing
+
+sudo make install
+
+Include Path
+/usr/local/include/libmongoc-1.0/,
+/usr/local/include/libbson-1.0/
+
+Checking status
+
+service mongod status
+systemctl status mongod%  
