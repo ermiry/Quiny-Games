@@ -182,6 +182,19 @@ static HttpResponse *game_ask_leave_lobby (Server *server, DoubleList *pairs) {
 
 }
 
+static HttpResponse *game_ask_start (Server *server, DoubleList *pairs) {
+
+    HttpResponse *res = NULL;
+
+    if (server && pairs) {
+        // search the token
+        // get the player associated with the current token 
+    }
+
+    return res;
+
+}
+
 static HttpResponse *game_ask_question (Server *server, DoubleList *pairs) {
 
     HttpResponse *res = NULL;
@@ -256,6 +269,8 @@ HttpResponse *game_ask_handler (Server *server, DoubleList *pairs) {
             else if (!strcmp (action, "join_lobby")) res = game_ask_join_lobby (server, pairs);
 
             else if (!strcmp (action, "leave_lobby")) res = game_ask_leave_lobby (server, pairs);
+
+            else if (!strcmp (action, "start")) res = game_ask_start (server, pairs);
 
             else if (!strcmp (action, "question")) res = game_ask_question (server, pairs);
 

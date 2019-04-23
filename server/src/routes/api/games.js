@@ -10,16 +10,6 @@ const gamesurl = 'http://localhost:9001/';
 // @desc    Test game routes
 router.get ('/test', (req, res) => {
 
-	// request.get (gamesurl)
-	// 	.then (result => {
-	// 		console.log (result);
-	// 		return res.status (200).json (result.body);
-	// 	})
-	// 	.catch (err => {
-	// 		console.error (err.message);
-	// 		return res.status (400).json ({ msg: 'Failed test!'});
-	// 	});
-
 	console.log ("Games test\n");
 
 	axios ({
@@ -105,6 +95,26 @@ router.post ('/ask/join', (req, res) => {
 router.post ('/ask/leave', (req, res) => {
 
 	// get the session id of the game we want to leave
+	let token = req.query.token;
+
+	// request the game to leave the game lobby
+	axios.get (gamesurl + "?game=ask&action=start&token=" + token)
+		.then (result => {
+			// TODO: return a success code?
+			// console.log (result.data);
+			// return res.status (200).json (res.data);
+		})
+		.catch (err => {
+			console.error (err);
+			return res.status (400).json ({ askError: 'Failed to leave lobby.'});
+		});
+
+});
+
+// request from alexa!!
+// @route   POST api/games/ask/start
+// @desc    Start ask game
+router.get ('/ask/start', (req, res) => {
 
 	// request the game to leave the game lobby
 	// FIXME: pass the lobby id
@@ -120,5 +130,6 @@ router.post ('/ask/leave', (req, res) => {
 		});
 
 });
+
 
 module.exports = router;
