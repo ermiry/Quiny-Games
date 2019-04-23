@@ -25,8 +25,9 @@ import Test from './components/test/Test';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 
-// FIXME:
-// import Profile from './components/profile/Profile';
+import Profile from './components/profile/Profile';
+
+import NotFound from './components/utils/NotFound';
 
 import PrivateRoute from './components/common/PrivateRoute';
 
@@ -81,10 +82,9 @@ class App extends Component {
 						{/* User */}
 						<Route exact path="/register" component={ Register } />
 						<Route exact path="/login" component={ Login } />
+						<Route exact path="/profile/:handle" component={ Profile } />
 
-						{/* <Switch>
-							<PrivateRoute exact path="/profile" component={ Profile } />
-						</Switch> */}
+						<Route exact path="/not-found" component={ NotFound } />
 					</div>
 
 					<Footer />
