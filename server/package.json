@@ -1,18 +1,17 @@
 {
-  "name": "quiny-games-server",
+  "name": "quiny",
   "version": "1.0.0",
-  "description": "Quiny Games server",
-  "main": "src/main.js",
+  "description": "quinyquiny",
+  "main": "main.js",
   "scripts": {
-    "start": "node src/main.js"
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Erick Salas",
-  "license": "ISC",
+  "author": "juan",
+  "license": "MIT",
   "dependencies": {
-    "body-parser": "^1.18.3",
-    "dotenv": "^7.0.0",
+    "ejs": "^2.6.1",
     "express": "^4.16.4",
-    "mongoose": "^5.5.0",
-    "passport": "^0.4.0"
+    "superagent": "^5.0.2"
   }
 }

@@ -1,0 +1,804 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="9038b44b-663c-4723-8ce5-9f5ff39df00b" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/alexa.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/artifacts/alexa_jar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/aws.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazon_alexa_ask_sdk_2_5_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazon_alexa_ask_sdk_apache_client_2_5_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazon_alexa_ask_sdk_core_2_5_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazon_alexa_ask_sdk_dynamodb_persistence_adapter_2_5_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazon_alexa_ask_sdk_lambda_support_2_5_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazon_alexa_ask_sdk_model_1_5_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazon_alexa_ask_sdk_servlet_support_2_5_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazonaws_aws_java_sdk_core_1_11_301.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazonaws_aws_java_sdk_dynamodb_1_11_301.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazonaws_aws_java_sdk_kms_1_11_301.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazonaws_aws_java_sdk_s3_1_11_301.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazonaws_aws_lambda_java_core_1_0_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_amazonaws_jmespath_java_1_11_301.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_core_jackson_annotations_2_9_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_core_jackson_core_2_9_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_core_jackson_databind_2_9_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_dataformat_jackson_dataformat_cbor_2_6_7.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_datatype_jackson_datatype_jsr310_2_9_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_code_gson_gson_2_8_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__commons_codec_commons_codec_1_6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__commons_io_commons_io_2_6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__commons_logging_commons_logging_1_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__joda_time_joda_time_2_8_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_httpcomponents_httpclient_4_5_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_httpcomponents_httpcore_4_4_9.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_logging_log4j_log4j_api_2_11_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_logging_log4j_log4j_core_2_11_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_logging_log4j_log4j_slf4j_impl_2_11_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_slf4j_slf4j_api_1_7_25.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__software_amazon_ion_ion_java_1_0_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/quiny.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/Api/FunctionApi.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/QuinySkillStreamHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/AnswerIntentHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/ListenOptionsIntentHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/OptionIntentHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/QuienSabeMasStarterIntentHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/YesNoIntentHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/model/Attributes.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/model/Constants.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/model/Parameters.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/model/Questions.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/utils/QuinyUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/public/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/public/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/public/manifest.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/App.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/App.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/App.test.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/index.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/logo.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/serviceWorker.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../server/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/main.js" beforeDir="false" />
+    </list>
+    <ignored path="$PROJECT_DIR$/target/" />
+    <ignored path="$PROJECT_DIR$/lambda/target/" />
+    <ignored path="$PROJECT_DIR$/lambda/custom/target/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/QuinySkillStreamHandler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="558">
+              <caret line="18" column="44" selection-start-line="18" selection-start-column="28" selection-end-line="18" selection-end-column="60" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/ExitIntentHandler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="279">
+              <caret line="9" selection-start-line="9" selection-end-line="9" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/OptionIntentHandler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="313">
+              <caret line="45" column="26" selection-start-line="45" selection-start-column="26" selection-end-line="45" selection-end-column="26" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/AnswerIntentHandler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="314">
+              <caret line="42" column="83" selection-start-line="42" selection-start-column="83" selection-end-line="42" selection-end-column="83" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/QuienSabeMasStarterIntentHandler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="517">
+              <caret line="53" selection-start-line="53" selection-end-line="53" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/model/Parameters.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="35" selection-start-column="35" selection-end-column="35" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>STATE</find>
+      <find>main.java.</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/lambda/src/main/java/QuinyStreamHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/LaunchRequestHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/QuinySkillStreamHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/handlers/SessionEndedHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/handlers/RepeatIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/handlers/HelpIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/handlers/ExitIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/handlers/LaunchRequestHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/model/Constants.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/model/Questions.java" />
+        <option value="$PROJECT_DIR$/lambda/pom.xml" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/Api/FunctionApi.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/QuinySkillStreamHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/AmazonHandlers/QuinyUtils.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/handlers/AnswerIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/AmazonHandlers/LaunchRequestHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/handlers/ListenOptionsIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/model/Attributes.java" />
+        <option value="$PROJECT_DIR$/lambda/src/main/java/com/amazon/ask/Quiny/handlers/OptionIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/AmazonHandlers/LaunchRequestHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/handlers/SessionEndedHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/utils/QuinyUtils.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/handlers/QuienSabeMasEndingIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/Quiny/QuinySkillStreamHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/Api/FunctionApi.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/handlers/AnswerIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/QuinySkillStreamHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/handlers/ExitIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/handlers/HelpIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/handlers/RepeatIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/handlers/LaunchRequestHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/handlers/ListenOptionsIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/handlers/OptionIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/handlers/YesNoIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/handlers/QuienSabeMasStarterIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/model/Attributes.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/model/Constants.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/model/Parameters.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/model/Questions.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/com/amazon/askQuiny/model/Questions.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/model/Questions.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/utils/QuinyUtils.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/OptionIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/QuinySkillStreamHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/YesNoIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/model/Parameters.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/Api/FunctionApi.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/QuienSabeMasStarterIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/LaunchRequestHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/ListenOptionsIntentHandler.java" />
+        <option value="$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/AnswerIntentHandler.java" />
+      </list>
+    </option>
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="importAutomatically" value="true" />
+      </MavenImportingSettings>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" fullScreen="true">
+    <option name="width" value="1280" />
+    <option name="height" value="800" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="alexa" type="b2602c69:ProjectViewProjectNode" />
+              <item name="alexa" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="alexa" type="b2602c69:ProjectViewProjectNode" />
+              <item name="alexa" type="462c0819:PsiDirectoryNode" />
+              <item name="lambda" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="alexa" type="b2602c69:ProjectViewProjectNode" />
+              <item name="alexa" type="462c0819:PsiDirectoryNode" />
+              <item name="lambda" type="462c0819:PsiDirectoryNode" />
+              <item name="custom" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="alexa" type="b2602c69:ProjectViewProjectNode" />
+              <item name="alexa" type="462c0819:PsiDirectoryNode" />
+              <item name="lambda" type="462c0819:PsiDirectoryNode" />
+              <item name="custom" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="alexa" type="b2602c69:ProjectViewProjectNode" />
+              <item name="alexa" type="462c0819:PsiDirectoryNode" />
+              <item name="lambda" type="462c0819:PsiDirectoryNode" />
+              <item name="custom" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="Quiny" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="alexa" type="b2602c69:ProjectViewProjectNode" />
+              <item name="alexa" type="462c0819:PsiDirectoryNode" />
+              <item name="lambda" type="462c0819:PsiDirectoryNode" />
+              <item name="custom" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="Quiny" type="462c0819:PsiDirectoryNode" />
+              <item name="Api" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="alexa" type="b2602c69:ProjectViewProjectNode" />
+              <item name="alexa" type="462c0819:PsiDirectoryNode" />
+              <item name="lambda" type="462c0819:PsiDirectoryNode" />
+              <item name="custom" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="Quiny" type="462c0819:PsiDirectoryNode" />
+              <item name="handlers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="alexa" type="b2602c69:ProjectViewProjectNode" />
+              <item name="alexa" type="462c0819:PsiDirectoryNode" />
+              <item name="lambda" type="462c0819:PsiDirectoryNode" />
+              <item name="custom" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="Quiny" type="462c0819:PsiDirectoryNode" />
+              <item name="utils" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="Downloaded.Files.Path.Enabled" value="false" />
+    <property name="Repository.Attach.Annotations" value="false" />
+    <property name="Repository.Attach.JavaDocs" value="false" />
+    <property name="Repository.Attach.Sources" value="false" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1555965453264" />
+    <property name="last_directory_selection" value="$PROJECT_DIR$/lambda/custom/src" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.08873115" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="Errors" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lambda/custom" />
+      <recent name="$PROJECT_DIR$/lambda/custom/main/java" />
+      <recent name="$PROJECT_DIR$/lambda" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/src" />
+    </key>
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="main.java.com.amazon.ask.Quiny.handlers" />
+      <recent name="main.java" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="AWS Lambda.[Remote] QuinyGames">
+    <configuration name="[Local] QuinySkillStreamHandler" type="aws.lambda" factoryName="Local" temporary="true" nameIsGenerated="true">
+      <option name="credentialProviderId" value="profile:default" />
+      <option name="regionId" value="us-east-1" />
+      <option name="handler" value="main.java.com.amazon.askQuiny::QuinySkillStreamHandler" />
+      <option name="runtime" value="java8" />
+      <option name="input" value="{&#10;  &quot;version&quot;: &quot;1.0&quot;,&#10;  &quot;session&quot;: {&#10;    &quot;new&quot;: true,&#10;    &quot;sessionId&quot;: &quot;amzn1.echo-api.session.[unique-value-here]&quot;,&#10;    &quot;application&quot;: {&#10;      &quot;applicationId&quot;: &quot;amzn1.ask.skill.[unique-value-here]&quot;&#10;    },&#10;    &quot;user&quot;: {&#10;      &quot;userId&quot;: &quot;amzn1.ask.account.[unique-value-here]&quot;&#10;    },&#10;    &quot;attributes&quot;: {}&#10;  },&#10;  &quot;context&quot;: {&#10;    &quot;AudioPlayer&quot;: {&#10;      &quot;playerActivity&quot;: &quot;IDLE&quot;&#10;    },&#10;    &quot;System&quot;: {&#10;      &quot;application&quot;: {&#10;        &quot;applicationId&quot;: &quot;amzn1.ask.skill.[unique-value-here]&quot;&#10;      },&#10;      &quot;user&quot;: {&#10;        &quot;userId&quot;: &quot;amzn1.ask.account.[unique-value-here]&quot;&#10;      },&#10;      &quot;device&quot;: {&#10;        &quot;supportedInterfaces&quot;: {&#10;          &quot;AudioPlayer&quot;: {}&#10;        }&#10;      }&#10;    }&#10;  },&#10;  &quot;request&quot;: {&#10;    &quot;type&quot;: &quot;LaunchRequest&quot;,&#10;    &quot;requestId&quot;: &quot;amzn1.echo-api.request.[unique-value-here]&quot;,&#10;    &quot;timestamp&quot;: &quot;2016-10-27T18:21:44Z&quot;,&#10;    &quot;locale&quot;: &quot;en-US&quot;&#10;  }&#10;}" />
+      <method v="2" />
+    </configuration>
+    <configuration name="[Remote] QuinyGames" type="aws.lambda" factoryName="Remote" temporary="true" nameIsGenerated="true">
+      <option name="credentialProviderId" value="profile:default" />
+      <option name="regionId" value="us-east-1" />
+      <option name="functionName" value="QuinyGames" />
+      <option name="input" value="{&#10;  &quot;version&quot;: &quot;1.0&quot;,&#10;  &quot;session&quot;: {&#10;    &quot;new&quot;: true,&#10;    &quot;sessionId&quot;: &quot;amzn1.echo-api.session.[unique-value-here]&quot;,&#10;    &quot;application&quot;: {&#10;      &quot;applicationId&quot;: &quot;amzn1.ask.skill.[unique-value-here]&quot;&#10;    },&#10;    &quot;user&quot;: {&#10;      &quot;userId&quot;: &quot;amzn1.ask.account.[unique-value-here]&quot;&#10;    },&#10;    &quot;attributes&quot;: {}&#10;  },&#10;  &quot;context&quot;: {&#10;    &quot;AudioPlayer&quot;: {&#10;      &quot;playerActivity&quot;: &quot;IDLE&quot;&#10;    },&#10;    &quot;System&quot;: {&#10;      &quot;application&quot;: {&#10;        &quot;applicationId&quot;: &quot;amzn1.ask.skill.[unique-value-here]&quot;&#10;      },&#10;      &quot;user&quot;: {&#10;        &quot;userId&quot;: &quot;amzn1.ask.account.[unique-value-here]&quot;&#10;      },&#10;      &quot;device&quot;: {&#10;        &quot;supportedInterfaces&quot;: {&#10;          &quot;AudioPlayer&quot;: {}&#10;        }&#10;      }&#10;    }&#10;  },&#10;  &quot;request&quot;: {&#10;    &quot;type&quot;: &quot;LaunchRequest&quot;,&#10;    &quot;requestId&quot;: &quot;amzn1.echo-api.request.[unique-value-here]&quot;,&#10;    &quot;timestamp&quot;: &quot;2016-10-27T18:21:44Z&quot;,&#10;    &quot;locale&quot;: &quot;en-US&quot;&#10;  }&#10;}" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="AWS Lambda.[Remote] QuinyGames" />
+        <item itemvalue="AWS Lambda.[Local] QuinySkillStreamHandler" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9038b44b-663c-4723-8ce5-9f5ff39df00b" name="Default Changelist" comment="" />
+      <created>1554908778370</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1554908778370</updated>
+      <workItem from="1554908780039" duration="368000" />
+      <workItem from="1554909203809" duration="1830000" />
+      <workItem from="1554997064629" duration="45000" />
+      <workItem from="1554997115786" duration="43000" />
+      <workItem from="1554997232560" duration="140000" />
+      <workItem from="1554997543520" duration="28872000" />
+      <workItem from="1555804729318" duration="1070000" />
+      <workItem from="1555854334667" duration="12516000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="44884000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="0" width="1280" height="800" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49706745" weight="0.3441034" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Designer" order="2" />
+      <window_info id="Image Layers" order="3" />
+      <window_info id="Capture Tool" order="4" />
+      <window_info id="UI Designer" order="5" />
+      <window_info id="Favorites" order="6" side_tool="true" />
+      <window_info id="aws.explorer" order="7" sideWeight="0.50293255" side_tool="true" weight="0.2714055" />
+      <window_info anchor="bottom" id="Build" order="0" sideWeight="0.21163167" weight="0.042134833" />
+      <window_info anchor="bottom" id="Message" order="1" />
+      <window_info anchor="bottom" id="Find" order="2" />
+      <window_info anchor="bottom" id="Run" order="3" sideWeight="0.21082391" visible="true" weight="0.042134833" />
+      <window_info anchor="bottom" id="Debug" order="4" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.3286517" />
+      <window_info anchor="bottom" id="Docker" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.7891761" side_tool="true" visible="true" weight="0.042134833" />
+      <window_info anchor="bottom" id="Database Changes" order="11" />
+      <window_info anchor="bottom" id="Version Control" order="12" />
+      <window_info anchor="bottom" id="Connector for AWS Lambda" order="13" sideWeight="0.78836834" side_tool="true" weight="0.6053371" />
+      <window_info anchor="bottom" id="Messages" order="14" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Maven" order="3" />
+      <window_info anchor="right" id="Palette" order="4" />
+      <window_info anchor="right" id="Capture Analysis" order="5" />
+      <window_info anchor="right" id="Database" order="6" />
+      <window_info anchor="right" id="Palette&#9;" order="7" />
+      <window_info anchor="right" id="Theme Preview" order="8" />
+    </layout>
+    <layout-to-restore>
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49706745" visible="true" weight="0.2714055" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Designer" order="2" />
+      <window_info id="Image Layers" order="3" />
+      <window_info id="Capture Tool" order="4" />
+      <window_info id="UI Designer" order="5" />
+      <window_info id="Favorites" order="6" side_tool="true" />
+      <window_info id="aws.explorer" order="7" sideWeight="0.50293255" side_tool="true" weight="0.2714055" />
+      <window_info anchor="bottom" id="Build" order="0" sideWeight="0.21163167" weight="0.042134833" />
+      <window_info anchor="bottom" id="Message" order="1" />
+      <window_info anchor="bottom" id="Find" order="2" />
+      <window_info anchor="bottom" id="Run" order="3" sideWeight="0.21163167" visible="true" weight="0.042134833" />
+      <window_info anchor="bottom" id="Debug" order="4" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Docker" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" weight="0.32913166" />
+      <window_info anchor="bottom" id="Database Changes" order="11" />
+      <window_info anchor="bottom" id="Version Control" order="12" />
+      <window_info anchor="bottom" id="Connector for AWS Lambda" order="13" sideWeight="0.78836834" side_tool="true" weight="0.6053371" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Maven" order="3" />
+      <window_info anchor="right" id="Palette" order="4" />
+      <window_info anchor="right" id="Capture Analysis" order="5" />
+      <window_info anchor="right" id="Database" order="6" />
+      <window_info anchor="right" id="Palette&#9;" order="7" />
+      <window_info anchor="right" id="Theme Preview" order="8" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/lambda/custom/main/java/something.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/src/main/java/com/amazon.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/src/main/java/LaunchRequestHandler.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/AmazonHandlers/SessionEndedHandler.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/AmazonHandlers/RepeatIntentHandler.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/AmazonHandlers/HelpIntentHandler.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/AmazonHandlers/ExitIntentHandler.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/model/Questions.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/Api/FunctionApi.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/handlers/AnswerIntentHandler.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/AmazonHandlers/LaunchRequestHandler.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/utils/QuinyUtils.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/model/Constants.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/handlers/ListenOptionsIntentHandler.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/model/Attributes.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/handlers/OptionIntentHandler.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/main/java/src/com/amazon/ask/Quiny/QuinySkillStreamHandler.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/SessionEndedHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="201">
+          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../Java/Mini-Glo/alexa/Mini-Glo/lambda/custom/src/com/amazon/ask/MiniGlo/handlers/EditColumnIntentHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-25">
+          <caret line="40" column="38" selection-start-line="40" selection-start-column="32" selection-end-line="40" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/main/java/com/amazon/ask/Quiny/handlers/QuienSabeMasEndingIntentHandler.java" />
+    <entry file="file://$PROJECT_DIR$/lambda/custom/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="372">
+          <caret line="12" column="51" selection-start-line="12" selection-start-column="51" selection-end-line="12" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="uml://JAVA/main.java.com.amazon.ask.Quiny">
+      <provider selected="true" editor-type-id="UmlEditorProvider">
+        <state>
+          <ID>JAVA</ID>
+          <OriginalElement>main.java.com.amazon.ask.Quiny</OriginalElement>
+          <nodes>
+            <node x="" y="">main.java.com.amazon.ask.Quiny.handlers</node>
+            <node x="" y="">main.java.com.amazon.ask.Quiny.utils</node>
+            <node x="" y="">main.java.com.amazon.ask.Quiny.model</node>
+            <node x="" y="">main.java.com.amazon.ask.Quiny.Api</node>
+          </nodes>
+          <notes />
+          <edges />
+          <settings layout="Hierarchic Group" zoom="1.0" x="133.0" y="89.0" />
+          <SelectedNodes />
+          <Categories />
+          <SCOPE>All</SCOPE>
+          <VISIBILITY>private</VISIBILITY>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/main/java/Slider">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/HelpIntentHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="186">
+          <caret line="6" column="7" selection-start-line="6" selection-start-column="7" selection-end-line="6" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/RepeatIntentHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="8" selection-start-column="8" selection-end-column="8" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/model/Attributes.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="62">
+          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/model/Constants.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="155">
+          <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/utils/QuinyUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="265">
+          <caret line="28" column="103" selection-start-line="28" selection-start-column="103" selection-end-line="28" selection-end-column="103" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/model/Questions.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="62">
+          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/YesNoIntentHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1">
+          <caret line="18" column="86" selection-start-line="18" selection-start-column="86" selection-end-line="18" selection-end-column="86" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/QuinySkillStreamHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="558">
+          <caret line="18" column="44" selection-start-line="18" selection-start-column="28" selection-end-line="18" selection-end-column="60" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/model/Parameters.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="35" selection-start-column="35" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/Api/FunctionApi.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="124" column="26" selection-start-line="124" selection-start-column="16" selection-end-line="124" selection-end-column="26" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/LaunchRequestHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="203">
+          <caret line="39" column="8" selection-start-line="39" selection-start-column="8" selection-end-line="39" selection-end-column="8" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/ExitIntentHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="279">
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/ListenOptionsIntentHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="188">
+          <caret line="15" column="84" lean-forward="true" selection-start-line="15" selection-start-column="84" selection-end-line="15" selection-end-column="84" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#588#589#0" expanded="true" />
+            <element signature="e#642#643#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/OptionIntentHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="313">
+          <caret line="45" column="26" selection-start-line="45" selection-start-column="26" selection-end-line="45" selection-end-column="26" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/QuienSabeMasStarterIntentHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="517">
+          <caret line="53" selection-start-line="53" selection-end-line="53" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lambda/custom/src/com/amazon/ask/Quiny/handlers/AnswerIntentHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="314">
+          <caret line="42" column="83" selection-start-line="42" selection-start-column="83" selection-end-line="42" selection-end-column="83" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <settings>
+          <artifact-editor />
+          <last-edited>alexa:jar</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+                <option value="0.5" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="FacetStructureConfigurable.UI">
+        <settings>
+          <last-edited>No facets are configured</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="GlobalLibrariesConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="JdkListConfigurable.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ModuleStructureConfigurable.UI">
+        <settings>
+          <last-edited>quiny</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+                <option value="0.6" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectJDKs.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>Maven: com.amazon.alexa:ask-sdk-apache-client:2.5.5</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ScopeChooserConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>

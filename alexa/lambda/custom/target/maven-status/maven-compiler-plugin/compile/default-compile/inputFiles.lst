@@ -1,0 +1,17 @@
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/model/Constants.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/handlers/AnswerIntentHandler.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/handlers/HelpIntentHandler.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/utils/QuinyUtils.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/Api/FunctionApi.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/model/Attributes.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/model/Questions.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/handlers/ExitIntentHandler.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/handlers/ListenOptionsIntentHandler.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/handlers/QuienSabeMasStarterIntentHandler.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/handlers/SessionEndedHandler.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/handlers/OptionIntentHandler.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/handlers/RepeatIntentHandler.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/handlers/LaunchRequestHandler.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/handlers/YesNoIntentHandler.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/model/Parameters.java
+/Users/Juan/Documents/Cybernetics/NodeJs/Quiny-Games/alexa/lambda/custom/src/com/amazon/ask/Quiny/QuinySkillStreamHandler.java
