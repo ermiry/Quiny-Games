@@ -24,6 +24,8 @@ String *str_new (const char *str) {
             string->str = (char *) calloc (string->len + 1, sizeof (char));
             char_copy (string->str, (char *) str);
         }
+
+        else string->str = NULL;
     }
 
     return string;
