@@ -1,3 +1,5 @@
+- update user model!!
+
 - add group reducer
 - do we need ask actions??
 - refactor group components -> add members, etc
