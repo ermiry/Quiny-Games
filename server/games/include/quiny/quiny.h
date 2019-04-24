@@ -26,6 +26,9 @@ typedef struct User {
     String *username;
     String *email;
     String *password;
+    String *token;
+
+    char *lobby_id;    
 
 } User;
 

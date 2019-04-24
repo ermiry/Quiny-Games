@@ -31,11 +31,14 @@ app.use (bodyParser.json());
 
 const users = require ('./routes/api/users');
 const games = require ('./routes/api/games');
+const quiny = require ('./routes/api/quiny');
 
 app.get ("/", (req, res) => { res.json ({ msg: "Quiny Games "}); });
 
 app.use ('/api/users', users);
 app.use ('/api/games', games);
+
+app.use ('/api/quiny', quiny);
 
 // catch all, for now redirect to the home page
 app.get ("*", (req, res) => { res.redirect ("/"); });

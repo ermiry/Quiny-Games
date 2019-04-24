@@ -22,6 +22,7 @@
 
 #include "utils/myUtils.h"
 #include "utils/log.h"
+#include "utils/sha-256.h"
 
 const char *uri_string = "mongodb://localhost:27017";
 const char *db_name = "quiny";
@@ -36,7 +37,7 @@ static User *user_new (void) {
     User *user = (User *) malloc (sizeof (User));
     if (user) {
         memset (user, 0, sizeof (User));
-        user->email = user->name = user->password = user->username = NULL;
+        user->email = user->name = user->token = user->username = user->password = NULL;
     }
 
     return user;
@@ -51,6 +52,7 @@ static void user_delete (void *ptr) {
         str_delete (user->email);
         str_delete (user->name);
         str_delete (user->password);
+        str_delete (user->token);
         str_delete (user->username);
 
         free (user);
@@ -73,11 +75,11 @@ static const bson_t *user_find_by_oid (const bson_oid_t *oid) {
 }
 
 // get a user doc from the db by username
-static const bson_t *user_find_by_username (const char *username) {
+static const bson_t *user_find_with_query (const char *key, const char *query) {
 
-    if (username) {
+    if (key && query) {
         bson_t *user_query = bson_new ();
-        bson_append_utf8 (user_query, "username", -1, username, -1);
+        bson_append_utf8 (user_query, key, strlen (key), query, strlen (query));
 
         return mongo_find_one (users_collection, user_query);
     }
@@ -120,6 +122,9 @@ static User *user_doc_parse (const bson_t *user_doc) {
                 else if (!strcmp (key, "password") && value->value.v_utf8.str) 
                     user->password = str_new (value->value.v_utf8.str);
 
+                else if (!strcmp (key, "token") && value->value.v_utf8.str) 
+                    user->token = str_new (value->value.v_utf8.str);
+
                 else logMsg (stdout, WARNING, NO_TYPE, createString ("Got unknown key %s when parsing user doc.", key));
             }
         }
@@ -129,14 +134,16 @@ static User *user_doc_parse (const bson_t *user_doc) {
 
 }
 
-static User *user_get (const char *username) {
+static User *user_get_with_query (const char *key, const char *query) {
 
     User *user = NULL;
 
-    const bson_t *user_doc = user_find_by_username (username);
-    if (user_doc) {
-        user = user_doc_parse (user_doc);
-        bson_destroy ((bson_t *) user_doc);
+    if (key && query) {
+        const bson_t *user_doc = user_find_with_query (key, query);
+        if (user_doc) {
+            user = user_doc_parse (user_doc);
+            bson_destroy ((bson_t *) user_doc);
+        }
     }
 
     return user;
@@ -145,12 +152,12 @@ static User *user_get (const char *username) {
 
 // search for a user with the given username
 // if we find one, check if the password match
-User *quiny_user_get (const char *username, const char *password, int *errors) {
+User *quiny_user_get_with_query (const char *key, const char *query, const char *password, int *errors) {
 
     User *user = NULL;
 
-    if (username && password) {
-        user = user_get (username);
+    if (key && query && password) {
+        user = user_get_with_query (key, query);
         if (user) {
             // check that the password is correct
             if (!strcmp (password, user->password->str)) *errors = NO_ERRORS;
@@ -165,7 +172,7 @@ User *quiny_user_get (const char *username, const char *password, int *errors) {
         else {
             #ifdef QUINY_DEBUG
                 logMsg (stderr, ERROR, DEBUG_MSG, 
-                    createString ("Not user find with username: %s", username));
+                    createString ("Not user find with %s: %s", key, query));
             #endif
             *errors = NOT_USER_FOUND;
         }
@@ -189,6 +196,7 @@ static char *quiny_user_json_create (const User *user, size_t *json_len) {
             bson_append_utf8 (doc, "name", -1, user->name->str, user->name->len);
             bson_append_utf8 (doc, "username", -1, user->username->str, user->username->len);
             bson_append_utf8 (doc, "email", -1, user->email->str, user->email->len);
+            bson_append_utf8 (doc, "token", -1, user->token->str, user->token->len);
 
             // TODO: do we need to free the doc after this?
             retval = bson_as_json (doc, json_len);
@@ -253,60 +261,44 @@ int quiny_end (void) {
 
 }
 
-static const char *quiny_get_username (DoubleList *pairs) {
+static char *quiny_user_generate_token (User *user) {
 
-    const char *username = NULL;
+    char *token = NULL;
 
-    if (pairs) {
-        KeyValuePair *kvp = NULL;
-        for (ListElement *le = dlist_start (pairs); le; le = le->next) {
-            kvp = (KeyValuePair *) le->data;
-            if (!strcmp (kvp->key, "username")) {
-                username = kvp->value;
-                break;
-            }
-        }
+    if (user) {
+        // create a string with user values
+        String *temp = str_create ("%s%s%s", user->name, user->username, user->password);
+        uint8_t hash[32];
+        char hash_string[65];
+
+        sha_256_calc (hash, temp->str, temp->len);
+        sha_256_hash_to_string (hash_string, hash);
+
+        token = (char *) calloc (strlen (token), sizeof (char));
+        strcpy (token, hash_string);
+
+        str_delete (temp);
     }
 
-    return username;
+    return token;
 
 }
 
-static const char *quiny_get_password (DoubleList *pairs) {
-
-    const char *username = NULL;
-
-    if (pairs) {
-        KeyValuePair *kvp = NULL;
-        for (ListElement *le = dlist_start (pairs); le; le = le->next) {
-            kvp = (KeyValuePair *) le->data;
-            if (!strcmp (kvp->key, "password")) {
-                username = kvp->value;
-                break;
-            }
-        }
-    }
-
-    return username;
-
-}
-
-// FIXME: how do we sent back the token??
+// we register the user to the cerver
 static HttpResponse *quiny_user_login (Server *server, DoubleList *pairs) {
 
     HttpResponse *res = NULL;
 
     if (server && pairs) {
-        const char *username = quiny_get_username (pairs);
-        const char *password = quiny_get_password (pairs);
+        const char *email = http_query_pairs_get_value (pairs, "email");
+        const char *password = http_query_pairs_get_value (pairs, "password");
 
         // search the user data from the db
         int errors;
-        User *user = quiny_user_get (username, password, &errors);
+        User *user = quiny_user_get_with_query ("email", email, password, &errors);
         if (user) {
             // add the user as a new player in the game server
-            // FIXME: generate my ids!!
-            Player *player = player_new (NULL, "hola", user);
+            Player *player = player_new (NULL, quiny_user_generate_token (user), user);
             player_set_delete_player_data (player, user_delete);
             player_register_to_server (server, player);
 

@@ -13,6 +13,8 @@ const User = require ('../../../models/User');
 const validateRegisterInput = require ('../../validation/register');
 const validateLoginInput = require ('../../validation/register');
 
+const gamesurl = 'http://localhost:9001/';
+
 // @route   GET api/users/test
 // @desc    Tests users route
 router.get ('/test', (req, res) => res.json ({ msg: 'Users Works' }));
@@ -54,7 +56,7 @@ router.post ('/register', (req, res) => {
 
                 // FIXME: generate the hash from the client?
                 // hash the password
-                bcrypt.genSalt (10, (err, salt) => {
+                /* bcrypt.genSalt (10, (err, salt) => {
                     bcrypt.hash (newUser.password, salt, (err, hash) => {
                         if (err) throw err;
                         newUser.password = hash;
@@ -62,6 +64,25 @@ router.post ('/register', (req, res) => {
                             .then (user => res.json (user))
                             .catch (err => console.error (err));
                     });
+                }); */
+
+                // FIXME: for now, store the password in plain text
+                // add the new user to the db
+                newUser.save ().then (user => {
+                    // make a request to the cerver to login
+                    axios.get (gamesurl + "?action=login&email=" + user.email + "&password=" + user.password)
+                        .then (result => {
+                            // return the user as json
+                            res.status (200).json (user);
+                        })
+                        .catch (err => {
+                            console.error (err);
+                            res.status (400).send (err.data);
+                        });
+                })
+                .catch (err => {
+                    console.error (err);
+                    res.status (500).json ({ error: 'Internal server error!' });
                 });
             }
         });
@@ -87,31 +108,30 @@ router.post ('/login', (req, res) => {
                 return res.status (404).json (errors);
             } 
 
-            // check for password
-            bcrypt.compare (password, user.password).then (isMatch => {
-                if (isMatch) {
-                    // retrive user data
-                    // TODO: add support for friends!!
-                    let payload = { id: user.id, name: user.name, username: user.username, email: user.email,
-                        location: user.location, school: user.school, role: user.role,
-                        gamesPlayed: user.gamesPlayed, wins: user.wins };
+            // login in the cerver with credentials
+            // make a request to the cerver to login
+            axios.get (gamesurl + "?action=login&email=" + user.email + "&password=" + user.password)
+            .then (result => {
+                // TODO: check for errors here!
 
-                    // generate token
-                    jwt.sign (payload, keys.secretOrKey, { expiresIn: 3600 }, 
-                        (err, token) => {
-                            res.json ({
-                                success: true,
-                                token: 'Bearer ' + token
-                            });
-                    });
-                }
+                // TODO: add support for friends!!
+                let payload = { id: user.id, name: user.name, username: user.username, email: user.email,
+                    location: user.location, school: user.school, role: user.role,
+                    gamesPlayed: user.gamesPlayed, wins: user.wins };
 
-                else {
-                    errors.password = 'Password is incorrect.';
-                    return res.status (400).json (errors); 
-                }
+                // generate token
+                jwt.sign (payload, keys.secretOrKey, { expiresIn: 3600 }, 
+                    (err, token) => {
+                        res.json ({
+                            success: true,
+                            token: 'Bearer ' + token
+                        });
+                });
+            })
+            .catch (err => {
+                console.error (err);
+                res.status (400).send (err.data);
             });
-            
         });
 
 });

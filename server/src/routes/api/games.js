@@ -1,5 +1,6 @@
 const express = require ('express');
 const router = express.Router ();
+const passport = require('passport');
 
 const axios = require ('axios');
 const request = require ('superagent');
@@ -50,17 +51,24 @@ router.get ('/ask/test', (req, res) => {
 
 // @route   POST api/games/ask/join
 // @desc    Join an ask game lobby
-router.post ('/ask/create', (req, res) => {
+router.post ('/ask/create', passport.authenticate ('jwt', { session: false }), (req, res) => {
 
-	// get the game creation parameters
+	// this token was generated in the cerver framewirk when we signned in
+	let user_token = req.user.token;
+
+	// FIXME:
+	// get the game creation parameters that come from react
+	let topic = 'science';
+	let participants = '2';
 
 	// make a request to the game to create the new lobby
-	axios.get (gamesurl + "?game=ask&action=create_lobby")
+	axios.get (gamesurl + "?game=ask&action=create_lobby&userToken=" + user_token + "&topic=" + topic + "&participants=" + participants)
 		.then (result => {
-			// TODO: return the new lobby id
-			// FIXME: how can we keep updating this info?
-			// console.log (result.data);
-			// return res.status (200).json (res.data);
+			// TODO: check for errors
+
+			// we send back the lobby json generated in cerver
+			console.log (result.data);
+			res.send (result.data);
 		})
 		.catch (err => {
 			console.error (err);
@@ -116,9 +124,11 @@ router.post ('/ask/leave', (req, res) => {
 // @desc    Start ask game
 router.get ('/ask/start', (req, res) => {
 
+	let access_token = req.query.token;
+
 	// request the game to leave the game lobby
 	// FIXME: pass the lobby id
-	axios.get (gamesurl + "?game=ask&action=leave_lobby")
+	axios.get (gamesurl + "?game=ask&action=start&token=" + access_token)
 		.then (result => {
 			// TODO: return a success code?
 			// console.log (result.data);

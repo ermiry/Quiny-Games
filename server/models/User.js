@@ -49,7 +49,11 @@ const UserSchema = new Schema ({
             type: Schema.Types.ObjectId,
             ref: 'users'
         }
-    ]
+    ],
+    token: {
+        type: String,
+        default: ''
+    }
 });
 
 module.exports = User = mongoose.model ('users', UserSchema);

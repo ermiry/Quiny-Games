@@ -269,7 +269,7 @@ static HttpResponse *game_ask_create_lobby (Server *server, DoubleList *pairs) {
     HttpResponse *res = NULL;
 
     if (server && pairs) {
-        const char *token = http_query_pairs_get_value (pairs, "sessionID");
+        const char *token = http_query_pairs_get_value (pairs, "userToken");
         if (token) {
             // get the player info suing the token
             GameServerData *game_data = (GameServerData *) server->serverData;
@@ -284,7 +284,7 @@ static HttpResponse *game_ask_create_lobby (Server *server, DoubleList *pairs) {
                 Lobby *lobby = lobby_create (server, owner, 0);
 
                 // we need to get the game settings
-                // TODO:
+                // const char *topic = http_
 
                 // set the game data
                 // FIXME: create the scoreboard
@@ -366,7 +366,7 @@ static HttpResponse *game_ask_leave_lobby (Server *server, DoubleList *pairs) {
 
 /*** Alexa ***/
 
-// FIXME:
+// FIXME: we use the access token to get the current lobby session
 static HttpResponse *game_ask_start (Server *server, DoubleList *pairs) {
 
     HttpResponse *res = NULL;
@@ -469,7 +469,17 @@ static HttpResponse *game_ask_answer (Server *server, DoubleList *pairs) {
                             logMsg (stdout, SUCCESS, GAME, "Correct answer!!");
 
                             // handle scores
-                            // send back feedback and next action
+                            // FIXME:
+
+                            // send back feedback 
+                            String *success = str_new ("Respuesta correct!");
+                            JsonKeyValue *jkvp =  json_key_value_create ("msg", success, VALUE_TYPE_STRING);
+                            size_t json_len;
+                            char *json = json_create_with_one_pair (jkvp, &json_len);
+                            res = http_response_create (200, NULL, 0, json, json_len);
+
+                            json_key_value_delete (jkvp);
+                            free (json);
                         }
 
                         else {
