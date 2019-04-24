@@ -9,30 +9,9 @@ const Group = require ('../../../models/Group');
 // @desc    Tests groups route
 router.get ('/test', (req, res) => res.json ({ msg: 'Groups Works' }));
 
-router.post ( '/', passport.authenticate('jwt', { session: false }), (req, res) => {
-
-      const { errors, isValid } = validatePostInput(req.body);
-  
-      // Check Validation
-      if (!isValid) {
-        // If any errors, send 400 with errors object
-        return res.status(400).json(errors);
-      }
-  
-      const newPost = new Post({
-        text: req.body.text,
-        name: req.body.name,
-        avatar: req.body.avatar,
-        user: req.user.id
-      });
-  
-      newPost.save().then(post => res.json(post));
-    }
-  );
-
 // @route   POST api/groups/create
-// @desc    create a new group
-router.post ( '/create', passport.authenticate ('jwt', { session: false }), (req, res) => {
+// @desc    a user creates a new group
+router.post ('/create', passport.authenticate ('jwt', { session: false }), (req, res) => {
 
     let errors = {};
 
@@ -48,12 +27,10 @@ router.post ( '/create', passport.authenticate ('jwt', { session: false }), (req
     // create the new group
     let newGroup = new Group ({
         name: req.body.name,
-        leader: req.body.email,
-        username: req.body.username,
-        password: req.body.password,
-        role: req.body.role
+        leader: req.user.id
     });
 
+    newGroup.save ().then (group => res.json (group));
 
 });
 
@@ -61,17 +38,42 @@ router.post ( '/create', passport.authenticate ('jwt', { session: false }), (req
 // @desc    // gets a group
 router.get ('/:id', (req, res) => {
 
+    Post.findById (req.params.id)
+        .then (group => {
+            if (group) res.json (group);
+            else res.status (404).json ({ groupnotfound: 'No group found with that id' });
+        })
+        .catch (err => {
+            res.status (404).json ({ groupnotfound: 'No group found with that id' });
+        });
+
 });
 
 // @route   POST api/groups/create
 // @desc    updates a group
-router.post ('/:id', (req, res) => {
+router.post ('/:id', passport.authenticate ('jwt', { session: false }), (req, res) => {
+
+    // TODO: only adds a new user to the members
 
 });
 
 // @route   POST api/groups/:id
-// @desc    deletes a group by id
-router.delete ('/:id', (req, res) => {
+// @desc    the leader of the group deletes it by id
+router.delete ('/:id', passport.authenticate ('jwt', { session: false }), (req, res) => {
+
+    Post.findById (req.params.id)
+        .then (group => {
+            // check for the leader
+            if (group.leader.toString () !== req.user.id) {
+                return res
+                    .status (401)
+                    .json ({ notauthorized: 'User not authorized' });
+            }
+
+            // delete the post
+            group.remove ().then (() => res.json ({ success: true }));
+        })
+        .catch (err => res.status (404).json ({ groupnotfound: 'Group not found'}));
 
 });
 
