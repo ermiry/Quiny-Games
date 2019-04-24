@@ -223,6 +223,12 @@ int quiny_init (void) {
         errors = 1;
     }
 
+    // init activities
+    if (ask_init ()) {
+        logMsg (stderr, ERROR, GAME, "Failed to init ask game!");
+        errors = 1;
+    } 
+
     return errors;  
 
 }
@@ -230,10 +236,20 @@ int quiny_init (void) {
 // clean up quiny data
 int quiny_end (void) {
 
+    int errors = 0;
+
     // close our collections handles
     if (users_collection) mongoc_collection_destroy (users_collection);
 
+    // end activities
+    if (ask_end) {
+        logMsg (stderr, ERROR, GAME, "Failed to end ask game!");
+        errors = 1;
+    }
+
     mongo_disconnect ();
+
+    return errors;
 
 }
 

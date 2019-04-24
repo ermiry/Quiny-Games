@@ -25,7 +25,7 @@ typedef enum AskTopic {
 // TODO: add dummy answers for user interface
 typedef struct Question {
 
-    bson_t oid;
+    bson_oid_t oid;
     String *question;
     unsigned int n_answers;
     String **answers;
@@ -46,6 +46,10 @@ typedef struct AskGameData {
     DoubleList *question_log;    
 
 } AskGameData;
+
+// init ask game data
+extern int ask_init (void);
+extern int ask_end (void);
 
 extern HttpResponse *game_ask_handler (Server *server, DoubleList *pairs);
 

@@ -64,7 +64,7 @@ void mongo_disconnect (void) {
 #pragma region CRUD
 
 // counts the docs in a collection by a matching query
-int64_t mongo_count_docs (mongoc_collection_t *collection, const bson_t *query) {
+int64_t mongo_count_docs (mongoc_collection_t *collection, bson_t *query) {
 
     int64_t retval = 0;
 
@@ -84,7 +84,7 @@ int64_t mongo_count_docs (mongoc_collection_t *collection, const bson_t *query) 
 }
 
 // inserts a document into a collection
-int mongo_insert_document (mongoc_collection_t *collection, const bson_t *doc) {
+int mongo_insert_document (mongoc_collection_t *collection, bson_t *doc) {
 
     int retval = 0;
     bson_error_t error;
@@ -101,7 +101,7 @@ int mongo_insert_document (mongoc_collection_t *collection, const bson_t *doc) {
 }
 
 // use a query to find one doc
-const bson_t *mongo_find_one (mongoc_collection_t *collection, const bson_t *query) {
+const bson_t *mongo_find_one (mongoc_collection_t *collection, bson_t *query) {
 
     const bson_t *doc = NULL;
 
@@ -121,7 +121,7 @@ const bson_t *mongo_find_one (mongoc_collection_t *collection, const bson_t *que
 // use a query to find all matching documents
 // an empty query will return all the docs in a collection,
 // the bsons must be freed
-bson_t **mongo_find_all (mongoc_collection_t *collection, const bson_t *query, uint64_t *n_docs) {
+bson_t **mongo_find_all (mongoc_collection_t *collection, bson_t *query, uint64_t *n_docs) {
 
     bson_t **retval = NULL;
     *n_docs = 0;
@@ -155,7 +155,7 @@ bson_t **mongo_find_all (mongoc_collection_t *collection, const bson_t *query, u
 
 // updates a doc by a matching query with the new values;
 // destroys query and update bson_t
-int mongo_update_one (mongoc_collection_t *collection, const bson_t *query, const bson_t *update) {
+int mongo_update_one (mongoc_collection_t *collection, bson_t *query, bson_t *update) {
 
     int retval = 1;
 
@@ -177,7 +177,7 @@ int mongo_update_one (mongoc_collection_t *collection, const bson_t *query, cons
 }
 
 // deletes one matching document by a query
-int mongo_delete_one (mongoc_collection_t *collection, const bson_t *query) {
+int mongo_delete_one (mongoc_collection_t *collection, bson_t *query) {
 
     int retval = 0;
 

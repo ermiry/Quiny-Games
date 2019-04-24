@@ -26,9 +26,54 @@
 #include "utils/myUtils.h"
 #include "utils/log.h"
 
+#define SCIENCE_COLL_NAME           "science"
 mongoc_collection_t *science_collection = NULL;
+
+#define HISTORY_COLL_NAME           "history"
 mongoc_collection_t *history_collection = NULL;
+
+#define GEO_COLL_NAME               "geo"
 mongoc_collection_t *geography_collection = NULL;
+
+/*** Public ***/
+
+// init ask game data
+int ask_init (void) {
+
+    int errors = 0;
+
+    science_collection = mongoc_client_get_collection (mongo_client, db_name, SCIENCE_COLL_NAME);
+    if (!science_collection) {
+        logMsg (stderr, ERROR, NO_TYPE, "Failed to get handle to science collection!");
+        errors = 1;
+    }
+
+    history_collection = mongoc_client_get_collection (mongo_client, db_name, HISTORY_COLL_NAME);
+    if (!history_collection) {
+        logMsg (stderr, ERROR, NO_TYPE, "Failed to get handle to history collection!");
+        errors = 1;
+    }
+
+    geography_collection = mongoc_client_get_collection (mongo_client, db_name, GEO_COLL_NAME);
+    if (!geography_collection) {
+        logMsg (stderr, ERROR, NO_TYPE, "Failed to get handle to geography collection!");
+        errors = 1;
+    }
+
+    return errors;
+
+}
+
+int ask_end (void) {
+
+    // close our collections handles
+    if (science_collection) mongoc_collection_destroy (science_collection);
+    if (history_collection) mongoc_collection_destroy (history_collection);
+    if (geography_collection) mongoc_collection_destroy (geography_collection);
+
+    return 0;
+
+ }
 
 /*** Questions ***/
 
@@ -55,9 +100,10 @@ static Question *ask_question_create (const char *question, String **answers, un
 
 }
 
-static void ask_question_delete (Question *q) {
+static void ask_question_delete (void *ptr) {
 
-    if (q) {
+    if (ptr) {
+        Question *q = (Question *) ptr;
         str_delete (q->question);
         if (q->answers) {
             for (int i = 0; i < q->n_answers; i++) str_delete (q->answers[i]);
@@ -418,7 +464,8 @@ static HttpResponse *game_ask_answer (Server *server, DoubleList *pairs) {
                     if (answer->str) {
                         // check if it is the correct answer
                         // str_to_lower (answer);
-                        if (!str_compare (answer, ask_data->current_question->correct_answer)) {
+                        if (!str_compare (answer, 
+                        ask_data->current_question->answers[ask_data->current_question->correct_answer])) {
                             logMsg (stdout, SUCCESS, GAME, "Correct answer!!");
 
                             // handle scores
@@ -431,7 +478,7 @@ static HttpResponse *game_ask_answer (Server *server, DoubleList *pairs) {
                                 ask_data->current_question->answers[ask_data->current_question->correct_answer]->str));
                             // send back an error and the correct answer
                             String *error = str_new ("Respuesta incorrecta!");
-                            DoubleList *jkvps = dlis_init (json_key_value_delete, NULL);
+                            DoubleList *jkvps = dlist_init (json_key_value_delete, NULL);
                             dlist_insert_after (jkvps, dlist_end (jkvps), json_key_value_create ("msg", error, VALUE_TYPE_STRING));
                             String *correct = str_new (ask_data->current_question->answers[ask_data->current_question->correct_answer]->str);
                             dlist_insert_after (jkvps, dlist_end (jkvps), json_key_value_create ("answer", correct, VALUE_TYPE_STRING));

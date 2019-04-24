@@ -11,7 +11,10 @@
 #define NO_ERRORS                   0
 #define NOT_USER_FOUND              1
 #define WRONG_PASSWORD              2
-#define USER_NOT_FOUND           3
+#define USER_NOT_FOUND              3
+
+extern const char *uri_string;
+extern const char *db_name;
 
 typedef struct User {
 
