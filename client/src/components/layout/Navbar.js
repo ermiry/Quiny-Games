@@ -66,7 +66,7 @@ class Navbar extends Component {
                                 <Link className="nav-link" to="/games">Games</Link>
                             </li>
                             <li className="nav-item">
-                                <Link className="nav-link" to="/contact">Contact</Link>
+                                <Link className="nav-link" to="/team">Team</Link>
                             </li>
                         </ul>
                 

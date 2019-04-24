@@ -9,7 +9,7 @@ import ProfileAbout from './ProfileAbout';
 import Spinner from '../common/Spinner';
 
 // my actions
-import { getProfileByHandle } from '../../actions/profileActions';
+import { getProfileByHandle } from '../../actions/userActions';
 
 class Profile extends Component {
   componentDidMount() {
@@ -43,13 +43,6 @@ class Profile extends Component {
           </div>
           <ProfileHeader profile={profile} />
           <ProfileAbout profile={profile} />
-          <ProfileCreds
-            education={profile.education}
-            experience={profile.experience}
-          />
-          {profile.githubusername ? (
-            <ProfileGithub username={profile.githubusername} />
-          ) : null}
         </div>
       );
     }

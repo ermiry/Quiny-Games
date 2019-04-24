@@ -17,7 +17,7 @@ import Footer from './components/layout/Footer';
 import Landing from './components/main/Landing';
 import About from './components/main/About';
 import Games from './components/main/Games';
-import Contact from './components/main/Contact';
+import Team from './components/main/Team';
 
 import Test from './components/test/Test';
 
@@ -76,7 +76,7 @@ class App extends Component {
 
 						{/* Main components */}
 						<Route exact path="/about" component={ About } />
-						<Route exact path="/contact" component={ Contact } />
+						<Route exact path="/team" component={ Team } />
 						<Route exact path="/games" component={ Games } />
 
 						{/* User */}
