@@ -144,7 +144,7 @@ public class AnswerIntentHandler implements com.amazon.ask.dispatcher.request.ha
 
             System.out.println("An error was ocurred while posting the answer");
             return input.getResponseBuilder()
-                    .withSpeech("No se ha podido procesar la informaci��n correctamente, lamentablemente no podremos continuar, una disculpa, Adios")
+                    .withSpeech("No se ha podido procesar la información correctamente, lamentablemente no podremos continuar, una disculpa, Adios")
                     .withShouldEndSession(true)
                     .build();
         }

@@ -1,5 +1,6 @@
 package com.amazon.ask.Quiny.handlers;
 
+import com.amazon.ask.Quiny.Api.FunctionApi;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.LaunchRequest;
@@ -9,6 +10,8 @@ import com.amazon.ask.Quiny.model.Constants;
 import com.amazon.ask.model.interfaces.alexa.presentation.apl.RenderDocumentDirective;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 
 import java.io.File;
@@ -35,10 +38,12 @@ public class LaunchRequestHandler implements RequestHandler {
             ObjectMapper mapper = new ObjectMapper();
             TypeReference<HashMap<String, Object>> documentMapType = new TypeReference<HashMap<String, Object>>() {
             };
-            System.out.println(this.getClass().getClassLoader().getResource("document.json"));
-            URL doc = this.getClass().getClassLoader().getResource("document.json");
-            if(doc==null) System.out.println("I dont exist");
-            document = mapper.readValue(this.getClass().getClassLoader().getResource("document.json").getFile(), documentMapType);
+            JsonObject doc = new JsonParser()
+                    .parse(FunctionApi.getInstance()
+                            .sendGet(FunctionApi.getInstance().UNIVERSAL_URL + "/api/quiny/views/apl",new HashMap<>())).getAsJsonObject();
+            System.out.println(doc);
+            document = mapper.readValue(doc.toString() , documentMapType);
+
         }catch(IOException | NullPointerException e){
             e.printStackTrace();
         }
@@ -61,10 +66,11 @@ public class LaunchRequestHandler implements RequestHandler {
 
 
         return input.getResponseBuilder()
-                .withSpeech(Constants.WELCOME_MESSAGE + ". " + Constants.INFO_MESSAGE)
+                .withSpeech("<audio src='https://s3.amazonaws.com/audioquiny/audio/start.mp3'/> "  + Constants.WELCOME_MESSAGE + ". " + Constants.INFO_MESSAGE)
                 .addDirective(RenderDocumentDirective.builder()
                         .withDocument(document).build())
                 .withReprompt(Constants.HELP_MESSAGE)
+
                 .withShouldEndSession(false)
                 .build();
     }

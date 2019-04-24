@@ -27,7 +27,7 @@ public class QuinyUtils {
     public static Optional<Response> listenOptions(HandlerInput input) {
         String responseText;
 
-        responseText = "Puedes escoger entre los siguientes juegos: Conocet��n. Matet��n y Quien Sabe M��s, Escoge uno";
+        responseText = "Puedes escoger entre los siguientes juegos: Conocetón. Matetón y Quien Sabe Más, Escoge uno";
 
         return input.getResponseBuilder()
                 .withSpeech(responseText)

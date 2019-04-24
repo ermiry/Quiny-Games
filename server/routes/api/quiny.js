@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router ();
 const ejs = require('ejs');
 const request = require("superagent");
+const fs = require('fs');
 
 
 router.get('/test', (req,res)=>{
@@ -66,6 +67,45 @@ router.get('/getNextQuestion',(req,res)=>{
     res.send(info);
 })
 
+router.get('/views/apl',(req,res)=>{
+    var apl = {
+        "type": "APL",
+        "version": "1.0",
+        "theme": "dark",
+        "import": [],
+        "resources": [],
+        "styles": {},
+        "layouts": {},
+        "mainTemplate": {
+          "items": [
+            {
+              "type": "Frame",
+              "backgroundColor": "grey",
+              "item": {
+                "type": "Container",
+                "height": "100vh",
+                "width": "100vw",
+                "direction": "column",
+                "alignItems": "center",
+                "justifyContent": "center",
+                "items": [
+                  {
+                    "type": "Text",
+                    "text": "Nutrición Inteligente"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "¡Bienvenidos!"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+      res.send(apl);
+})
+
 router.get('/end',(req,res)=>{
     console.log("in end");
     var info = {"winner":"juan", "points":"10"};
@@ -73,5 +113,24 @@ router.get('/end',(req,res)=>{
     res.send(info);
 })
 
+router.get('/audio',(req,res)=>{
+    console.log("audio");
+    var fileId = req.query.fileId;
+    var file = __dirname + '/audio/' + fileId;
+    fs.exists(file,function(exists){
+        if(exists)
+        {
+            res.setHeader('Content-disposition','attachment; filename = ' + fileId);
+            res.setHeader('Content-Type','application/audio/mpeg3');            
+            var rstream = fs.createReadStream(file);
+            rstream.pipe(res);
+
+        }else
+        {
+            res.send("Its a 404");
+            res.end();
+        }
+    });
+});
 
 module.exports = router;

@@ -11,4 +11,7 @@ public class Parameters {
     public static final String PLAYER = "player";
     public static final String ANSWER = "answer";
 
+    public static final String RESPONSE_END = "end";
+    public static final String RESPONSE_CORRECT = "correct";
+    public static final String STATUS = "status";
 }

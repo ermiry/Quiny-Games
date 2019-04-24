@@ -36,15 +36,15 @@ public class OptionIntentHandler implements com.amazon.ask.dispatcher.request.ha
                 String option = slots.get("Option").getValue();
                 switch (option) {
                     case "quien sabe mas":
-                    case "Quien sabe m��s":
+                    case "Quien sabe más":
 
-                    case "quien sabe m��s":
+                    case "quien sabe más":
                     case "QUIEN SABE MAS":
-                    case "QUIEN SABE M��S":
+                    case "QUIEN SABE MÁS":
                         sessionAttributes.put(Attributes.GAME_SELECTED, Constants.QUIEN_SABE_MAS);
                         sessionAttributes.put(Attributes.STATE, Attributes.WAITING);
                         //sessionAttributes.put(Attributes.RETRY,true);
-                        responseText = Constants.INTENSE_TALK[0] + "bien" + Constants.INTENSE_TALK[1] + ", Se eligio la opci��n Qui��n sabe m��s, ��Est��s Listo?";
+                        responseText = Constants.INTENSE_TALK[0] + "bien" + Constants.INTENSE_TALK[1] + ", Se eligio la opción Quiénn sabe más, ¿Estás Listo?";
 
                         break;
                     case "Conoceton":
@@ -52,7 +52,7 @@ public class OptionIntentHandler implements com.amazon.ask.dispatcher.request.ha
                     case "CONOCETON":
                         sessionAttributes.put(Attributes.GAME_SELECTED, Constants.CONOCETON);
                         sessionAttributes.put(Attributes.STATE, Attributes.WAITING);
-                        responseText = Constants.INTENSE_TALK[0] + "bravo" + Constants.INTENSE_TALK[1] + ", Se eligio la opci��n Conocet��n ��Est��s Listo?";
+                        responseText = Constants.INTENSE_TALK[0] + "bravo" + Constants.INTENSE_TALK[1] + ", Se eligio la opción Conocetón ¿Estás Listo?";
 
                         break;
                     case "Mateton":
@@ -60,7 +60,7 @@ public class OptionIntentHandler implements com.amazon.ask.dispatcher.request.ha
                     case "mateton":
                         sessionAttributes.put(Attributes.GAME_SELECTED, Constants.MATETON);
                         sessionAttributes.put(Attributes.STATE, Attributes.WAITING);
-                        responseText = Constants.INTENSE_TALK[0] + "as�� mero" + Constants.INTENSE_TALK[1] + ",Se eligio la opci��n Matet��n ��Est��s Listo?";
+                        responseText = Constants.INTENSE_TALK[0] + "así mero" + Constants.INTENSE_TALK[1] + ",Se eligio la opción Matetón ¿Estás Listo?";
                         break;
                     default:
                         throw new NullPointerException();
