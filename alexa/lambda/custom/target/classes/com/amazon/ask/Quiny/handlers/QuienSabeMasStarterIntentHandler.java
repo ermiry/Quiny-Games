@@ -78,7 +78,7 @@ public class QuienSabeMasStarterIntentHandler implements com.amazon.ask.dispatch
 
             responseText += " . ";
 
-            responseText += " El primero en responder sera " + currentPlayer + ".Tienes 10 segundos para prepararte. <break time='10s'/>";
+            responseText += " El primero en responder sera  " + currentPlayer + " .Tienes 10 segundos para prepararte. <break time='10s'/>";
 
             responseText += ". En sus marcas, listos, fuera. Tu pregunta es: " + question;
 
@@ -94,7 +94,7 @@ public class QuienSabeMasStarterIntentHandler implements com.amazon.ask.dispatch
 
         return input.getResponseBuilder()
                 .withShouldEndSession(true)
-                .withSpeech("Hubo un error al iniciar sesion")
+                .withSpeech("Hubo un error al iniciar sesión")
                 .build();
 
     }

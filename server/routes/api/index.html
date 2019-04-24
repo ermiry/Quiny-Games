@@ -21,31 +21,14 @@
         a.src = 'https://assets.loginwithamazon.com/sdk/na/login1.js';
         d.getElementById('amazon-root').appendChild(a);
         })(document);
-
     </script>
-
     <script type="text/javascript">
         document.getElementById('LoginWithAmazon').onclick = function() {
         options = { scope : 'profile' };
-        amazon.Login.authorize(options,function(response){
-            if(response.error){
-                alert('oauth error ' + response.error);
-                return;
-            }
-            
-            alert('Access Token:' + response.access_token);
-            console.log('Access Token' + response.access_token);
-            amazon.Login.retrieveProfile(response.access_token,function(response){
-                alert('Hello ' + response.profile.Name);
-                alert('Your email is ' + response.profile.PrimaryEmail);
-                alert('Your unique ID is' + response.profile.CustomerID);
-                if(window.console && window.console.log)
-                    window.console.log(response);
-            })
-                    
-        });
-            
+        amazon.Login.authorize(options,
+            'https://fcaeee10.ngrok.io/api/quiny/oauth');
         return false;
         };
     </script>
+
 </body>

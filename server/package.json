@@ -10,8 +10,10 @@
   "author": "juan",
   "license": "MIT",
   "dependencies": {
+    "aws-sdk": "^2.441.0",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
+    "login-with-amazon": "0.0.3",
     "superagent": "^5.0.2"
   }
 }

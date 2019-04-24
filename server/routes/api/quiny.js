@@ -3,19 +3,27 @@ const router = express.Router ();
 const ejs = require('ejs');
 const request = require("superagent");
 const fs = require('fs');
+const amazon = require('login-with-amazon');
+const aws = require('aws-sdk');
 
 
 router.get('/test', (req,res)=>{
     var accessToken = req.query.token;
-    res.render('index',{accessToken:accessToken});
+    res.render('index',{"accessToken":accessToken});
     //res.sendfile('./routes/api/index.html');
+    
 })
 
 router.get('/oauth',(req,res)=>{
-    var accessTokenAlexa = req.query.token;
-    var accessTokenAmazon = req.query.access_token;
-    
-    res.render('./routes/api/login.html');
+  console.log("request to oauth");
+  //var accessTokenAlexa = req.query.token;
+  var accessTokenAmazon = req.query.access_token;
+  
+  
+  var info = amazon.getProfile(accessTokenAmazon);
+  
+  console.log(info)
+  res.render('login',{"token":req.query.access_token});
 })
 
 router.get('/start',(req,res)=>{

@@ -1,6 +1,7 @@
 package com.amazon.ask.Quiny.handlers;
 
 import com.amazon.ask.Quiny.Api.FunctionApi;
+import com.amazon.ask.Quiny.utils.QuinyUtils;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.LaunchRequest;
@@ -40,7 +41,7 @@ public class LaunchRequestHandler implements RequestHandler {
             };
             JsonObject doc = new JsonParser()
                     .parse(FunctionApi.getInstance()
-                            .sendGet(FunctionApi.getInstance().UNIVERSAL_URL + "/api/quiny/views/apl",new HashMap<>())).getAsJsonObject();
+                            .sendGet(FunctionApi.getInstance().UNIVERSAL_URL + "/views/apl",new HashMap<>())).getAsJsonObject();
             System.out.println(doc);
             document = mapper.readValue(doc.toString() , documentMapType);
 
@@ -64,8 +65,8 @@ public class LaunchRequestHandler implements RequestHandler {
         sessionAttributes.put(Attributes.RETRY, true);
         sessionAttributes.put(Attributes.GAME_SELECTED,-1);
 
-
-        return input.getResponseBuilder()
+        if(QuinyUtils.supportsApl(input))
+            return input.getResponseBuilder()
                 .withSpeech("<audio src='https://s3.amazonaws.com/audioquiny/audio/start.mp3'/> "  + Constants.WELCOME_MESSAGE + ". " + Constants.INFO_MESSAGE)
                 .addDirective(RenderDocumentDirective.builder()
                         .withDocument(document).build())
@@ -73,5 +74,11 @@ public class LaunchRequestHandler implements RequestHandler {
 
                 .withShouldEndSession(false)
                 .build();
+        else
+            return input.getResponseBuilder()
+            .withSpeech("<audio src='https://s3.amazonaws.com/audioquiny/audio/start.mp3'/> "  + Constants.WELCOME_MESSAGE + ". " + Constants.INFO_MESSAGE)
+            .withReprompt(Constants.HELP_MESSAGE)
+            .withShouldEndSession(false)
+            .build();
     }
 }

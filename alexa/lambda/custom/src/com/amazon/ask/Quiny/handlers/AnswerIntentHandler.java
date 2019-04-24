@@ -84,11 +84,14 @@ public class AnswerIntentHandler implements com.amazon.ask.dispatcher.request.ha
 
             if (status.equals(Parameters.RESPONSE_CORRECT)) correct = true;
 
-            responseText = QuinyUtils.getResponse(correct);
+            responseText = Constants.AUDIO[0] + "'https://s3.amazonaws.com/audioquiny/audio/Answer.mp3'" + Constants.AUDIO[1] + "<break time='1s'/>";
+
+            responseText += QuinyUtils.getResponse(correct);
             if (correct)
-                responseText += " . La respuesta es correcta. Haz ganado un punto. ";
+
+                responseText += "<break time='1s'/>  La respuesta es correcta. Haz ganado un punto. ";
             else
-                responseText += " . La respuesta fue incorrecta. No haz ganado nada. ";
+                responseText += "<break time='1s'/>  La respuesta fue incorrecta. No haz ganado nada. ";
 
 
             if (!nextParticipant.equals(Parameters.RESPONSE_END)) {
