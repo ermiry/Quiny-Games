@@ -16,6 +16,8 @@
 #include "cerver/game/lobby.h"
 #include "cerver/game/score.h"
 
+#include "mongo/mongo.h"
+
 #include "quiny/quiny.h"
 #include "quiny/games/ask.h"
 
@@ -24,15 +26,29 @@
 #include "utils/myUtils.h"
 #include "utils/log.h"
 
+mongoc_collection_t *science_collection = NULL;
+mongoc_collection_t *history_collection = NULL;
+mongoc_collection_t *geography_collection = NULL;
+
 /*** Questions ***/
 
-static Question *ask_question_new (AskTopic topic, const char *question, const char *correct_answer) {
+static inline Question *ask_question_new (void) {
+
+    Question *q = (Question *) malloc (sizeof (Question));
+    if (q) memset (q, 0, sizeof (Question));
+    return q;
+
+}
+
+static Question *ask_question_create (const char *question, String **answers, unsigned int n_answers,
+    unsigned int correct_answer_idx) {
 
     Question *q = (Question *) malloc (sizeof (Question));
     if (q) {
-        q->topic = TOPIC_GENERAL;
         q->question = str_new (question);
-        q->correct_answer = str_new (correct_answer);
+        q->answers = answers;
+        q->n_answers = n_answers;
+        q->correct_answer = correct_answer_idx;
     }
 
     return q;
@@ -43,20 +59,85 @@ static void ask_question_delete (Question *q) {
 
     if (q) {
         str_delete (q->question);
-        str_delete (q->correct_answer);
+        if (q->answers) {
+            for (int i = 0; i < q->n_answers; i++) str_delete (q->answers[i]);
+            free (q->answers); 
+        }
 
         free (q);
     }
 
 }
 
+static Question *ask_question_parse_bson (const bson_t *doc) {
+
+    Question *q = NULL;
+
+    if (doc) {
+        q = ask_question_new ();
+
+        bson_iter_t iter;
+        bson_type_t type;
+
+        if (bson_iter_init (&iter, doc)) {
+            while (bson_iter_next (&iter)) {
+                const char *key = bson_iter_key (&iter);
+                const bson_value_t *value = bson_iter_value (&iter);
+
+                if (!strcmp (key, "_id")) bson_oid_copy (&value->value.v_oid, &q->oid);
+                else if (!strcmp (key, "question")) q->question = str_new (value->value.v_utf8.str);
+                else if (!strcmp (key, "answers")) {
+                    // FIXME: get the answers array
+                }
+                else if (!strcmp (key, "correct")) q->correct_answer = value->value.v_int32;
+
+                else logMsg (stdout, WARNING, NO_TYPE, 
+                    createString ("Got unknown value %s when parsing ask question bson", key));
+            }
+        }
+    }
+
+    return q;
+
+}
+
+// TODO: add support for questions that the teacher added
 // get the next question for an ask game
 static Question *ask_question_get_next (AskGameData *ask_data) {
 
     Question *q = NULL;
 
     if (ask_data) {
-        // get a new question for a game from the db based on the topic
+        // select the topic
+        mongoc_collection_t *req_collection;
+        switch (ask_data->topic) {
+            case TOPIC_SCIENCE: req_collection = science_collection; break;
+            case TOPIC_GEOGRAPHY: req_collection = geography_collection; break;
+            case TOPIC_HISTORY: req_collection = history_collection; break;
+            
+            case TOPIC_GENERAL: {
+                int x = random_int_in_range (0, 2);
+                switch (x) {
+                    case 0: req_collection = science_collection; break;
+                    case 1: req_collection = geography_collection; break;
+                    case 2: req_collection = history_collection; break;
+
+                    default: req_collection = science_collection; break;
+                }
+            } 
+            break;
+
+            default: req_collection = science_collection; break;
+        }
+
+        // get a random question from the database
+        bson_t **docs = mongo_get_random (req_collection, 1);
+        if (docs) {
+            // create question from doc
+            q = ask_question_parse_bson (docs[1]);
+            bson_destroy (docs[1]);
+            free (docs);
+        }
     }
 
     return NULL;
@@ -96,6 +177,7 @@ static AskGameData *ask_game_data_new (ScoreBoard *sb, AskTopic topic) {
         // we just have a reference to the real structure in the avl tree
         data->competitors = dlist_init (NULL, NULL);
         data->current_question = NULL;
+        data->question_log = dlist_init (ask_question_delete, NULL);
     } 
 
     return data;
@@ -108,6 +190,8 @@ static void ask_game_data_delete (void *ptr) {
         AskGameData *data = (AskGameData *) ptr;
         game_score_delete (data->sb);
         // FIXME: clean up the users list without destroying the users!!!
+
+        dlist_destroy (data->question_log);
 
         free (data);
     }
@@ -282,26 +366,30 @@ static HttpResponse *game_ask_question (Server *server, DoubleList *pairs) {
                     ask_data->active_user = dlist_remove_element (ask_data->competitors, dlist_start (ask_data->competitors));
 
                     // get the next question
-                    ask_question_get_next (ask_data);
+                    ask_data->current_question = ask_question_get_next (ask_data);
 
                     // send back the question and data in a json
+                    size_t json_len;
+                    char *json =  ask_question_to_json (ask_data->current_question, &json_len);
+                    res = http_response_create (200, NULL, 0, json, json_len);
+                    free (json);        // we copy the data into the response
                 }
 
                 else {
                     logMsg (stderr, ERROR, GAME, "Failed to get lobby ask game data!");
-                    http_response_json_error ("Internal server error!");
+                    res = http_response_json_error ("Internal server error!");
                 }
             }
 
             else {
                 logMsg (stderr, ERROR, GAME, createString ("Failed to get lobby with id: %s", lobby_token));
-                http_response_json_error ("Failed to get lobby!");
+                res = http_response_json_error ("Failed to get lobby!");
             }
         }
 
         else {
             logMsg (stderr, ERROR, GAME, "Failed ot get token id from request!");
-            http_response_json_error ("Failed to get lobby!");
+            res = http_response_json_error ("Failed to get lobby!");
         }
     }
 
@@ -339,12 +427,13 @@ static HttpResponse *game_ask_answer (Server *server, DoubleList *pairs) {
 
                         else {
                             logMsg (stdout, ERROR, GAME, 
-                                createString ("The correct answer is: %s", ask_data->current_question->correct_answer->str));
+                                createString ("The correct answer is: %s", 
+                                ask_data->current_question->answers[ask_data->current_question->correct_answer]->str));
                             // send back an error and the correct answer
                             String *error = str_new ("Respuesta incorrecta!");
                             DoubleList *jkvps = dlis_init (json_key_value_delete, NULL);
                             dlist_insert_after (jkvps, dlist_end (jkvps), json_key_value_create ("msg", error, VALUE_TYPE_STRING));
-                            String *correct = str_new (ask_data->current_question->correct_answer->str);
+                            String *correct = str_new (ask_data->current_question->answers[ask_data->current_question->correct_answer]->str);
                             dlist_insert_after (jkvps, dlist_end (jkvps), json_key_value_create ("answer", correct, VALUE_TYPE_STRING));
                             
                             size_t json_len;

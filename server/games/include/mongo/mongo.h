@@ -31,7 +31,8 @@ extern int mongo_insert_document (mongoc_collection_t *collection, bson_t *doc);
 extern const bson_t *mongo_find_one (mongoc_collection_t *collection, bson_t *query);
 
 // use a query to find all matching documents
-// an empty query will return all the docs
+// an empty query will return all the docs,
+// the bsons must be freed
 extern bson_t **mongo_find_all (mongoc_collection_t *collection, bson_t *query, 
     uint64_t *n_docs);
 
@@ -42,6 +43,11 @@ extern int mongo_update_one (mongoc_collection_t *collection, bson_t *query,
 
 // deletes one matching document by a query
 extern int mongo_delete_one (mongoc_collection_t *collection, bson_t *query);
+
+// gets random n documents from a collection,
+// may output the same document more than once in its result set,
+// the bsons must be freed
+extern bson_t **mongo_get_random (mongoc_collection_t *collection, const unsigned int n_docs);
 
 #pragma endregion
 

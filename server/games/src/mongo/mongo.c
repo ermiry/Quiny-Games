@@ -64,7 +64,7 @@ void mongo_disconnect (void) {
 #pragma region CRUD
 
 // counts the docs in a collection by a matching query
-int64_t mongo_count_docs (mongoc_collection_t *collection, bson_t *query) {
+int64_t mongo_count_docs (mongoc_collection_t *collection, const bson_t *query) {
 
     int64_t retval = 0;
 
@@ -84,7 +84,7 @@ int64_t mongo_count_docs (mongoc_collection_t *collection, bson_t *query) {
 }
 
 // inserts a document into a collection
-int mongo_insert_document (mongoc_collection_t *collection, bson_t *doc) {
+int mongo_insert_document (mongoc_collection_t *collection, const bson_t *doc) {
 
     int retval = 0;
     bson_error_t error;
@@ -101,7 +101,7 @@ int mongo_insert_document (mongoc_collection_t *collection, bson_t *doc) {
 }
 
 // use a query to find one doc
-const bson_t *mongo_find_one (mongoc_collection_t *collection, bson_t *query) {
+const bson_t *mongo_find_one (mongoc_collection_t *collection, const bson_t *query) {
 
     const bson_t *doc = NULL;
 
@@ -119,8 +119,9 @@ const bson_t *mongo_find_one (mongoc_collection_t *collection, bson_t *query) {
 }
 
 // use a query to find all matching documents
-// an empty query will return all the docs in a collection
-bson_t **mongo_find_all (mongoc_collection_t *collection, bson_t *query, uint64_t *n_docs) {
+// an empty query will return all the docs in a collection,
+// the bsons must be freed
+bson_t **mongo_find_all (mongoc_collection_t *collection, const bson_t *query, uint64_t *n_docs) {
 
     bson_t **retval = NULL;
     *n_docs = 0;
@@ -131,9 +132,9 @@ bson_t **mongo_find_all (mongoc_collection_t *collection, bson_t *query, uint64_
             retval = (bson_t **) calloc (count, sizeof (bson_t *));
             for (uint64_t i = 0; i < count; i++) retval[i] = bson_new ();
 
-            const bson_t *doc;
             mongoc_cursor_t *cursor = mongoc_collection_find_with_opts (collection, query, NULL, NULL);
 
+            const bson_t *doc;
             uint64_t i = 0;
             while (mongoc_cursor_next (cursor, &doc)) {
                 // add the matching doc into our retval array
@@ -154,7 +155,7 @@ bson_t **mongo_find_all (mongoc_collection_t *collection, bson_t *query, uint64_
 
 // updates a doc by a matching query with the new values;
 // destroys query and update bson_t
-int mongo_update_one (mongoc_collection_t *collection, bson_t *query, bson_t *update) {
+int mongo_update_one (mongoc_collection_t *collection, const bson_t *query, const bson_t *update) {
 
     int retval = 1;
 
@@ -176,7 +177,7 @@ int mongo_update_one (mongoc_collection_t *collection, bson_t *query, bson_t *up
 }
 
 // deletes one matching document by a query
-int mongo_delete_one (mongoc_collection_t *collection, bson_t *query) {
+int mongo_delete_one (mongoc_collection_t *collection, const bson_t *query) {
 
     int retval = 0;
 
@@ -194,5 +195,37 @@ int mongo_delete_one (mongoc_collection_t *collection, bson_t *query) {
     return retval;
 
 }
+
+// gets random n documents from a collection,
+// may output the same document more than once in its result set,
+// the bsons must be freed
+bson_t **mongo_get_random (mongoc_collection_t *collection, const unsigned int n_docs) {
+
+    bson_t **retval = NULL;
+
+    if (collection) {
+        bson_t *pipeline = pipeline = 
+            BCON_NEW ("pipeline", "[", "{", "$sample", "{", "size", BCON_INT32 (n_docs), "}", "}", "]");
+        mongoc_cursor_t *cursor = mongoc_collection_aggregate (collection, 0, pipeline, NULL, NULL);
+
+        retval = (bson_t **) calloc (n_docs, sizeof (bson_t *));
+        for (uint64_t i = 0; i < n_docs; i++) retval[i] = bson_new ();
+
+        const bson_t *doc;
+        uint64_t i = 0;
+        while (mongoc_cursor_next (cursor, &doc)) {
+            // add the matching doc into our retval array
+            bson_copy_to (doc, retval[i]);
+            i++;
+        }
+
+        bson_destroy (pipeline);
+        mongoc_cursor_destroy (cursor);
+    }
+
+    return retval;
+
+}
+
 
 #pragma endregion
