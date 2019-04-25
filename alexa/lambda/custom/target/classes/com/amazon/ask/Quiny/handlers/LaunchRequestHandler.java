@@ -34,16 +34,17 @@ public class LaunchRequestHandler implements RequestHandler {
     @Override
     public Optional<Response> handle(HandlerInput input) {
         String accessToken;
+        System.out.println(FunctionApi.getInstance().UNIVERSAL_URL);
         Map<String, Object> document = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
             TypeReference<HashMap<String, Object>> documentMapType = new TypeReference<HashMap<String, Object>>() {
             };
-            JsonObject doc = new JsonParser()
-                    .parse(FunctionApi.getInstance()
-                            .sendGet(FunctionApi.getInstance().UNIVERSAL_URL + "/views/apl",new HashMap<>())).getAsJsonObject();
-            System.out.println(doc);
-            document = mapper.readValue(doc.toString() , documentMapType);
+                JsonObject doc = new JsonParser()
+                        .parse(FunctionApi.getInstance()
+                                .sendGet(FunctionApi.getInstance().UNIVERSAL_URL + "/views/apl", new HashMap<>())).getAsJsonObject();
+
+                document = mapper.readValue(doc.toString(), documentMapType);
 
         }catch(IOException | NullPointerException e){
             e.printStackTrace();
@@ -65,7 +66,7 @@ public class LaunchRequestHandler implements RequestHandler {
         sessionAttributes.put(Attributes.RETRY, true);
         sessionAttributes.put(Attributes.GAME_SELECTED,-1);
 
-        if(QuinyUtils.supportsApl(input))
+        if(QuinyUtils.supportsApl(input) && document!=null)
             return input.getResponseBuilder()
                 .withSpeech("<audio src='https://s3.amazonaws.com/audioquiny/audio/start.mp3'/> "  + Constants.WELCOME_MESSAGE + ". " + Constants.INFO_MESSAGE)
                 .addDirective(RenderDocumentDirective.builder()

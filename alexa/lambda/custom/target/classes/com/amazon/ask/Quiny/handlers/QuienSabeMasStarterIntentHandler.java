@@ -39,7 +39,7 @@ public class QuienSabeMasStarterIntentHandler implements com.amazon.ask.dispatch
         try {
             if (accessToken == null) throw new Exception();
             params.put(Constants.ACCESS_TOKEN, accessToken);
-            params.put("type", String.valueOf(Constants.QUIEN_SABE_MAS));
+            //params.put("type", String.valueOf(Constants.QUIEN_SABE_MAS));
 
             in = FunctionApi.getInstance()
                     .sendGet(FunctionApi.getInstance().UNIVERSAL_URL + "/start", params);

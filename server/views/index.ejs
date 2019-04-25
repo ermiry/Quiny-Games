@@ -4,33 +4,9 @@
 
 </head>
 <body>
-    <a href id="LoginWithAmazon">
-        <img border="0" alt="Login with Amazon"
-            src="https://images-na.ssl-images-amazon.com/images/G/01/lwa/btnLWA_gold_156x32.png"
-            width="156" height="32" />
+    <a href="https://dev-qpzoqcez.auth0.com/authorize?response_type=code&client_id=ek5yWI1JyCXb78obHKzyfpdR14pISo0S&redirect_uri=https://9478a70d.ngrok.io/api/quiny/oauth&state=STATE&audience=https://dev-qpzoqcez.auth0.com/api/v2/&scope=profile openid">
+        Sign In
     </a>
-    <div id="amazon-root"></div>
-    <script type="text/javascript">
-
-        window.onAmazonLoginReady = function() {
-        amazon.Login.setClientId('amzn1.application-oa2-client.27ec2ca814dc4d0585a9da7596b1fffb');
-        };
-        (function(d) {
-        var a = d.createElement('script'); a.type = 'text/javascript';
-        a.async = true; a.id = 'amazon-login-sdk';
-        a.src = 'https://assets.loginwithamazon.com/sdk/na/login1.js';
-        d.getElementById('amazon-root').appendChild(a);
-        })(document);
-    </script>
-
-    <script type="text/javascript">
     
-        document.getElementById('LoginWithAmazon').onclick = function() {
-        options = { scope : 'profile' };
-        amazon.Login.authorize(options,
-            'https://fcaeee10.ngrok.io/api/quiny/oauth');
-        return false;
-        };
-    </script>
-
+<!--https://dev-qpzoqcez.auth0.com/api/v2/-->
 </body>

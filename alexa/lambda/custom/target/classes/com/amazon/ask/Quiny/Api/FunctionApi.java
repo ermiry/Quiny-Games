@@ -14,7 +14,7 @@ import java.util.Map;
 public class FunctionApi {
     private HttpURLConnection connection = null;
     private final String USER_AGENT = "Mozilla/5.0";
-    public final String UNIVERSAL_URL = "https://fcaeee10.ngrok.io/api/quiny";
+    public final String UNIVERSAL_URL = "https://quiny.games/api/quiny";
     private static FunctionApi instance;
 
     public static FunctionApi getInstance() {
