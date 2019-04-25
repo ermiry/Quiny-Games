@@ -110,3 +110,160 @@ body, html { height: 100% }
     top: 0;
     left: 0
 }
+
+/*** team ***/
+
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.team {
+	font-size: 10px;
+	font-family: "Roboto", sans-serif;
+}
+
+a{
+	text-decoration: none;
+	color: #fff;
+}
+section{
+	padding: 10rem;
+	background-color: #fff;
+}
+.heading{
+	text-transform: uppercase;
+	font-size: 3.5rem;
+	letter-spacing: 3px;
+	margin-right: -3px;
+	margin-bottom: 5rem;
+	text-align: center;
+	color: rgb(46, 49, 49);
+	/*color: rgb(189, 195, 199)*/
+	position: relative;
+}
+.heading::after{
+	content: "";
+	width: 60rem;
+	height: .5rem;
+ background-color: rgb(63, 195, 128);
+	position: absolute;
+	bottom: -2rem;
+	left: 50%;
+	transform: translateX(-50%);
+	border-radius: 2rem;
+}
+.card-wrapper{
+	display: flex;
+	align-items: center;
+	align-content: center;
+	flex-direction: column;
+}
+.card{
+	width: 32rem;
+	/*background-color:#333333;*/
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	margin: 2rem 0;
+	/*box-shadow: .5rem .5rem 3rem rgba(0,0,0.2);*/
+}
+
+.profile-img{
+	width: 15rem;
+	height: 15rem;
+	object-fit: cover;
+	border-radius: 50%;
+	margin-top: -5rem;
+	z-index: 999;
+	border: .3rem solid rgb(63, 195, 128);
+}
+.card h1{/*Name*/
+	font-size: 2.5rem;
+	color: #333333;
+	margin: 1.5rem ;
+}
+.job-title{
+	color: rgb(46, 49, 49);
+	font-size: 1.3rem;
+	font-weight: 300;
+}
+.about{
+	font-size: 1.5rem;
+	margin: 1.5rem 0;
+	text-align: center;
+	justify-content: center;
+	font-style: italic;
+	color: #333333;
+}
+.card .btn{
+	padding: 1rem 2.5rem;
+	background-color: rgb(63, 195, 128);
+	border-radius: 2rem;
+	margin: 1rem 0;
+	text-transform: uppercase;
+	color: rgb(46, 49, 49);
+	font-size: 1..15rem;
+	transition: all;
+}
+.card .btn:hover{
+	transform: translateY(-2px);
+	box-shadow: .25rem .25rem 1rem rgba(0,0,0.2)
+}
+
+.social-media{
+	width: 100%;
+	list-style: none;
+	display: flex;
+	justify-content: space-evenly;
+	padding: 2rem 0;
+}
+.social-media i{
+	font-size: 3rem;
+}
+.fa-github-square{
+	color: #3b5999;
+}
+.fa-github-square:hover{
+	color: #3b59;
+}
+@media screen and (min-width: 700px) {
+	.card-wrapper{
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
+	}
+	.card{
+			margin: 2.5rem;
+	}
+	@keyframes fadeIn{
+			from{
+					opacity: 0;
+			}
+			to{
+					opacity: 1;
+			}
+	}
+	.card:nth-child(1){
+			animation: fadeIn .5s .3s backwards;
+	}
+	.card:nth-child(2){
+			animation: fadeIn .5s .5s backwards;
+	}
+	.card:nth-child(3){
+			animation: fadeIn .5s .7s backwards;
+	}
+	.card:nth-child(4){
+			animation: fadeIn .5s .9s backwards;
+	}
+	.card:nth-child(5){
+			animation: fadeIn .5s 1.1s backwards;
+	}
+	.card:nth-child(6){
+			animation: fadeIn .5s 1.3s backwards;
+	}
+
+}
